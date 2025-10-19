@@ -3115,15 +3115,15 @@ module.exports = {
             `${client.language({ textId: `Предметов`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.box}${guildItems.size} / ${settings.max_items}`,
             `${client.language({ textId: `Достижений`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.achievements}${guildAchievements.size} / ${settings.max_achievements}`,
             `${client.language({ textId: `Червоточин`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.wormhole}${guildWormholes.size} / ${settings.max_wormholes}`,
-            `${client.language({ textId: `Стилей`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.style}${guildStyles.length} / ${ettings.max_styles}`,
+            `${client.language({ textId: `Стилей`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.style}${guildStyles.length} / ${settings.max_styles}`,
             `${client.language({ textId: `Бонусных каналов`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.mic}${guildBonusChannels.size} / ${settings.max_bonusChannels}`,
             `${client.language({ textId: `Категорий`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.shop}${guildCategories.length} / ${settings.max_categories}`,
             `${client.language({ textId: `Роли`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.roles}${guildRoles.size} / ${settings.max_roles}`,
-            `${client.language({ textId: `Квестов`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.scroll}${guildQuests.size} / ${ssettings.max_quests}`,
+            `${client.language({ textId: `Квестов`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.scroll}${guildQuests.size} / ${settings.max_quests}`,
             `${client.language({ textId: `Подарки`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.giveaway}${guildGifts.length}`,
             `${client.language({ textId: `Права`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.crown}${permissions.size}`,
             `${client.language({ textId: `Работа`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.job}${jobs.size}`,
-            `${client.language({ textId: `Владелец`, guildId: interaction.guildId, locale: interaction.locale })}: <@${await interaction.guild.fetchOwner().then(member => member.user.id )}>`
+            `${client.language({ textId: `Владелец`, guildId: interaction.guildId, locale: interaction.locale })}: <@${await interaction.guild.fetchOwner().then(member => member.user.id)}>`
         ]
         embed.setDescription(description.join("\n"))
         embed.setThumbnail(interaction.guild.iconURL())
