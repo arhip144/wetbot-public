@@ -1,0 +1,797 @@
+const { ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, ApplicationCommandOptionType, Collection, GuildMember } = require("discord.js")
+const { AchievementType, RewardType } = require("../enums")
+const MemberRegexp = /mbr{(.*?)}/
+const UserRegexp = /usr{(.*?)}/
+const limitRegexp = /lim{(.*?)}/
+const IdRegexp = /id{(.*?)}/
+module.exports = {
+    name: 'quests',
+    nameLocalizations: {
+        'ru': `квесты`,
+        'uk': `квести`,
+        'es-ES': `misiones`
+    },
+    description: 'View quests',
+    descriptionLocalizations: {
+        'ru': `Просмотр квестов`,
+        'uk': `Перегляд квестів`,
+        'es-ES': `Ver misiones`
+    },
+    options: [
+        {
+            name: 'overview',
+            nameLocalizations: {
+                'ru': `обзор`,
+                'uk': `огляд`,
+                'es-ES': `resumen`
+            },
+            description: 'Show quests in the table',
+            descriptionLocalizations: {
+                'ru': `Показать квесты в таблице`,
+                'uk': `Показати квести в таблиці`,
+                'es-ES': `Mostrar misiones en la tabla`
+            },
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'user',
+                    nameLocalizations: {
+                        'ru': `юзер`,
+                        'uk': `користувач`,
+                        'es-ES': `usuario`
+                    },
+                    description: 'User to view quests',
+                    descriptionLocalizations: {
+                        'ru': `Просмотр квестов пользователя`,
+                        'uk': `Перегляд квестів користувача`,
+                        'es-ES': `Ver misiones del usuario`
+                    },
+                    type: ApplicationCommandOptionType.User,
+                    required: false
+                },
+                {
+                    name: 'ephemeral',
+                    nameLocalizations: {
+                        'ru': `эфемерный`,
+                        'uk': `тимчасовий`,
+                        'es-ES': `efímero`
+                    },
+                    description: 'Message visible only for you',
+                    descriptionLocalizations: {
+                        'ru': `Сообщение видно только тебе`,
+                        'uk': `Повідомлення видно тільки вам`,
+                        'es-ES': `Mensaje visible solo para ti`
+                    },
+                    type: ApplicationCommandOptionType.Boolean
+                }
+            ]
+        },
+        {
+            name: 'info',
+            nameLocalizations: {
+                'ru': `инфо`,
+                'uk': `інфо`,
+                'es-ES': `info`
+            },
+            description: 'Show information about the quest',
+            descriptionLocalizations: {
+                'ru': `Показать информацию о квеста`,
+                'uk': `Показати інформацію про квест`,
+                'es-ES': `Mostrar información sobre la misión`
+            },
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'quest',
+                    nameLocalizations: {
+                        'ru': `квест`,
+                        'uk': `квест`,
+                        'es-ES': `misión`
+                    },
+                    description: 'The quest to display information',
+                    descriptionLocalizations: {
+                        'ru': `Квест, о котором вывести информацию`,
+                        'uk': `Квест, про який вивести інформацію`,
+                        'es-ES': `Misión sobre la que mostrar información`
+                    },
+                    type: ApplicationCommandOptionType.String,
+                    autocomplete: true,
+                    required: true
+                },
+                {
+                    name: 'user',
+                    nameLocalizations: {
+                        'ru': `юзер`,
+                        'uk': `користувач`,
+                        'es-ES': `usuario`
+                    },
+                    description: 'User to view quest',
+                    descriptionLocalizations: {
+                        'ru': `Просмотр квеста пользователя`,
+                        'uk': `Перегляд квесту користувача`,
+                        'es-ES': `Ver misión del usuario`
+                    },
+                    type: ApplicationCommandOptionType.User,
+                    required: false
+                }
+            ]
+        }
+    ],
+    dmPermission: false,
+    group: `profile-group`,
+    cooldowns: new Collection(),
+    /**
+     *
+     * @param {Client} client
+     * @param {CommandInteraction} interaction
+     * @param {String[]} args
+     */
+    run: async (client, interaction, args) => {
+        if (args?.Subcommand === "info" || interaction.customId?.includes("questExplorer")) {
+            let quest = interaction.isChatInputCommand() ? client.cache.quests.get(args.quest) : client.cache.quests.get(IdRegexp.exec(interaction.customId)[1])
+            if (!quest) {
+                return interaction.reply({ content: `${client.config.emojis.NO} **${client.language({ textId: `Такого квеста не существует`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
+            }
+            let member
+            if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(e => null)
+            else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+            else if (interaction.isStringSelectMenu() && (MemberRegexp.exec(interaction.customId) || MemberRegexp.exec(interaction.values[0]))) {
+                member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(e => null)
+                if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+            }
+            else member = interaction.member
+            if (!member) {
+                return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+            }
+            const profile = await client.functions.fetchProfile(client, member.user.id, interaction.guildId)
+            const settings = client.cache.settings.get(interaction.guildId)
+            if (interaction.customId?.includes("take")) {
+                if (profile.quests?.some(e => e.questID === quest.questID && !e.finished)) {
+                    return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Квест", guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: "уже выполняется", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+                }
+                if (profile.quests?.length >= settings.max_quests) {
+                    return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Достигнуто макс. квестов в профиле", guildId: interaction.guildId, locale: interaction.locale })}: ${settings.max_quests}.`, flags: ["Ephemeral"]})
+                }
+                if (quest.takePermission) {
+                    const permission = client.cache.permissions.get(quest.takePermission)
+                    const isPassing = permission.for(profile, interaction.member, interaction.channel, interaction)
+                    if (isPassing.value === false) {
+                        return interaction.reply({ embeds: [new EmbedBuilder().setColor(3093046).setTitle(`${client.language({ textId: `Для этого взаимодействия требуется:`, guildId: interaction.guildId, locale: interaction.locale })}`).setDescription(isPassing.reasons.join("\n"))], flags: ["Ephemeral"] })
+                    }
+                }
+                await interaction.update({ content: interaction.message.content || " ", embeds: interaction.message.embeds, components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setEmoji("⏳").setStyle(ButtonStyle.Secondary).setCustomId(`0`).setDisabled(true))]})
+                profile.addQuest(quest, true)
+            }
+            let userQuest = profile.quests?.find(e => e.questID === quest.questID )
+            if (interaction.customId?.includes("rew")) {
+                if (!userQuest) {
+                    return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Квест", guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: "не найден", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+                }
+                if (userQuest.finished) {
+                    return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Квест", guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: "уже выполнен", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+                }
+                if (quest.donePermission && client.cache.permissions.some(e => e.id === quest.donePermission)) {
+                    const permission = client.cache.permissions.get(quest.donePermission)
+                    const isPassing = permission.for(profile, interaction.member, interaction.channel, interaction)
+                    if (isPassing.value === false) {
+                        return interaction.reply({ embeds: [new EmbedBuilder().setColor(3093046).setTitle(`${client.language({ textId: `Для этого взаимодействия требуется:`, guildId: interaction.guildId, locale: interaction.locale })}`).setDescription(isPassing.reasons.join("\n"))], flags: ["Ephemeral"] })
+                    }
+                }
+                await interaction.update({ content: interaction.message.content || " ", embeds: interaction.message.embeds, components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setEmoji("⏳").setStyle(ButtonStyle.Secondary).setCustomId(`0`).setDisabled(true))]})
+                const rewards = []
+                for (const element of quest.rewards) {
+                    if (element.type === RewardType.Currency) {
+                        rewards.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${element.amount})`)
+                        await profile.addCurrency(element.amount)
+                    } else if (element.type === RewardType.Experience) {
+                        rewards.push(`${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${element.amount})`)
+                        await profile.addXp(element.amount)
+                    } else if (element.type === RewardType.Reputation) {
+                        rewards.push(`${client.config.emojis.RP}**${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${element.amount})`)
+                        await profile.addRp(element.amount)
+                    } else if (element.type === RewardType.Item) {
+                        const rewardItem = client.cache.items.find(e => e.itemID === element.id && e.enabled && !e.temp)
+                        if (rewardItem) {
+                            rewards.push(`${rewardItem.displayEmoji}**${rewardItem.name}** (${element.amount})`)
+                            await profile.addItem(element.id, element.amount)
+                        }
+                    } else if (element.type === RewardType.Role) {
+                        rewards.push(`<@&${element.id}> (${element.amount})`)
+                        profile.addRole(element.id, element.amount, element.ms)
+                    }
+                }
+                userQuest = profile.quests?.find(e => { return e.questID === quest.questID })
+                userQuest.finished = true
+                userQuest.finishedDate = new Date()
+                profile.doneQuests = 1
+                await profile.addQuestProgression("quests", 1, quest.questID)
+                const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Quests)
+                await Promise.all(achievements.map(async achievement => {
+                    if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.doneQuests >= achievement.amount) {
+                        await profile.addAchievement(achievement)
+                    }    
+                }))
+                const rewardEmbed = new EmbedBuilder()
+                    .setTitle(`${client.language({ textId: "Квест", guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}${quest.name} ${client.language({ textId: "выполнен", guildId: interaction.guildId, locale: interaction.locale })}`)
+                    .setThumbnail(quest.image || null)
+                    .setColor(quest.hex || null)
+                    .setDescription(`${quest.description}${rewards.length ? `\n${client.language({ textId: "Награда", guildId: interaction.guildId, locale: interaction.locale })}:\n${rewards.join("\n")}` : ``}`)
+                interaction.followUp({ embeds: [rewardEmbed], flags: ["Ephemeral"] })
+            }
+            if (interaction.customId?.includes("del")) {
+                if (!userQuest) {
+                    return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Квест", guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: "не найден", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+                }
+                if (userQuest.finished && !quest.repeated) {
+                    return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Квест`, guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: `уже выполнен`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+                }
+                profile.delQuest(quest)
+                userQuest = undefined
+                await profile.save()    
+            }
+            const embed = new EmbedBuilder()
+                .setColor(quest.hex || null)
+            let untilTime = ``
+            if (quest.daily) {
+                const date = new Date()
+                date.setDate(date.getDate()+1)
+                const end_date = date.setHours(5,0,0,0)
+                untilTime += `\n${client.language({ textId: `until`, guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(end_date.valueOf()/1000)}>`
+            } else if (quest.weekly) {
+                let endOfWeek = require(`date-fns/endOfWeek`)
+                const end_date = endOfWeek(new Date(), { weekStartsOn: 1 })
+                end_date.setDate(end_date.getDate() + 1)
+                end_date.setHours(5,0,0,0)
+                untilTime += `\n${client.language({ textId: `until`, guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(end_date.valueOf()/1000)}>`
+            }
+            embed.setDescription(`${quest.repeated ? `**${client.language({ textId: "ПОВТОРНЫЙ", guildId: interaction.guildId, locale: interaction.locale })}**` : ``} ${quest.community ? `**${client.language({ textId: "СООБЩЕСТВО", guildId: interaction.guildId, locale: interaction.locale })}**` : ``} ${quest.daily ? `**${client.language({ textId: "ЕЖЕДНЕВНЫЙ", guildId: interaction.guildId, locale: interaction.locale })}**` : ``} ${quest.weekly ? `**${client.language({ textId: "ЕЖЕНЕДЕЛЬНЫЙ", guildId: interaction.guildId, locale: interaction.locale })}**` : ``}${untilTime}`)
+            embed.setThumbnail(quest.image?.length ? quest.image : null)
+            const targetArray = []
+            const rewardArray = []
+            let targetIndex = 0
+            for (const element of quest.targets) {
+                let emoji = ``
+                if (quest.community) {
+                    if (element.finished) emoji = client.config.emojis.YES
+                    else emoji = client.config.emojis.NO
+                } else {
+                    if (userQuest) {
+                        if (userQuest.targets && userQuest.targets[targetIndex].finished) emoji = client.config.emojis.YES
+                        else emoji = client.config.emojis.NO      
+                    }
+                }
+                let amount = ``
+                if (userQuest && element.amount && userQuest.targets) amount = quest.community ? `` : `(**${userQuest.targets[targetIndex].reached.toFixed()}**/**${element.amount}** **${Math.floor(userQuest.targets[targetIndex].reached/element.amount*100)}%**)`
+                const description = quest.getDescription(element, interaction.locale)
+                targetArray.push([
+                    `> ${emoji}${description} ${amount}`
+                ])
+                targetIndex++ 
+            }
+            let finished = ``
+            if (userQuest && userQuest.finished) finished = client.config.emojis.DONE   
+            embed.setTitle(`${finished}${quest.displayEmoji + quest.name}`)
+            for (const element of quest.rewards) {
+                let name = ``
+                if (element.type === RewardType.Currency) name = `${settings.displayCurrencyEmoji}**${settings.currencyName}**`
+                else if (element.type === RewardType.Experience) name = `${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}**`
+                else if (element.type === RewardType.Reputation) name = `${client.config.emojis.RP}**${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}**`
+                else if (element.type === RewardType.Item) {
+                    const item = client.cache.items.find(e => e.itemID === element.id && e.enabled && !e.temp)
+                    if (item) {
+                        name = item.found ? `${item.displayEmoji}**${item.name}**` : `||???????????||`
+                    }
+                    else name = `**${element.id}**`
+                } else if (element.type === RewardType.Role) name = `<@&${element.id}>`
+                if (element.type === RewardType.Reputation && profile.rp < 1000) {
+                    rewardArray.push(`> ${name} ${element.amount}`)
+                } else if (element.type !== RewardType.Reputation) {
+                    rewardArray.push(`> ${name} ${element.amount}`)
+                }
+            }
+            embed.addFields([
+                quest.description ? { name: `\u200B`, value: quest.description } : undefined,
+                { name: `${client.language({ textId: "Задачи", guildId: interaction.guildId, locale: interaction.locale })}:`, value: `${targetArray.length ? targetArray.join(`\n`) : "NO"}` },
+                { name: `${client.language({ textId: "Награда", guildId: interaction.guildId, locale: interaction.locale })}:`, value: `${rewardArray.length ? rewardArray.join(`\n`) : "NO"}` }
+            ].filter(e => e))
+            if (userQuest && userQuest.finished && userQuest.finishedDate) {
+                embed.setFooter({ text: `ID: ${quest.questID}\n${client.language({ textId: "Выполнено", guildId: interaction.guildId, locale: interaction.locale })}` })
+                embed.setTimestamp(userQuest.finishedDate)
+            } else embed.setFooter({ text: `ID: ${quest.questID}` })
+            const questDel_btn = new ButtonBuilder()
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji(client.config.emojis.NO)
+                .setLabel(`${client.language({ textId: "Отменить квест", guildId: interaction.guildId, locale: interaction.locale })}`)
+                .setCustomId(`usr{${interaction.user.id}}cmd{quests}del_id{${quest.questID}}questExplorer`)
+            const rewardClaim_btn = new ButtonBuilder()
+                .setStyle(ButtonStyle.Success)
+                .setEmoji(client.config.emojis.giveaway)
+                .setLabel(`${client.language({ textId: "Получить награду", guildId: interaction.guildId, locale: interaction.locale })}`)
+                .setCustomId(`usr{${interaction.user.id}}cmd{quests}rew_id{${quest.questID}}questExplorer`)
+            const takeQuest_btn = new ButtonBuilder()
+                .setStyle(ButtonStyle.Primary)
+                .setLabel(`${client.language({ textId: "Принять квест", guildId: interaction.guildId, locale: interaction.locale })}`)
+                .setCustomId(`usr{${interaction.user.id}}cmd{quests}take_id{${quest.questID}}questExplorer`)
+                .setDisabled(!quest.active)
+            const components = []    
+            if (interaction.user.id === member.user.id) {
+                const row = new ActionRowBuilder()
+                if ((!profile.quests?.some(e => e.questID === quest.questID) && !quest.daily && !quest.weekly) || (profile.quests?.some(e => e.questID === quest.questID && e.finished && quest.repeated))) row.addComponents(takeQuest_btn)
+                if (userQuest && userQuest.targets && userQuest.targets.every(element => element.finished === true) && !userQuest.finished && !quest.community || (userQuest && quest.community && !userQuest.finished && quest.targets.every(element => element.finished === true))) row.addComponents(rewardClaim_btn)
+                if (userQuest && !userQuest.finished && !quest.daily && !quest.weekly) row.addComponents(questDel_btn)
+                if (row.components.length) components.push(row)
+            }
+            if (interaction.customId?.includes("del") || interaction.customId?.includes("rew") || interaction.customId?.includes("take")) {
+                if (interaction.replied || interaction.deferred) return interaction.editReply({ embeds: [embed], components: components, flags: ["Ephemeral"] })
+                else return interaction.update({ embeds: [embed], components: components, flags: ["Ephemeral"] })
+            }
+            else {
+                return interaction.reply({ embeds: [embed], components: components, flags: ["Ephemeral"] })    
+            }
+        }
+        const flags = []
+        if (interaction.customId?.includes("eph") || interaction.values?.[0].includes("eph") || args?.ephemeral) flags.push("Ephemeral")
+        const itemsPerPage = 25
+        let min = 0
+        let max = itemsPerPage
+        if (!interaction.isChatInputCommand()) {
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+            max = +limitRegexp.exec(interaction.customId)?.[1]
+            if (!max) max = itemsPerPage
+            min = max - itemsPerPage
+        }
+        let member
+        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(e => null)
+        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+        else if (interaction.isStringSelectMenu() && (MemberRegexp.exec(interaction.customId) || MemberRegexp.exec(interaction.values[0]))) {
+            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(e => null)
+            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+        }
+        else member = interaction.member
+        if (!member) {
+            return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+        }
+        const profile = await client.functions.fetchProfile(client, member.user.id, interaction.guildId)
+        const settings = client.cache.settings.get(interaction.guildId)
+        let quests = client.cache.quests.filter(quest => quest.guildID === interaction.guildId && quest.isEnabled)
+        const embed = new EmbedBuilder()
+            .setColor(member.displayHexColor)
+            .setTitle(`${client.language({ textId: `КВЕСТЫ`, guildId: interaction.guildId, locale: interaction.locale })}`)
+        let unfinishedQuests = profile.quests?.filter(userQuest => {
+            const guildQuest = quests.find(quest => quest.questID === userQuest.questID)
+            if (!guildQuest) return false
+            return !userQuest.finished
+        }) || []
+        let finishedQuests = profile.quests?.filter(userQuest => {
+            const guildQuest = quests.find(quest => quest.questID === userQuest.questID)
+            if (!guildQuest) return false
+            return userQuest.finished
+        }) || []
+        let unacceptedQuests = quests.filter(quest => !quest.daily && !quest.weekly && (!profile.quests?.some(userQuest => userQuest.questID === quest.questID) && quest.active) || (quest.active && quest.repeated && profile.quests?.some(userQuest => userQuest.questID === quest.questID && userQuest.finished)))
+        const asyncFilter = async (arr, predicate) => {
+            const results = await Promise.all(arr.map(predicate))
+            return results.filter((_v, index) => results[index])
+        }
+        unacceptedQuests = await asyncFilter(unacceptedQuests, async (quest) => {
+            if (quest.takePermission) {
+                const permission = client.cache.permissions.find(i => i.id === quest.takePermission)
+                if (permission) {
+                    const isPassing = permission.for(profile, interaction.member, interaction.channel)
+                    if (isPassing.value === true) return quest    
+                } else return quest
+            } else return quest
+        })
+        if (profile.quests?.length >= settings.max_quests) {
+            unacceptedQuests = []
+        }
+        let dailyQuests = quests.filter(quest => quest.daily && !profile.quests?.some(userQuest => userQuest.questID === quest.questID) && quest.active)
+        dailyQuests = await asyncFilter(dailyQuests, async (quest) => {
+            if (quest.takePermission) {
+                const permission = client.cache.permissions.find(i => i.id === quest.takePermission)
+                if (permission) {
+                    const isPassing = permission.for(profile, interaction.member, interaction.channel)
+                    if (isPassing.value === true) return quest    
+                } else return quest
+            } else return quest
+        })
+        let weeklyQuests = quests.filter(quest => quest.weekly && !profile.quests?.some(userQuest => userQuest.questID === quest.questID) && quest.active)
+        weeklyQuests = await asyncFilter(weeklyQuests, async (quest) => {
+            if (quest.takePermission) {
+                const permission = client.cache.permissions.find(i => i.id === quest.takePermission)
+                if (permission) {
+                    const isPassing = permission.for(profile, interaction.member, interaction.channel)
+                    if (isPassing.value === true) return quest
+                } else return quest
+            } else return quest
+        })
+        let unfinishedQuestsLength = unfinishedQuests.length
+        let finishedQuestsLength = finishedQuests.length
+        let unacceptedQuestsLength = unacceptedQuests.length
+        let dailyQuestsLength = dailyQuests.length
+        let weeklyQuestsLength = weeklyQuests.length
+        let maxLength = Math.max.apply(null, [unfinishedQuestsLength, finishedQuestsLength, unacceptedQuestsLength, dailyQuestsLength, weeklyQuestsLength])
+        let unfinishedQuestsSliced
+        let finishedQuestsSliced
+        let unacceptedQuestsSliced
+        let dailyQuestsSliced
+        let weeklyQuestsSliced
+        if (unfinishedQuestsLength > itemsPerPage) unfinishedQuestsSliced = unfinishedQuests.slice(min, max)
+        if (finishedQuestsLength > itemsPerPage) finishedQuestsSliced = finishedQuests.slice(min, max)
+        if (unacceptedQuestsLength > itemsPerPage) unacceptedQuestsSliced = unacceptedQuests.slice(min, max)
+        if (dailyQuestsLength > itemsPerPage) dailyQuestsSliced = dailyQuests.slice(min, max)
+        if (weeklyQuestsLength > itemsPerPage) weeklyQuestsSliced = weeklyQuests.slice(min, max)
+        if (interaction.isButton()) {
+            if (interaction.customId.includes("acceptAll")) {
+                min = 0
+                max = itemsPerPage
+                const asyncFilter = async (arr, predicate) => {
+                    const results = await Promise.all(arr.map(predicate))
+                    return results.filter((_v, index) => results[index])
+                }
+                unacceptedQuests = await asyncFilter(unacceptedQuests, async (quest) => {
+                    if (quest.takePermission) {
+                        const permission = client.cache.permissions.get(quest.takePermission)
+                        if (permission) {
+                            const isPassing = permission.for(profile, interaction.member, interaction.channel)
+                            if (isPassing.value === true) return quest
+                        }
+                    } else return quest
+                })
+                unacceptedQuestsLength = unacceptedQuests.length
+                if (unacceptedQuestsLength && (!profile.quests || profile.quests.length < settings.max_quests)) {
+                    await interaction.update({ content: interaction.message.content || " ", embeds: interaction.message.embeds, components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setEmoji("⏳").setStyle(ButtonStyle.Secondary).setCustomId(`0`).setDisabled(true))]})
+                    const accepted = []
+                    unacceptedQuests.slice(0, settings.max_quests - (profile.quests?.length || 0)).forEach(quest => {
+                       profile.addQuest(quest) 
+                       accepted.push(quest.questID)
+                    })
+                    await profile.save()
+                    unacceptedQuests = unacceptedQuests.filter(e => !accepted.includes(e.questID))
+                    unacceptedQuestsLength = unacceptedQuests.length
+                    unfinishedQuests = profile.quests?.filter(quest => !quest.finished) || []
+                    unfinishedQuestsLength = unfinishedQuests.length
+                    finishedQuests = profile.quests?.filter(quest => quest.finished) || []
+                    finishedQuestsLength = finishedQuests.length
+                    if (unfinishedQuestsLength > itemsPerPage) unfinishedQuestsSliced = unfinishedQuests.slice(min, max)
+                    if (finishedQuestsLength > itemsPerPage) finishedQuestsSliced = finishedQuests.slice(min, max)
+                    if (unacceptedQuestsLength > itemsPerPage) unacceptedQuestsSliced = unacceptedQuests.slice(min, max)
+                    maxLength = Math.max.apply(null, [unfinishedQuestsLength, finishedQuestsLength, unacceptedQuestsLength, dailyQuestsLength, weeklyQuestsLength])
+                }
+            }
+            if (interaction.customId.includes("rewardAll")) {
+                if (unfinishedQuestsLength) {
+                    min = 0
+                    max = itemsPerPage
+                    await interaction.update({ content: interaction.message.content || " ", embeds: interaction.message.embeds, components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setEmoji("⏳").setStyle(ButtonStyle.Secondary).setCustomId(`0`).setDisabled(true))]})
+                    let unfinished = profile.quests?.filter(userQuest => {
+                        const quest = quests.find(e => e.questID === userQuest.questID)
+                        if (!quest) return false
+                        return userQuest && userQuest.targets && userQuest.targets.every(element => element.finished === true) && !userQuest.finished && !quest.community || (userQuest && quest.community && !userQuest.finished && quest.targets.every(element => element.finished === true))
+                    }) || []
+                    const asyncFilter = async (arr, predicate) => {
+                        const results = await Promise.all(arr.map(predicate))
+                        return results.filter((_v, index) => results[index])
+                    }
+                    unfinished = await asyncFilter(unfinished, async (quest) => {
+                        if (quest.donePermission) {
+                            const permission = client.cache.permissions.get(quest.donePermission)
+                            if (permission) {
+                                const isPassing = permission.for(profile, interaction.member, interaction.channel)
+                                if (isPassing.value === true) return quest
+                            }
+                        } else return quest
+                    })
+                    for (let userQuest of unfinished) {
+                        const quest = quests.find(quest => quest.questID === userQuest.questID)
+                        const rewards = []
+                        for (const element of quest.rewards) {
+                            if (element.type === RewardType.Currency) {
+                                rewards.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${element.amount})`)
+                                await profile.addCurrency(element.amount)
+                            } else if (element.type === RewardType.Experience) {
+                                rewards.push(`${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${element.amount})`)
+                                await profile.addXp(element.amount)
+                            } else if (element.type === RewardType.Reputation) {
+                                rewards.push(`${client.config.emojis.RP}**${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${element.amount})`)
+                                await profile.addRp(element.amount)
+                            } else if (element.type === RewardType.Item) {
+                                const rewardItem = client.cache.items.find(e => e.itemID === element.id && e.enabled && !e.temp)
+                                if (rewardItem) {
+                                    rewards.push(`${rewardItem.displayEmoji}**${rewardItem.name}** (${element.amount})`)
+                                    await profile.addItem(element.id, element.amount)
+                                }
+                            } else if (element.type === RewardType.Role) {
+                                rewards.push(`<@&${element.id}> (${element.amount})`)
+                                profile.addRole(element.id, element.amount, element.ms)
+                            }
+                        }
+                        userQuest = profile.quests?.find(e => { return e.questID === quest.questID })
+                        userQuest.finished = true
+                        userQuest.finishedDate = new Date()
+                        profile.doneQuests = 1
+                        await profile.addQuestProgression("quests", 1, quest.questID)
+                        const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Quests)
+                        await Promise.all(achievements.map(async achievement => {
+                            if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.doneQuests >= achievement.amount) {
+                                await profile.addAchievement(achievement)
+                            }    
+                        }))
+                        await profile.save()
+                        const rewardEmbed = new EmbedBuilder()
+                            .setTitle(`${client.language({ textId: "Квест", guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}${quest.name} ${client.language({ textId: "выполнен", guildId: interaction.guildId, locale: interaction.locale })}`)
+                            .setThumbnail(quest.image || null)
+                            .setColor(quest.hex || null)
+                            .setDescription(`${quest.description}${rewards.length ? `\n${client.language({ textId: "Награда", guildId: interaction.guildId, locale: interaction.locale })}:\n${rewards.join("\n")}` : ``}`)
+                        interaction.followUp({ embeds: [rewardEmbed], flags: ["Ephemeral"] })
+                    }
+                    unfinishedQuests = profile.quests?.filter(quest => !quest.finished) || []
+                    finishedQuests = profile.quests?.filter(quest => quest.finished) || []
+                    unacceptedQuests = quests.filter(quest => !quest.daily && !quest.weekly && (!profile.quests?.some(userQuest => userQuest.questID === quest.questID) && quest.active) || (quest.active && quest.repeated && profile.quests?.some(userQuest => userQuest.questID === quest.questID && userQuest.finished)))
+                    unacceptedQuests = await asyncFilter(unacceptedQuests, async (quest) => {
+                        if (quest.takePermission) {
+                            const permission = client.cache.permissions.get(quest.takePermission)
+                            if (permission) {
+                                const isPassing = permission.for(profile, interaction.member, interaction.channel)
+                                if (isPassing.value === true) return quest
+                            }
+                        } else return quest
+                    })
+                    unfinishedQuestsLength = unfinishedQuests.length
+                    finishedQuestsLength = finishedQuests.length
+                    unacceptedQuestsLength = unacceptedQuests.length
+                    if (unfinishedQuestsLength > itemsPerPage) unfinishedQuestsSliced = unfinishedQuests.slice(min, max)
+                    if (finishedQuestsLength > itemsPerPage) finishedQuestsSliced = finishedQuests.slice(min, max)
+                    if (unacceptedQuestsLength > itemsPerPage) unacceptedQuestsSliced = unacceptedQuests.slice(min, max)
+                    maxLength = Math.max.apply(null, [unfinishedQuestsLength, finishedQuestsLength, unacceptedQuestsLength, dailyQuestsLength, weeklyQuestsLength])
+                }
+            }
+            if (interaction.customId.includes("cancelAll")) {
+                min = 0
+                max = itemsPerPage
+                if (unfinishedQuests.filter(userQuest => {
+                    const quest = quests.find(quest => quest.questID === userQuest.questID)
+                    if (!quest) return false
+                    if (!quest.daily && !quest.weekly) return userQuest
+                }).map(e => e).length) {
+                    profile.quests = profile.quests?.filter(userQuest => {
+                        const quest = quests.find(quest => quest.questID === userQuest.questID)
+                        if (!quest) return false
+                        if ((quest.daily || quest.weekly) || userQuest.finished) return userQuest
+                    }).map(e => e)
+                    if (profile.quests?.length === 0) profile.quests = undefined
+                    await profile.save()
+                    unfinishedQuests = profile.quests?.filter(quest => !quest.finished) || []
+                    unfinishedQuestsLength = unfinishedQuests.length
+                    unacceptedQuests = quests.filter(quest => !quest.daily && !quest.weekly && (!profile.quests?.some(userQuest => userQuest.questID === quest.questID) && quest.active) || (quest.active && quest.repeated && profile.quests?.some(userQuest => userQuest.questID === quest.questID && userQuest.finished)))
+                    const asyncFilter = async (arr, predicate) => {
+                        const results = await Promise.all(arr.map(predicate))
+                        return results.filter((_v, index) => results[index])
+                    }
+                    unacceptedQuests = await asyncFilter(unacceptedQuests, async (quest) => {
+                        if (quest.takePermission) {
+                            const permission = client.cache.permissions.get(quest.takePermission)
+                            if (permission) {
+                                const isPassing = permission.for(profile, interaction.member, interaction.channel)
+                                if (isPassing.value === true) return quest
+                            }
+                        } else return quest
+                    })
+                    unacceptedQuestsLength = unacceptedQuests.length
+                    if (unfinishedQuestsLength > itemsPerPage) unfinishedQuestsSliced = unfinishedQuests.slice(min, max)
+                    if (unacceptedQuestsLength > itemsPerPage) unacceptedQuestsSliced = unacceptedQuests.slice(min, max)
+                    maxLength = Math.max.apply(null, [unfinishedQuestsLength, finishedQuestsLength, unacceptedQuestsLength, dailyQuestsLength, weeklyQuestsLength])
+                }
+            }
+            if (interaction.customId.includes("acceptDaily")) {
+                if (profile.quests?.length >= settings.max_quests) {
+                    return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Достигнуто макс. квестов в профиле", guildId: interaction.guildId, locale: interaction.locale })}: ${settings.max_quests}.`, flags: ["Ephemeral"]})
+                }
+                min = 0
+                max = itemsPerPage
+                await interaction.update({ content: interaction.message.content || " ", embeds: interaction.message.embeds, components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setEmoji("⏳").setStyle(ButtonStyle.Secondary).setCustomId(`0`).setDisabled(true))]})
+                const quest = dailyQuests[Math.floor(Math.random() * dailyQuests.length)]
+                if (!quest) {
+                    interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: "Нет доступных еженедельных квестов для взятия", guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
+                } else {
+                    const userDailyQuests = profile.quests?.filter(userQuest => {
+                        const quest = quests.find(quest => quest.questID === userQuest.questID)
+                        if (!quest) return false
+                        if (quest.daily) return userQuest
+                    }).filter(e => e) || []
+                    if (userDailyQuests.length >= settings.maxDailyQuests) {
+                        interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: "Достигнут максимум взятых ежедневных квестов", guildId: interaction.guildId, locale: interaction.locale })}: ${settings.maxDailyQuests}**`, flags: ["Ephemeral"] })
+                    } else {
+                        profile.addQuest(quest, true)
+                        unfinishedQuests = profile.quests?.filter(quest => !quest.finished) || []
+                        finishedQuests = profile.quests?.filter(quest => quest.finished) || []
+                        dailyQuests = quests.filter(quest => quest.daily && !profile.quests?.some(userQuest => userQuest.questID === quest.questID) && quest.active).map(e => e)
+                        unfinishedQuestsLength = unfinishedQuests.length
+                        finishedQuestsLength = finishedQuests.length
+                        dailyQuestsLength = dailyQuests.length
+                        if (unfinishedQuestsLength > itemsPerPage) unfinishedQuestsSliced = unfinishedQuests.slice(min, max)
+                        if (finishedQuestsLength > itemsPerPage) finishedQuestsSliced = finishedQuests.slice(min, max)
+                        if (dailyQuestsLength > itemsPerPage) dailyQuestsSliced = dailyQuests.slice(min, max)
+                        maxLength = Math.max.apply(null, [unfinishedQuestsLength, finishedQuestsLength, unacceptedQuestsLength, dailyQuestsLength, weeklyQuestsLength])
+                        interaction.followUp({ content: `${client.config.emojis.YES} ${client.language({ textId: "Ежедневный квест", guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: "взят", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })     
+                    }
+                }
+            }
+            if (interaction.customId.includes("acceptWeekly")) {
+                if (profile.quests?.length >= settings.max_quests) {
+                    return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Достигнуто макс. квестов в профиле", guildId: interaction.guildId, locale: interaction.locale })}: ${settings.max_quests}.`})
+                }
+                min = 0
+                max = itemsPerPage
+                await interaction.update({ content: interaction.message.content || " ", embeds: interaction.message.embeds, components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setEmoji("⏳").setStyle(ButtonStyle.Secondary).setCustomId(`0`).setDisabled(true))]})
+                const quest = weeklyQuests[Math.floor(Math.random() * weeklyQuests.length)]
+                if (!quest) {
+                    interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: "Нет доступных еженедельных квестов для взятия", guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
+                } else {
+                    const userWeeklyQuests = profile.quests?.filter(userQuest => {
+                        const quest = quests.find(quest => quest.questID === userQuest.questID)
+                        if (!quest) return false
+                        if (quest.weekly) return userQuest
+                    }).filter(e => e) || []
+                    if (userWeeklyQuests.length >= settings.maxWeeklyQuests) {
+                        interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: "Достигнут максимум взятых еженедельных квестов", guildId: interaction.guildId, locale: interaction.locale })}: ${settings.maxWeeklyQuests}**`, flags: ["Ephemeral"] })
+                    } else {
+                        profile.addQuest(quest, true)
+                        unfinishedQuests = profile.quests?.filter(quest => !quest.finished) || []
+                        finishedQuests = profile.quests?.filter(quest => quest.finished) || []
+                        weeklyQuests = quests.filter(quest => quest.weekly && !profile.quests?.some(userQuest => userQuest.questID === quest.questID) && quest.active).map(e => e)
+                        unfinishedQuestsLength = unfinishedQuests.length
+                        finishedQuestsLength = finishedQuests.length
+                        weeklyQuestsLength = weeklyQuests.length
+                        if (unfinishedQuestsLength > itemsPerPage) unfinishedQuestsSliced = unfinishedQuests.slice(min, max)
+                        if (finishedQuestsLength > itemsPerPage) finishedQuestsSliced = finishedQuests.slice(min, max)
+                        if (weeklyQuestsLength > itemsPerPage) weeklyQuestsSliced = weeklyQuests.slice(min, max)
+                        maxLength = Math.max.apply(null, [unfinishedQuestsLength, finishedQuestsLength, unacceptedQuestsLength, dailyQuestsLength, weeklyQuestsLength])
+                        interaction.followUp({ content: `${client.config.emojis.YES} ${client.language({ textId: "Еженедельный квест", guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: "взят", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })     
+                    }
+                }
+            }
+        }
+        embed.setDescription(`${client.language({ textId: `Информация о квесте`, guildId: interaction.guildId, locale: interaction.locale })}: </quests info:1150455842680885351>`)
+        embed.setFields([
+            {
+                name: `${client.language({ textId: `Мои активные квесты`, guildId: interaction.guildId, locale: interaction.locale })} (${unfinishedQuestsLength})`,
+                value: !unfinishedQuestsLength ? `${client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale })}` : (unfinishedQuestsSliced || unfinishedQuests).map((userQuest) => {
+                    const guildQuest = quests.find(quest => quest.questID === userQuest.questID)
+                    if (!guildQuest) return false
+                    const index = unfinishedQuests.findIndex(e => e.questID === userQuest.questID) + 1
+                    if (guildQuest.community) {
+                        return `${index}. ${guildQuest.displayEmoji}**${guildQuest.name}** (${guildQuest.targets.map(target => {
+                            return target.reached / target.amount
+                        }).reduce((pValue, cValue, cIndex, array) => {
+                            pValue += cValue
+                            if (cIndex+1 === array.length) {
+                                pValue = pValue * 100 / array.length
+                                return `\`${Math.floor(pValue)}%\``
+                            } else return pValue
+                        }, 0)})`
+                    } else {
+                        return `${index}. ${guildQuest.displayEmoji}**${guildQuest.name}** (${userQuest.targets?.map(target => {
+                            const questTarget = guildQuest.targets.find(t => t.targetID === target.targetID)
+                            return target.reached / questTarget.amount
+                        })?.reduce((pValue, cValue, cIndex, array) => {
+                            pValue += cValue
+                            if (cIndex+1 === array.length) {
+                                pValue = pValue * 100 / array.length
+                                return `\`${Math.floor(pValue)}%\``
+                            } else return pValue
+                        }, 0) || ""})`
+                    }
+                }).filter(e => e).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                inline: true
+            }, 
+            {
+                name: `${client.language({ textId: `Мои завершённые квесты`, guildId: interaction.guildId, locale: interaction.locale })} (${finishedQuestsLength})`,
+                value: !finishedQuestsLength ? `${client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale })}` : (finishedQuestsSliced || finishedQuests).map((userQuest) => {
+                    const guildQuest = quests.find(quest => quest.questID === userQuest.questID)
+                    if (!guildQuest) return false
+                    const index = finishedQuests.findIndex(e => e.questID === userQuest.questID) + 1
+                    return `${index}. ${guildQuest.displayEmoji}**${guildQuest.name}**`
+                }).filter(e => e).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                inline: true
+            },
+            {
+                name: `${client.language({ textId: `Не взятые квесты`, guildId: interaction.guildId, locale: interaction.locale })} (${unacceptedQuestsLength})`,
+                value: !unacceptedQuestsLength ? `${client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale })}` : (unacceptedQuestsSliced || unacceptedQuests).map((quest) => {
+                    const index = unacceptedQuests.findIndex(e => e.questID === quest.questID) + 1
+                    return `${index}. ${quest.displayEmoji}**${quest.name}**`
+                }).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                inline: true
+            },
+            {
+                name: `${client.language({ textId: `Ежедневные квесты`, guildId: interaction.guildId, locale: interaction.locale })} (${dailyQuestsLength})`,
+                value: !dailyQuestsLength ? `${client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale })}` : (dailyQuestsSliced || dailyQuests).map((quest) => {
+                    const index = dailyQuests.findIndex(e => e.questID === quest.questID) + 1
+                    return `${index}. ${quest.displayEmoji}**${quest.name}**`
+                }).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                inline: true
+            },
+            {
+                name: `${client.language({ textId: `Еженедельные квесты`, guildId: interaction.guildId, locale: interaction.locale })} (${weeklyQuestsLength})`,
+                value: !weeklyQuestsLength ? `${client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale })}` : (weeklyQuestsSliced || weeklyQuests).map((quest) => {
+                    const index = weeklyQuests.findIndex(e => e.questID === quest.questID) + 1
+                    return `${index}. ${quest.displayEmoji}**${quest.name}**`
+                }).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                inline: true
+            }
+        ])
+        let menu_options = [
+            { emoji: client.config.emojis.profile, label: `${client.language({ textId: "Профиль", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{profile}mbr{${member.user.id}}eph reply`, description: `${client.language({ textId: "Ваш личный профиль", guildId: interaction.guildId, locale: interaction.locale })}` },
+            { emoji: client.config.emojis.profile, label: `${client.language({ textId: `Статистика`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{stats}mbr{${member.user.id}}`, description: `${client.language({ textId: `Ваша статистика`, guildId: interaction.guildId, locale: interaction.locale })}` },
+            { emoji: `${client.config.emojis.inventory}`, label: `${client.language({ textId: "Инвентарь", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{inventory}lim{15}mbr{${member.user.id}}eph reply`, description: `${client.language({ textId: "Ваш инвентарь с предметами", guildId: interaction.guildId, locale: interaction.locale })}` },
+            { emoji: `${client.config.emojis.roles}`, label: `${client.language({ textId: "Инвентарь ролей", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{inventory-roles}lim{50}mbr{${member.user.id}}`, description: `${client.language({ textId: "Ваш инвентарь с ролями", guildId: interaction.guildId, locale: interaction.locale })}` },
+            { emoji: client.config.emojis.invite, label: `${client.language({ textId: "Приглашения", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{invites}lim{10}mbr{${member.user.id}}`, description: `${client.language({ textId: "Ваши приглашения", guildId: interaction.guildId, locale: interaction.locale })}` },
+            { emoji: client.config.emojis.shop, label: `${settings.shopName ? settings.shopName.slice(0, 100) : client.language({ textId: `Магазин`, guildId: interaction.guildId, locale: interaction.locale }) }`, value: `usr{${interaction.user.id}}cmd{shop}lim{10}mbr{${member.user.id}}`, description: `${client.language({ textId: "Магазин сервера", guildId: interaction.guildId, locale: interaction.locale })}` },
+            { emoji: client.config.emojis.achievements, label: `${client.language({ textId: "Достижения", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{achievements}lim{10}mbr{${member.user.id}}`, description: `${client.language({ textId: "Ваши достижения", guildId: interaction.guildId, locale: interaction.locale })}` },
+            { emoji: client.config.emojis.quests, label: `${client.language({ textId: "Квесты", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{quests}mbr{${member.user.id}}`, description: `${client.language({ textId: "Просмотр квестов", guildId: interaction.guildId, locale: interaction.locale })}`, default: true },
+        ]
+        if (member.user.id !== interaction.user.id) {
+            menu_options = [
+                { emoji: client.config.emojis.profile, label: `${client.language({ textId: "Профиль", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{profile}mbr{${member.user.id}}eph reply`},
+                { emoji: client.config.emojis.profile, label: `${client.language({ textId: `Статистика`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{stats}mbr{${member.user.id}}` },
+                { emoji: `${client.config.emojis.inventory}`, label: `${client.language({ textId: "Инвентарь", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{inventory}lim{15}mbr{${member.user.id}}eph reply` },
+                { emoji: client.config.emojis.roles, label: `${client.language({ textId: `Инвентарь ролей`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{inventory-roles}lim{50}mbr{${member.user.id}}` },
+                { emoji: client.config.emojis.invite, label: `${client.language({ textId: "Приглашения", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{invites}lim{10}mbr{${member.user.id}}`},
+                { emoji: client.config.emojis.achievements, label: `${client.language({ textId: "Достижения", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{achievements}lim{10}mbr{${member.user.id}}` },
+                { emoji: client.config.emojis.quests, label: `${client.language({ textId: "Квесты", guildId: interaction.guildId, locale: interaction.locale })}`, value: `usr{${interaction.user.id}}cmd{quests}mbr{${member.user.id}}`, default: true },
+            ]
+        }
+        const nav_row = new ActionRowBuilder().addComponents([new StringSelectMenuBuilder().setCustomId(`usr{${interaction.user.id}}menu`).addOptions(menu_options)])
+        const acceptAllQuestBtn = new ButtonBuilder().setStyle(ButtonStyle.Secondary).setLabel(`${client.language({ textId: `Принять всё`, guildId: interaction.guildId, locale: interaction.locale })}`).setEmoji(client.config.emojis.YES).setCustomId(`usr{${interaction.user.id}}cmd{quests}mbr{${member.user.id}}lim{${max}}}acceptAll`).setDisabled(true)
+        const rewardAllQuestBtn = new ButtonBuilder().setStyle(ButtonStyle.Success).setLabel(`${client.language({ textId: `Выполнить всё`, guildId: interaction.guildId, locale: interaction.locale })}`).setEmoji(client.config.emojis.medal).setCustomId(`usr{${interaction.user.id}}cmd{quests}mbr{${member.user.id}}lim{${max}}rewardAll`).setDisabled(true)
+        const cancelAllQuestBtn = new ButtonBuilder().setStyle(ButtonStyle.Danger).setLabel(`${client.language({ textId: `Отменить всё`, guildId: interaction.guildId, locale: interaction.locale })}`).setEmoji(client.config.emojis.NO).setCustomId(`usr{${interaction.user.id}}cmd{quests}mbr{${member.user.id}}lim{${max}}cancelAll`).setDisabled(true)
+        const refreshBtn = new ButtonBuilder().setStyle(ButtonStyle.Secondary).setEmoji(client.config.emojis.refresh).setCustomId(`usr{${interaction.user.id}}cmd{quests}mbr{${member.user.id}}lim{${max}}`)
+        const userDailyQuests = profile.quests?.filter(userQuest => {
+            const quest = quests.find(quest => quest.questID === userQuest.questID)
+            if (!quest) return false
+            if (quest.daily) return userQuest
+        }).filter(e => e) || []
+        const userWeeklyQuests = profile.quests?.filter(userQuest => {
+            const quest = quests.find(quest => quest.questID === userQuest.questID)
+            if (!quest) return false
+            if (quest.weekly) return userQuest
+        }).filter(e => e) || []
+        const acceptDailyQuestBtn = new ButtonBuilder().setStyle(ButtonStyle.Secondary).setLabel(`${client.language({ textId: `Взять ежедневный квест`, guildId: interaction.guildId, locale: interaction.locale })} (${settings.maxDailyQuests - userDailyQuests.length <= 0 ? 0 : settings.maxDailyQuests - userDailyQuests.length})`).setCustomId(`usr{${interaction.user.id}}cmd{quests}mbr{${member.user.id}}lim{${max}}acceptDaily`).setDisabled(true)
+        const acceptWeeklyQuestBtn = new ButtonBuilder().setStyle(ButtonStyle.Secondary).setLabel(`${client.language({ textId: `Взять еженедельный квест`, guildId: interaction.guildId, locale: interaction.locale })} (${settings.maxWeeklyQuests - userWeeklyQuests.length <= 0 ? 0 : settings.maxWeeklyQuests - userWeeklyQuests.length})`).setCustomId(`usr{${interaction.user.id}}cmd{quests}mbr{${member.user.id}}lim{${max}}acceptWeekly`).setDisabled(true)
+        if (interaction.user.id === member.user.id) {
+            if (unacceptedQuestsLength) acceptAllQuestBtn.setDisabled(false)
+            let unfinished = profile.quests?.filter(userQuest => {
+                const quest = quests.find(quest => quest.questID === userQuest.questID)
+                if (!quest) return false
+                return userQuest && userQuest.targets && userQuest.targets.every(element => element.finished === true) && !userQuest.finished && !quest.community || (userQuest && quest.community && !userQuest.finished && quest.targets.every(element => element.finished === true))
+            }) || []
+            unfinished = await asyncFilter(unfinished, async (quest) => {
+                if (quest.donePermission) {
+                    const permission = client.cache.permissions.get(quest.donePermission)
+                    if (permission) {
+                        const isPassing = permission.for(profile, interaction.member, interaction.channel)
+                        if (isPassing.value === true) return quest    
+                    } else return quest
+                } else return quest
+            })
+            if (unfinished.length) rewardAllQuestBtn.setDisabled(false)
+            if (unfinishedQuestsLength && unfinishedQuests.filter(userQuest => {
+                const quest = quests.find(quest => quest.questID === userQuest.questID)
+                if (!quest) return false
+                if (!quest.weekly && !quest.daily) return userQuest
+            }).map(e => e).length) cancelAllQuestBtn.setDisabled(false)
+            if (dailyQuestsLength && settings.maxDailyQuests - userDailyQuests.length > 0) acceptDailyQuestBtn.setDisabled(false)
+            if (weeklyQuestsLength && settings.maxWeeklyQuests - userWeeklyQuests.length > 0) acceptWeeklyQuestBtn.setDisabled(false)
+        }
+        const actionsRow = new ActionRowBuilder().addComponents(acceptAllQuestBtn, rewardAllQuestBtn, cancelAllQuestBtn, refreshBtn)
+        const first_page_btn = new ButtonBuilder().setEmoji(`${client.config.emojis.arrowLeft2}`).setStyle(ButtonStyle.Secondary).setCustomId(`cmd{quests}usr{${interaction.user.id}}mbr{${member.user.id}}lim{itemsPerPage}1`).setDisabled((maxLength <= itemsPerPage && min == 0) || (maxLength > itemsPerPage && min < itemsPerPage))
+        const previous_page_btn = new ButtonBuilder().setEmoji(`${client.config.emojis.arrowLeft}`).setStyle(ButtonStyle.Secondary).setCustomId(`cmd{quests}usr{${interaction.user.id}}mbr{${member.user.id}}lim{${max - itemsPerPage}}2`).setDisabled((maxLength <= itemsPerPage && min == 0) || (maxLength > itemsPerPage && min < itemsPerPage))
+        const next_page_btn = new ButtonBuilder().setEmoji(`${client.config.emojis.arrowRight}`).setStyle(ButtonStyle.Secondary).setCustomId(`cmd{quests}usr{${interaction.user.id}}mbr{${member.user.id}}lim{${max + itemsPerPage}}3`).setDisabled((maxLength <= itemsPerPage && min == 0) || (maxLength > itemsPerPage && min >= maxLength - itemsPerPage))
+        const last_page_btn = new ButtonBuilder().setEmoji(`${client.config.emojis.arrowRight2}`).setStyle(ButtonStyle.Secondary).setCustomId(`cmd{quests}usr{${interaction.user.id}}mbr{${member.user.id}}lim{${maxLength + (maxLength % itemsPerPage == 0 ? 0 : itemsPerPage - (maxLength % itemsPerPage))}}4`).setDisabled((maxLength <= itemsPerPage && min == 0) || (maxLength > itemsPerPage && min >= maxLength - itemsPerPage))
+        const components = [nav_row, new ActionRowBuilder().addComponents(first_page_btn, previous_page_btn, next_page_btn, last_page_btn), actionsRow, new ActionRowBuilder().addComponents(acceptDailyQuestBtn, acceptWeeklyQuestBtn)]
+        if ((interaction.customId?.includes("reply") || interaction.values?.[0].includes("reply")) || interaction.isChatInputCommand() || interaction.isContextMenuCommand()) {
+            return interaction.reply({ embeds: [embed], components, flags })
+        }
+        if (!interaction.replied && !interaction.deferred) return interaction.update({ embeds: [embed], components: components })
+        else return interaction.editReply({ embeds: [embed], components: components, flags })
+    }
+}
