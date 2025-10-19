@@ -47,8 +47,8 @@
 
 1. **Клонируйте репозиторий**
    ```bash
-   git clone https://github.com/arhip144/wetbot_public.git
-   cd wetbot_public
+   git clone https://github.com/arhip144/wetbot-public.git
+   cd wetbot-public
    ```
 
 2. **Установите зависимости**
@@ -129,7 +129,7 @@ npm start
 ### 📁 Структура проекта
 
 ```
-wetbot_public/
+wetbot-public/
 ├── slash-commands/    # Папка с командами бота
 ├── interactions/      # Дополнительные обработчики кнопок
 ├── classes/           # Классы 
@@ -173,8 +173,8 @@ wetbot_public/
 
 ## 📞 Поддержка
 
-- 🐛 **Сообщить о баге:** [Issues](https://github.com/arhip144/wetbot_public/issues)
-- 💡 **Предложить фичу:** [Issues](https://github.com/arhip144/wetbot_public/issues)
+- 🐛 **Сообщить о баге:** [Issues](https://github.com/arhip144/wetbot-public/issues)
+- 💡 **Предложить фичу:** [Issues](https://github.com/arhip144/wetbot-public/issues)
 - 📧 **Контакты:** [GitHub Profile](https://github.com/arhip144)
 
 ## ⭐ Благодарности
