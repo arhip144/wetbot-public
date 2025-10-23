@@ -79,7 +79,7 @@ module.exports = {
                                 color: "#f59c02",
                                 title: null,
                                 button: {
-                                    label: client.language({ textId: `${client.language({ textId: `Дотронуться`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId }),
+                                    label: client.language({ textId: `Дотронуться`, guildId: interaction.guildId, locale: interaction.locale }),
                                     style: `PRIMARY`,
                                     emoji: `🤏`
                                 }
@@ -138,7 +138,7 @@ module.exports = {
                                         .setMaxLength(4000)
                                         .setRequired(false)
                                         .setStyle(TextInputStyle.Paragraph)
-                                        .setPlaceholder(`${client.language({ textId: `${client.language({ textId: `Вставьте ПРЯМУЮ ссылку на картинку`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}\n{item_image} - ${client.language({ textId: `изо. предмета`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                                        .setPlaceholder(`${client.language({ textId: `Вставьте ПРЯМУЮ ссылку на картинку`, guildId: interaction.guildId, locale: interaction.locale })}\n{item_image} - ${client.language({ textId: `изо. предмета`, guildId: interaction.guildId, locale: interaction.locale })}`)
                                         .setValue(style.appearance.thumbnailURL ? style.appearance.thumbnailURL : "")
                                 ),
                             new LabelBuilder()
@@ -150,7 +150,7 @@ module.exports = {
                                         .setMaxLength(4000)
                                         .setRequired(false)
                                         .setStyle(TextInputStyle.Paragraph)
-                                        .setPlaceholder(`${client.language({ textId: `${client.language({ textId: `Вставьте ПРЯМУЮ ссылку на картинку`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}\n{item_image} - ${client.language({ textId: `изо. предмета`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                                        .setPlaceholder(`${client.language({ textId: `Вставьте ПРЯМУЮ ссылку на картинку`, guildId: interaction.guildId, locale: interaction.locale })}\n{item_image} - ${client.language({ textId: `изо. предмета`, guildId: interaction.guildId, locale: interaction.locale })}`)
                                         .setValue(style.appearance.imageURL ? style.appearance.imageURL : "")
                                 ),
                             new LabelBuilder()
@@ -640,7 +640,7 @@ module.exports = {
                                 value: `button emoji, button text`
                             }
                         ])
-                        .setPlaceholder(`${client.language({ textId: `${client.language({ textId: `Изменить стиль появления`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}...`)
+                        .setPlaceholder(`${client.language({ textId: `Изменить стиль появления`, guildId: interaction.guildId, locale: interaction.locale })}...`)
                 ])
                 const row3 = new ActionRowBuilder().addComponents([
                     new StringSelectMenuBuilder()
@@ -655,7 +655,7 @@ module.exports = {
                                 value: `сбор - header, footer`
                             }
                         ])
-                        .setPlaceholder(`${client.language({ textId: `${client.language({ textId: `Изменить стиль сбора`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}...`)
+                        .setPlaceholder(`${client.language({ textId: `Изменить стиль сбора`, guildId: interaction.guildId, locale: interaction.locale })}...`)
                 ])
                 const row4 = new ActionRowBuilder().addComponents([
                     new StringSelectMenuBuilder()

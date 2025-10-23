@@ -426,7 +426,7 @@ module.exports = {
 				{ label: `${client.language({ textId: `Кейс (ключ)`, guildId: interaction.guildId, locale: interaction.locale })}${item.openByItem?.itemID ? ` [+]` : `` }`, value: 'openByItem', emoji: client.config.emojis.key },
 				{ label: `${client.language({ textId: `Использование`, guildId: interaction.guildId, locale: interaction.locale })}${item.canUse ? ` [+]` : `` }`, value: 'onUse', emoji: client.config.emojis.use },
 				{ label: `${client.language({ textId: `Способы получения`, guildId: interaction.guildId, locale: interaction.locale })}`, value: 'activities', emoji: client.config.emojis.random },
-				{ label: `${client.language({ textId: `${client.language({ textId: `Параметры`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}`, value: 'settings', emoji: client.config.emojis.gear },
+				{ label: `${client.language({ textId: `Параметры`, guildId: interaction.guildId, locale: interaction.locale })}`, value: 'settings', emoji: client.config.emojis.gear },
 				{ label: `${client.language({ textId: `Права`, guildId: interaction.guildId, locale: interaction.locale })}`, value: 'permissions', emoji: client.config.emojis.crown },
 				{ label: `${client.language({ textId: `Кулдауны`, guildId: interaction.guildId, locale: interaction.locale })}`, value: 'cooldowns', emoji: client.config.emojis.watch }
 			]
@@ -942,7 +942,7 @@ module.exports = {
 						if (!modalArgs.color.length) item.hex = undefined
 						else {
 							if (/^#[0-9A-F]{6}$/i.test(modalArgs.color) === false) {
-								return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Строка`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.color}** ${client.language({ textId: `не является HEX цветом. Пример HEX цвета`, guildId: interaction.guildId, locale: interaction.locale })}: **#FF5733**. ${client.language({ textId: `${client.language({ textId: `Пожалуйста выбери HEX цвет с этого сайта`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}: https://htmlcolorcodes.com/color-picker/`, flags: ["Ephemeral"] })
+								return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Строка`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.color}** ${client.language({ textId: `не является HEX цветом. Пример HEX цвета`, guildId: interaction.guildId, locale: interaction.locale })}: **#FF5733**. ${client.language({ textId: `Пожалуйста выбери HEX цвет с этого сайта`, guildId: interaction.guildId, locale: interaction.locale })}: https://htmlcolorcodes.com/color-picker/`, flags: ["Ephemeral"] })
 							}
 							item.hex = modalArgs.color
 						}
@@ -2585,7 +2585,7 @@ module.exports = {
 												component.data.disabled = false
 											}))
 											interaction.editReply({ components: interaction.message.components })
-											return modalInteraction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `${client.language({ textId: `Минимальная цена не должна быть больше максимальной цены`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [], flags: ["Ephemeral"] })
+											return modalInteraction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Минимальная цена не должна быть больше максимальной цены`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [], flags: ["Ephemeral"] })
 										}
 										if (modalArgs.max - modalArgs.min < (temp.contains[0].currency === "ru" ? 100 : temp.contains[0].currency === "ua" ? 45 : temp.contains[0].currency === "kz" ? 530 : temp.contains[0].currency === "en" ? 1 : 28)) {
 											client.temp = client.temp.filter(e => e.itemID !== item.itemID)
@@ -4555,7 +4555,7 @@ module.exports = {
 						} else {
 							if (!/^#[0-9A-F]{6}$/i.test(modalArgs.color)) {
 								await interaction.deferUpdate()
-								interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Строка`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.color}** ${client.language({ textId: `не является HEX цветом. Пример HEX цвета`, guildId: interaction.guildId, locale: interaction.locale })}: **#FF5733**. ${client.language({ textId: `${client.language({ textId: `Пожалуйста выбери HEX цвет с этого сайта`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}: https://htmlcolorcodes.com/color-picker/`, flags: ["Ephemeral"] })
+								interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Строка`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.color}** ${client.language({ textId: `не является HEX цветом. Пример HEX цвета`, guildId: interaction.guildId, locale: interaction.locale })}: **#FF5733**. ${client.language({ textId: `Пожалуйста выбери HEX цвет с этого сайта`, guildId: interaction.guildId, locale: interaction.locale })}: https://htmlcolorcodes.com/color-picker/`, flags: ["Ephemeral"] })
 							} else {
 								item.onUse.color = modalArgs.color
 							}

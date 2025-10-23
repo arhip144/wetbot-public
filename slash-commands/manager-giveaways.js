@@ -1426,7 +1426,7 @@ module.exports = {
 				.setFooter({ text: `ID: ${giveaway.giveawayID}` })
 			if (interaction.customId.includes("finish")) {
 				if (giveaway.type === `user`) {
-					await interaction.editReply({ content: `${client.config.emojis.YES} ${client.language({ textId: `${client.language({ textId: `Раздача отправлена на модерацию. Если по истечению 24ч раздача не будет принята, то она отклонится в автоматическом режиме`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}.`, components: [], embeds: [] })
+					await interaction.editReply({ content: `${client.config.emojis.YES} ${client.language({ textId: `Раздача отправлена на модерацию. Если по истечению 24ч раздача не будет принята, то она отклонится в автоматическом режиме`, guildId: interaction.guildId, locale: interaction.locale })}.`, components: [], embeds: [] })
 					const acceptBTN = new ButtonBuilder()
 						.setStyle(ButtonStyle.Success)
 						.setLabel(`${client.language({ textId: `Принять`, guildId: interaction.guildId })}`)

@@ -2412,7 +2412,7 @@ module.exports = {
                         for (let r of rewards) {
                             if (r.itemID == "currency") dailyRewards += `\n> ${settings.displayCurrencyEmoji}**${settings.currencyName}** ${r.valueFrom == r.valueTo ? r.valueFrom : `${r.valueFrom}-${r.valueTo}`}`
                             else if (r.itemID == "xp") dailyRewards += `\n> ${client.config.emojis.XP}**${client.language({ textId: `Опыт`, guildId: interaction.guildId, locale: interaction.locale })}** ${r.valueFrom == r.valueTo ? r.valueFrom : `${r.valueFrom}-${r.valueTo}`}`
-                            else if (r.itemID == "rp") dailyRewards += `\n> ${client.config.emojis.RP}**${client.language({ textId: `${client.language({ textId: `Репутация`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}** ${r.valueFrom == r.valueTo ? r.valueFrom : `${r.valueFrom}-${r.valueTo}`}`
+                            else if (r.itemID == "rp") dailyRewards += `\n> ${client.config.emojis.RP}**${client.language({ textId: `Репутация`, guildId: interaction.guildId, locale: interaction.locale })}** ${r.valueFrom == r.valueTo ? r.valueFrom : `${r.valueFrom}-${r.valueTo}`}`
                             else {
                                 let item = client.cache.items.find(e => e.itemID === r.itemID && !e.temp)
                                 if (item) {
@@ -2556,7 +2556,7 @@ module.exports = {
                     `> ${client.language({ textId: `Канал для отчетов`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.channelId ? `${interaction.guild.channels.cache.has(settings.top_report.channelId) ? `<#${await interaction.guild.channels.fetch(settings.top_report.channelId).then(channel => channel.id).catch(e => null)}>` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}`
                 ]
                 embed.setDescription(text.join("\n"))
-                const second_row = new ActionRowBuilder().addComponents([new StringSelectMenuBuilder().setCustomId(`cmd{manager-settings} title{topLeaders} usr{${interaction.user.id}}`).addOptions(topLeaders_options).setPlaceholder(`${client.language({ textId: `${client.language({ textId: `Выбери для изменения`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}`)])
+                const second_row = new ActionRowBuilder().addComponents([new StringSelectMenuBuilder().setCustomId(`cmd{manager-settings} title{topLeaders} usr{${interaction.user.id}}`).addOptions(topLeaders_options).setPlaceholder(`${client.language({ textId: `Выбери для изменения`, guildId: interaction.guildId, locale: interaction.locale })}`)])
                 return interaction.editReply({ content: " ", embeds: [embed], components: [first_row, second_row] })
             }
             if (interaction.values?.[0].includes("activities") || interaction.customId.includes("activities")) {
@@ -2711,8 +2711,20 @@ module.exports = {
                         value: `**${client.language({ textId: `Присуждается за предмет, который пользователь нашел впервые`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.config.emojis.XP}**${client.language({ textId: `Опыт`, guildId: interaction.guildId, locale: interaction.locale })}:** ${settings.xpForFirstFoundItem}\n> ${settings.displayCurrencyEmoji}**${settings.currencyName}:** ${settings.curForFirstFoundItem}`,
                     }
                 ])
-                const second_row = new ActionRowBuilder().addComponents([new StringSelectMenuBuilder().setCustomId(`cmd{manager-settings} title{activities} usr{${interaction.user.id}}`).addOptions(activities_options).setPlaceholder(`${client.language({ textId: `${client.language({ textId: `Выбери для изменения`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}`)])
-                const third_row = new ActionRowBuilder().addComponents([new ButtonBuilder().setCustomId(`cmd{manager-settings} title{activities} default usr{${interaction.user.id}}`).setLabel(`${client.language({ textId: `ПО УМОЛЧАНИЮ`, guildId: interaction.guildId, locale: interaction.locale })}`).setStyle(ButtonStyle.Danger)])
+                const second_row = new ActionRowBuilder()
+                    .addComponents([
+                        new StringSelectMenuBuilder()
+                            .setCustomId(`cmd{manager-settings} title{activities} usr{${interaction.user.id}}`)
+                            .addOptions(activities_options)
+                            .setPlaceholder(`${client.language({ textId: `Выбери для изменения`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                        ])
+                const third_row = new ActionRowBuilder()
+                    .addComponents([
+                        new ButtonBuilder()
+                            .setCustomId(`cmd{manager-settings} title{activities} default usr{${interaction.user.id}}`)
+                            .setLabel(`${client.language({ textId: `ПО УМОЛЧАНИЮ`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                            .setStyle(ButtonStyle.Danger)
+                        ])
                 const components = [first_row, second_row, third_row]
                 return interaction.editReply({ content: " ", embeds: [embed], components: components }).catch(e => {
                     if (e.message.includes(`Invalid emoji`)) {

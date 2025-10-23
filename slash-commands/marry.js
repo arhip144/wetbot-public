@@ -72,9 +72,9 @@ module.exports = {
             profileTwo = await client.functions.fetchProfile(client, args.user, interaction.guildId)
             const member = await interaction.guild.members.fetch(args.user).catch(e => null)
             if (!member) {
-                return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
+                return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
             }
-            if (interaction.user.id === args.user) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `${client.language({ textId: `Ты не можешь вступить в брак с самим собой`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
+            if (interaction.user.id === args.user) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Ты не можешь вступить в брак с самим собой`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
             if (member.user.bot) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Невозможно использовать команду с ботом`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
             if (profileTwo.marry) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Этот пользователь уже в браке`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] }) 
         }

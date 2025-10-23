@@ -474,7 +474,7 @@ module.exports = {
                                             amount: modalArgs.amount
                                         })    
                                     } else {
-                                        return interaction.reply({ content: `${client.language({ textId: `${client.language({ textId: "Максимальное кол-во предметов в подарке", guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })} - 10`, flags: ["Ephemeral"] })
+                                        return interaction.reply({ content: `${client.language({ textId: "Максимальное кол-во предметов в подарке", guildId: interaction.guildId, locale: interaction.locale })} - 10`, flags: ["Ephemeral"] })
                                     }
                                 }
                             }
@@ -493,7 +493,7 @@ module.exports = {
                         if (lastDate === "Invalid Date") lastDate = ""
                         const modal = new ModalBuilder()
                             .setCustomId(`editMember_${interaction.id}`)
-                            .setTitle(`${client.language({ textId: `${client.language({ textId: "РЕДАКТИРОВАТЬ", guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })} ${user.username}`)
+                            .setTitle(`${client.language({ textId: "РЕДАКТИРОВАТЬ", guildId: interaction.guildId, locale: interaction.locale })} ${user.username}`)
                             .setLabelComponents([
                                 new LabelBuilder()
                                     .setLabel(`${client.language({ textId: "Кол-во получений подарка", guildId: interaction.guildId, locale: interaction.locale })}`)
@@ -563,7 +563,7 @@ module.exports = {
                     const next_page_btn = new ButtonBuilder().setEmoji(`${client.config.emojis.arrowRight}`).setStyle(ButtonStyle.Secondary).setCustomId(`gift{${gift.giftID}}usr{${interaction.user.id}}cmd{manager-gifts}lim{${limit+15}}edit_members_3`).setDisabled((gift.members.length <= 15 && min == 0) || (gift.members.length > 15 && min >= gift.members.length - 15) ? true : false)
                     const last_page_btn = new ButtonBuilder().setEmoji(`${client.config.emojis.arrowRight2}`).setStyle(ButtonStyle.Secondary).setCustomId(`gift{${gift.giftID}}usr{${interaction.user.id}}cmd{manager-gifts}lim{${gift.members.length + (gift.members.length % 15 == 0 ? 0 : 15 - (gift.members.length % 15))}}edit_members_4`).setDisabled((gift.members.length <= 15 && min == 0) || (gift.members.length > 15 && min >= gift.members.length - 15) ? true : false)
                     const deleteAllBTN = new ButtonBuilder().setStyle(ButtonStyle.Danger).setLabel(`${client.language({ textId: `УДАЛИТЬ ВСЕХ`, guildId: interaction.guildId, locale: interaction.locale })}`).setCustomId(`gift{${gift.giftID}}cmd{manager-gifts}usr{${interaction.user.id}}edit_members_deleteAll`)
-                    const editUser = new UserSelectMenuBuilder().setCustomId(`gift{${gift.giftID}}cmd{manager-gifts}usr{${interaction.user.id}}edit_members_select`).setPlaceholder(`${client.language({ textId: `${client.language({ textId: "Добавить/изменить/удалить пользователя", guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                    const editUser = new UserSelectMenuBuilder().setCustomId(`gift{${gift.giftID}}cmd{manager-gifts}usr{${interaction.user.id}}edit_members_select`).setPlaceholder(`${client.language({ textId: "Добавить/изменить/удалить пользователя", guildId: interaction.guildId, locale: interaction.locale })}`)
                     const returnBTN = new ButtonBuilder().setStyle(ButtonStyle.Danger).setLabel(`${client.language({ textId: `НАЗАД`, guildId: interaction.guildId, locale: interaction.locale })}`).setCustomId(`gift{${gift.giftID}}cmd{manager-gifts}usr{${interaction.user.id}}edit`)
                     const array_btn = [first_page_btn, previous_page_btn, next_page_btn, last_page_btn]
                     return interaction.update({ embeds: [embed], components: [

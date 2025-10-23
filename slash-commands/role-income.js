@@ -88,31 +88,6 @@ module.exports = {
                 ])
         }
         message = await interaction.editReply({ components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { roles: [] } })
-        // let message 
-        // message = await interaction.editReply({
-        //     content: " ",
-        //     embeds: [ 
-        //         new EmbedBuilder()
-        //             .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL() })
-        //             .setTitle(`${client.language({ textId: "Доход от ролей", guildId: interaction.guildId, locale: interaction.locale })}`)
-        //             .setDescription(`${Object.keys(income).map((key, index) => {
-        //                     if (income[key].cooldown) return `\`${index+1 < 10 ? 0 : ""}${index+1}\` — <@&${key}>: ${client.language({ textId: "следующий доход", guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(income[key].cooldown / 1000)}:R>`
-        //                     else return `\`${index+1 < 10 ? 0 : ""}${index+1}\` — <@&${key}>: ${client.language({ textId: "следующий доход", guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(profile.roleIncomeCooldowns.get(key) / 1000)}:R>\n${Object.values(income[key]).join("\n")}`
-        //                 }
-        //             ).map((value, index) => {
-        //                 if (totalLength < 4096) {
-        //                     totalLength += value.length
-        //                 }
-        //                 if (totalLength > 4096) {
-        //                     totalLength = 4096
-        //                     max = index - 1
-        //                 }
-        //                 return value
-        //             }).slice(0, max).join("\n")}${Object.keys(income).length > max ? `\n ${client.language({ textId: "и еще", guildId: interaction.guildId, locale: interaction.locale })} ${Object.keys(income).length - max}...` : ""}`.slice(0, 4096))
-        //             .setColor(member.displayHexColor)
-        //     ],
-        //     components: []
-        // })
         client.emit("economyLogCreate", interaction.guildId, `<@${interaction.user.id}> ${client.language({ textId: "получил доход от ролей", guildId: interaction.guildId })}`)
         if (!pass || !notification) return
         lt.setTimeout(async () => {

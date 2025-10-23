@@ -70,7 +70,7 @@ module.exports = {
 		await profile.save()
         if (!received_items.length) {
         	delete client.giftsInWork[gift.giftID]
-        	return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `${client.language({ textId: "В этом подарке нет предметов", guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}.**`, flags: ["Ephemeral"] })
+        	return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: "В этом подарке нет предметов", guildId: interaction.guildId, locale: interaction.locale })}.**`, flags: ["Ephemeral"] })
         }
         if (member) {
         	member.count++

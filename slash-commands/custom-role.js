@@ -30,9 +30,6 @@ module.exports = {
      */
     run: async (client, interaction, args) => {
         const settings = client.cache.settings.get(interaction.guildId)
-        if (!settings.premium.enable) {
-            return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Это действие требует премиума на сервере`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.config.emojis.premium}</premium:1150455842454388762>`, flags: ["Ephemeral"] })
-        }
         if (!settings.roles.customRolePosition || !interaction.guild.roles.cache.get(settings.roles.customRolePosition)) {
             return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Создание кастомных ролей не настроено на этом сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
@@ -266,7 +263,7 @@ module.exports = {
                             const modalArgs = {}
                             interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
                             if (modalArgs.color && /^#[0-9A-F]{6}$/i.test(modalArgs.color) === false) {
-                                await interaction2.update({ content: `${client.config.emojis.NO} ${client.language({ textId: `Строка`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.color}** ${client.language({ textId: `не является HEX цветом. Пример HEX цвета`, guildId: interaction.guildId, locale: interaction.locale })}: **#FF5733**. ${client.language({ textId: `${client.language({ textId: `Пожалуйста выбери HEX цвет с этого сайта`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}: https://htmlcolorcodes.com/color-picker/`, components: [] })
+                                await interaction2.update({ content: `${client.config.emojis.NO} ${client.language({ textId: `Строка`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.color}** ${client.language({ textId: `не является HEX цветом. Пример HEX цвета`, guildId: interaction.guildId, locale: interaction.locale })}: **#FF5733**. ${client.language({ textId: `Пожалуйста выбери HEX цвет с этого сайта`, guildId: interaction.guildId, locale: interaction.locale })}: https://htmlcolorcodes.com/color-picker/`, components: [] })
                                 return interaction.editReply({ components: components })
                             }
                             customRole.color = modalArgs.color

@@ -882,13 +882,14 @@ class Profile {
         if (typeof achievement !== "object") {
             achievement = this.client.cache.achievements.find(ach => ach.id === achievement && ach.enabled)
         }
+        if (this.achievements.some(e => e.achievmentID === achievement.id)) return
         const guild = this.client.guilds.cache.get(this.guildID)
         if (guild) {
             const member = await guild.members.fetch(this.userID).catch(e => null)
             if (member) {
                 const settings = this.client.cache.settings.find(settings => settings.guildID === guild.id)
                 if (!member.roles.cache.hasAny(...settings.roles?.mutedRoles)) {
-                    if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `<@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "получил достижение", guildId: guild.id })} ${await this.client.functions.getEmoji(this.client, achievement.emoji)}${achievement.name} (${achievement.id})`)
+                    if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `<@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "получил достижение", guildId: guild.id })} ${achievement.displayEmoji}${achievement.name} (${achievement.id})`)
                     const rewardArray = []
                     for (const reward of achievement.rewards) {
                         if (reward.type === RewardType.Currency) {
@@ -912,10 +913,10 @@ class Profile {
                                 try {
                                     await member.roles.add(reward.id)
                                     rewardArray.push(`<@&${reward.id}>`)
-                                    if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение ролей", guildId: guild.id })} (+<@&${reward.id}>) ${this.client.language({ textId: "для", guildId: guild.id })} <@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "за награду достижения", guildId: guild.id })} ${await this.client.functions.getEmoji(this.client, achievement.emoji)}${achievement.name} (${achievement.id})`)
+                                    if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение ролей", guildId: guild.id })} (+<@&${reward.id}>) ${this.client.language({ textId: "для", guildId: guild.id })} <@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "за награду достижения", guildId: guild.id })} ${achievement.displayEmoji}${achievement.name} (${achievement.id})`)
                                 } catch (err) {
                                     console.error(err)
-                                    if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Не удалось добавить роль", guildId: guild.id })} (<@&${reward.id}>) ${this.client.language({ textId: "для", guildId: guild.id })} <@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "за награду достижения", guildId: guild.id })} ${await this.client.functions.getEmoji(this.client, achievement.emoji)}${achievement.name} (${achievement.id}): ${err.message}`)
+                                    if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Не удалось добавить роль", guildId: guild.id })} (<@&${reward.id}>) ${this.client.language({ textId: "для", guildId: guild.id })} <@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "за награду достижения", guildId: guild.id })} ${achievement.displayEmoji}${achievement.name} (${achievement.id}): ${err.message}`)
                                 }
                             }
                         }
@@ -961,32 +962,6 @@ class Profile {
         this.achievements = this.achievements?.filter(e => e.achievmentID !== achievement.id)
         if (!this.achievements.length) this.achievements = undefined
         if (save) await this.save()
-        // const guild = this.client.guilds.cache.get(this.guildID)
-        // if (guild) {
-        //     const member = await guild.members.fetch(this.userID).catch(e => null)
-        //     if (member) {
-                // for (const reward of achievement.rewards) {
-                //     if (reward.itemID === "currency") {
-                //         this.currency = reward.amount*-1
-                //     } else if (reward.itemID === "xp") {
-                //         await this.subtractXp(reward.amount)
-                //     } else if (reward.itemID === "rp") {
-                //         await this.subtractRp(reward.amount)
-                //     } else {
-                //         await this.subtractItem(reward.itemID, reward.amount)
-                //     }
-                // }
-                // this.achievements = this.achievements?.filter(e => e.achievmentID !== achievement.id)
-                // if (!this.achievements.length) this.achievements = undefined
-                // if (save) await this.save()
-                // if (achievement.role) {
-                //     const guild_role = guild.roles.fetch(achievement.role).catch(e => null)
-                //     if (guild_role && guild.members.me.roles.highest.position > guild_role.position) {
-                //         member.roles.remove(achievement.role).catch(e => null)
-                //     }
-                // }
-        //     }
-        // }
         return
     }
     async addXp(amount, save, withoutSeasonXP, withoutLogs, withoutNotification) {

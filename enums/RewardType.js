@@ -6,6 +6,7 @@ const RewardType = Object.freeze({
     Item: 5,
     SteamGame: 6,
     Cookies: 7,
-    Text: 8
+    Text: 8,
+    Achievement: 9
 })
 module.exports = { RewardType }

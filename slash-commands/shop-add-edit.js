@@ -119,7 +119,7 @@ module.exports = {
         }
         const shop_item = filteredItems.some(e => e.name.toLowerCase() === args.item.toLowerCase()) ? filteredItems.find(e => e.name.toLowerCase() === args.item.toLowerCase()) : filteredItems.first()
         if (!shop_item) {
-            return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `${client.language({ textId: `Предмета не существует или он выключен. Для создания предмета воспользуйтесь командой`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })} **/manager-items**` })
+            return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Предмета не существует или он выключен. Для создания предмета воспользуйтесь командой`, guildId: interaction.guildId, locale: interaction.locale })} **/manager-items**` })
         }
         if (args.price < 0) {
             return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Цена предмета не может быть меньше нуля`, guildId: interaction.guildId, locale: interaction.locale })}` })
@@ -137,7 +137,7 @@ module.exports = {
         shop_item.shop.canDiscount = canDiscount
         await shop_item.save()
         let content = add ? `${client.config.emojis.YES} ${client.language({ textId: `Предмет`, guildId: interaction.guildId, locale: interaction.locale })} ${shop_item.displayEmoji}**${shop_item.name}** ${client.language({ textId: `был добавлен в магазин`, guildId: interaction.guildId, locale: interaction.locale })}:\n` : `${client.config.emojis.YES} ${client.language({ textId: `Предмет`, guildId: interaction.guildId, locale: interaction.locale })} ${shop_item.displayEmoji}**${shop_item.name}** ${client.language({ textId: `был изменен в магазине`, guildId: interaction.guildId, locale: interaction.locale })}:\n`
-        content += `> ${client.language({ textId: `Цена`, guildId: interaction.guildId, locale: interaction.locale })}: ${!args.price_type ? settings.displayCurrencyEmoji : priceType.displayEmoji}${args.price}\n> ${client.language({ textId: `${client.language({ textId: `Количество в магазине`, guildId: interaction.guildId, locale: interaction.locale })}`, guildId: interaction.guildId, locale: interaction.locale })}: ${amount}\n> ${client.language({ textId: `Скидка в зависимости от репутации`, guildId: interaction.guildId, locale: interaction.locale })}: ${canDiscount ? client.config.emojis.YES : client.config.emojis.NO }`
+        content += `> ${client.language({ textId: `Цена`, guildId: interaction.guildId, locale: interaction.locale })}: ${!args.price_type ? settings.displayCurrencyEmoji : priceType.displayEmoji}${args.price}\n> ${client.language({ textId: `Количество в магазине`, guildId: interaction.guildId, locale: interaction.locale })}: ${amount}\n> ${client.language({ textId: `Скидка в зависимости от репутации`, guildId: interaction.guildId, locale: interaction.locale })}: ${canDiscount ? client.config.emojis.YES : client.config.emojis.NO }`
         return interaction.editReply({ content: content })
     }
 }

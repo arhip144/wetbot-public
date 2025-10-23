@@ -4,13 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node shard.js"
+    "start": "node shard.js",
+    "translations:add": "node update-translations.js --add",
+    "translations:clean": "node update-translations.js --clean",
+    "translations:sync": "node update-translations.js --sync",
+    "translations:stats": "node update-translations.js --stats",
+    "translations:help": "node update-translations.js --help",
+    "translate:all": "node translate-lang.js --all",
+    "translate:en": "node translate-lang.js --lang en-US",
+    "translate:uk": "node translate-lang.js --lang uk",
+    "translate:es": "node translate-lang.js --lang es-ES",
+    "translate:ru": "node translate-lang.js --lang ru",
+    "translate:status": "node translate-lang.js --status",
+    "translate:missing": "node translate-lang.js --missing",
+    "translate:help": "node translate-lang.js --help"
   },
   "author": "AnthonyVault",
   "license": "GPL-3.0-only",
   "dependencies": {
     "bufferutil": "^4.0.8",
-    "croner": "^6.0.3",
+    "croner": "^7.0.2",
     "date-fns": "^2.29.3",
     "date-format-parse": "^0.2.7",
     "decimal.js": "^10.4.3",

@@ -151,7 +151,7 @@ module.exports = {
                 for (const trophy of trophies) {
                     result += `> ${trophy}\n`
                 }
-                return interaction.reply({ content: `${client.config.emojis.block}${client.language({ textId: ` По вашему запросу было найдено несколько трофеев`, guildId: interaction.guildId, locale: interaction.locale })}:\n${result}` }) 
+                return interaction.reply({ content: `${client.config.emojis.block}${client.language({ textId: `По вашему запросу было найдено несколько трофеев`, guildId: interaction.guildId, locale: interaction.locale })}:\n${result}` }) 
             }
             if (!profile.trophies?.some(e => e.toLowerCase() == args.trophy.toLowerCase())) {
                 return interaction.reply({ content: `${client.config.emojis.NO} <@${args.user}> ${client.language({ textId: `не имеет трофея`, guildId: interaction.guildId, locale: interaction.locale })} ${args.trophy}`, flags: ["Ephemeral"] })

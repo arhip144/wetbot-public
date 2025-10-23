@@ -106,7 +106,13 @@ module.exports = {
         send: "📨",
         game: "🎮",
         auction: "⚖️",
-        trash: "🗑️"
+        trash: "🗑️",
+        progress_left_fill: "🟩",
+        progress_left_empty: "⬜",
+        progress_middle_fill: "🟩",
+        progress_right_fill: "🟩",
+        progress_right_empty: "⬜",
+        progress_middle_empty: "⬜",
     },
     discord: {
         ownerId: "364726576656678912"
