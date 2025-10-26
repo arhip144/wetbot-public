@@ -1,6 +1,7 @@
-const { ApplicationCommandOptionType, EmbedBuilder, Collection } = require("discord.js")
-const Decimal = require("decimal.js")
-const { AchievementType } = require("../enums")
+const { ApplicationCommandOptionType, EmbedBuilder, Collection, ContainerBuilder, TextDisplayBuilder, SeparatorBuilder, SeparatorSpacingSize, Colors, MessageFlags } = require("discord.js");
+const Decimal = require("decimal.js");
+const { AchievementType, RewardType } = require("../enums");
+const CrashGame = require("../classes/CrashGame");
 module.exports = {
     name: 'crash',
     nameLocalizations: {
@@ -78,8 +79,7 @@ module.exports = {
      * @param {String[]} args
      */
     run: async (client, interaction, args) => {
-        const betCoefficient = args.coefficient
-        if (betCoefficient.toString().split('.')[1]?.length > 2) {
+        if (args.coefficient.toString().split('.')[1]?.length > 2) {
             return interaction.reply({ content: `${client.language({ textId: `Количество знаков ставки после точки не должно быть больше 2`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
         const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
@@ -111,75 +111,39 @@ module.exports = {
                 return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Этот предмет нельзя поставить в краше`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             }
         }
-        const serverItemEmoji = args.bet === "currency" ? settings.displayCurrencyEmoji : serverItem?.displayEmoji
-        const serverItemName = args.bet === "currency" ? settings.currencyName : serverItem?.name
-        if ((args.bet === "currency" ? profile.currency : userItem.amount) < args.amount) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "В инвентаре", guildId: interaction.guildId, locale: interaction.locale })} ${serverItemEmoji}${serverItemName} (${(args.bet === "currency" ? profile.currency : userItem.amount)})`, flags: ["Ephemeral"] })
+        if ((args.bet === "currency" ? profile.currency : userItem.amount) < args.amount) {
+            const serverItemEmoji = args.bet === "currency" ? settings.displayCurrencyEmoji : serverItem?.displayEmoji
+            const serverItemName = args.bet === "currency" ? settings.currencyName : serverItem?.name
+            return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "В инвентаре", guildId: interaction.guildId, locale: interaction.locale })} ${serverItemEmoji}${serverItemName} (${(args.bet === "currency" ? profile.currency : userItem.amount)})`, flags: ["Ephemeral"] })
+        }
         if (args.bet !== "currency") {
             await profile.subtractItem(serverItem.itemID, args.amount)    
         } else {
             await profile.subtractCurrency(args.amount)
         }
         await profile.save()
-        const coefficient = getCrashPoint()
+        const crashGame = new CrashGame(client, interaction.user.id, args.coefficient, args.bet === "currency" ? RewardType.Currency : RewardType.Item, args.amount, serverItem)
+        crashGame.getCrashPoint()
         await interaction.deferReply()
-
         const startTime = Date.now()
-        let currentMultiplier = 1
-
         const gameLoop = setInterval(async () => {
             const elapsedSeconds = (Date.now() - startTime) / 1000
-            currentMultiplier = Math.exp(elapsedSeconds * 0.1)
-            interaction.editReply({ embeds: [
-                new EmbedBuilder()
-                    .setAuthor({ name: interaction.member.displayName, iconURL: interaction.member.displayAvatarURL() })
-                    .setTitle(`${interaction.client.language({ textId: `Мини-игра 'Краш'`, guildId: interaction.guildId, locale: interaction.locale })}`)
-                    .setFields([
-                        {
-                            name: `${interaction.client.language({ textId: `Коэффициент игры:`, guildId: interaction.guildId, locale: interaction.locale })}`,
-                            value: `x${coefficient > currentMultiplier ? currentMultiplier.toFixed(2) : coefficient}`
-                        },
-                        {
-                            name: `${interaction.client.language({ textId: `Твой коэффициент:`, guildId: interaction.guildId, locale: interaction.locale })}`,
-                            value: `x${betCoefficient}`
-                        },
-                        {
-                            name: `${interaction.client.language({ textId: betCoefficient > currentMultiplier ? `Выигрыш:` : betCoefficient <= coefficient ? `Ты выиграл:` : `Ты проиграл:`, guildId: interaction.guildId, locale: interaction.locale })}`,
-                            value: `${serverItemEmoji}${serverItemName} (${args.amount.toLocaleString()}) ➜ ${serverItemEmoji}${serverItemName} (${Number(String(new Decimal(args.amount).mul((new Decimal(betCoefficient > currentMultiplier ? currentMultiplier : betCoefficient <= coefficient ? betCoefficient : 0))))).toLocaleString()})`
-                        }
-                    ])
-                    .setColor(coefficient > currentMultiplier ? "Green" : betCoefficient <= coefficient ? `Green` : `Red`)    
-            ] })
-            if (currentMultiplier >= coefficient) {
+            crashGame.currentCoefficient = Math.exp(elapsedSeconds * 0.1)
+            interaction.editReply({ 
+                components: [crashGame.getContainer(interaction)],
+                flags: [MessageFlags.IsComponentsV2] 
+            })
+            if (crashGame.currentCoefficient >= crashGame.crashPoint) {
                 clearInterval(gameLoop)
-                interaction.editReply({ embeds: [
-                    new EmbedBuilder()
-                        .setAuthor({ name: interaction.member.displayName, iconURL: interaction.member.displayAvatarURL() })
-                        .setTitle(`${interaction.client.language({ textId: `Мини-игра 'Краш'`, guildId: interaction.guildId, locale: interaction.locale })}`)
-                        .setFields([
-                            {
-                                name: `${interaction.client.language({ textId: `Коэффициент игры:`, guildId: interaction.guildId, locale: interaction.locale })}`,
-                                value: `x${coefficient}`
-                            },
-                            {
-                                name: `${interaction.client.language({ textId: `Твой коэффициент:`, guildId: interaction.guildId, locale: interaction.locale })}`,
-                                value: `x${betCoefficient}`
-                            },
-                            {
-                                name: betCoefficient <= coefficient ? `${interaction.client.language({ textId: `Ты выиграл:`, guildId: interaction.guildId, locale: interaction.locale })}` : `${interaction.client.language({ textId: `Ты проиграл:`, guildId: interaction.guildId, locale: interaction.locale })}`,
-                                value: `${serverItemEmoji}${serverItemName} (${args.amount.toLocaleString()}) ➜ ${serverItemEmoji}${serverItemName} (${Number(String(new Decimal(args.amount).mul((new Decimal(betCoefficient <= coefficient ? betCoefficient : 0))))).toLocaleString()})`
-                            }
-                        ])
-                        .setColor(betCoefficient <= coefficient ? "Green" : "Red")    
-                ] })
                 if (args.bet !== "currency") {
-                    if (betCoefficient <= coefficient) await profile.addItem(serverItem.itemID, +`${new Decimal(args.amount).mul((new Decimal(betCoefficient)))}`) 
+                    if (crashGame.playerCoefficient <= crashGame.crashPoint) await profile.addItem(crashGame.betItem.itemID, +`${new Decimal(crashGame.betAmount).mul((new Decimal(crashGame.playerCoefficient)))}`) 
                 } else {
-                    if (betCoefficient <= coefficient) await profile.addCurrency(+`${new Decimal(args.amount).mul((new Decimal(betCoefficient)))}`)
+                    if (crashGame.playerCoefficient <= crashGame.crashPoint) await profile.addCurrency(+`${new Decimal(crashGame.betAmount).mul((new Decimal(crashGame.playerCoefficient)))}`)
                 }
-                if (betCoefficient <= coefficient) {
+                if (crashGame.playerCoefficient <= crashGame.crashPoint) {
                     const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Crash)
                     await Promise.all(achievements.map(async achievement => {
-                        if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && betCoefficient >= achievement.amount && !client.tempAchievements[interaction.user.id]?.includes(achievement.id)) { 
+                        if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && crashGame.playerCoefficient >= achievement.amount && !client.tempAchievements[interaction.user.id]?.includes(achievement.id)) { 
                             if (!client.tempAchievements[interaction.user.id]) client.tempAchievements[interaction.user.id] = []
                             client.tempAchievements[interaction.user.id].push(achievement.id)
                             await profile.addAchievement(achievement)
@@ -190,11 +154,4 @@ module.exports = {
             }
         }, 1000)
     }
-}
-function getCrashPoint(houseEdge = 0.01) {
-    const MAX = 0xFFFFFFFFFFFFF // 2^52 (4503599627370496 в десятичной)
-    // Генерируем случайное число от 1 до 2^52 - 1
-    const random = Math.floor(Math.random() * (MAX - 1)) + 1
-    const point = (MAX * (1 - houseEdge)) / random
-    return Number(Math.max(1, point).toFixed(2)) // Минимальный множитель = 1
 }

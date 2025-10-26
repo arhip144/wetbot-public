@@ -98,22 +98,6 @@ module.exports = {
                     type: ApplicationCommandOptionType.String,
                     autocomplete: true,
                     required: true
-                },
-                {
-                    name: 'user',
-                    nameLocalizations: {
-                        'ru': `юзер`,
-                        'uk': `користувач`,
-                        'es-ES': `usuario`
-                    },
-                    description: 'User to view quest',
-                    descriptionLocalizations: {
-                        'ru': `Просмотр квеста пользователя`,
-                        'uk': `Перегляд квесту користувача`,
-                        'es-ES': `Ver misión del usuario`
-                    },
-                    type: ApplicationCommandOptionType.User,
-                    required: false
                 }
             ]
         }
@@ -129,23 +113,14 @@ module.exports = {
      */
     run: async (client, interaction, args) => {
         if (args?.Subcommand === "info" || interaction.customId?.includes("questExplorer")) {
-            let quest = interaction.isChatInputCommand() ? client.cache.quests.get(args.quest) : client.cache.quests.get(IdRegexp.exec(interaction.customId)[1])
+            const member = interaction.member
+            const profile = await client.functions.fetchProfile(client, member.user.id, interaction.guildId)
+            const settings = client.cache.settings.get(interaction.guildId)
+            let quest = interaction.isChatInputCommand() ? client.cache.quests.find(e => e.questID === args.quest && e.isEnabled && e.guildID === interaction.guildId && (e.active || profile.quests?.some(e1 => e1.questID === e.questID))) : client.cache.quests.find(e => e.questID === IdRegexp.exec(interaction.customId)[1] && e.isEnabled && e.guildID === interaction.guildId && (e.active || profile.quests?.some(e1 => e1.questID === e.questID)))
             if (!quest) {
                 return interaction.reply({ content: `${client.config.emojis.NO} **${client.language({ textId: `Такого квеста не существует`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
             }
-            let member
-            if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(e => null)
-            else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
-            else if (interaction.isStringSelectMenu() && (MemberRegexp.exec(interaction.customId) || MemberRegexp.exec(interaction.values[0]))) {
-                member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(e => null)
-                if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
-            }
-            else member = interaction.member
-            if (!member) {
-                return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-            }
-            const profile = await client.functions.fetchProfile(client, member.user.id, interaction.guildId)
-            const settings = client.cache.settings.get(interaction.guildId)
+            
             if (interaction.customId?.includes("take")) {
                 if (profile.quests?.some(e => e.questID === quest.questID && !e.finished)) {
                     return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Квест", guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: "уже выполняется", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
@@ -381,7 +356,7 @@ module.exports = {
                         new TextDisplayBuilder()
                             .setContent([
                                 targetIndex === 0 ? `# ${client.language({ textId: "Задачи", guildId: interaction.guildId, locale: interaction.locale })}:\n-# ${quest.requiresAllTasks ? `${client.language({ textId: "Для выполнения квеста выполните все задачи", guildId: interaction.guildId, locale: interaction.locale })}\n` : `${client.language({ textId: "Для выполнения квеста выполните любую задачу", guildId: interaction.guildId, locale: interaction.locale })}\n`}` : undefined,
-                                `${emoji}${element.isOptional ? `${client.language({ textId: "(ДОП.)", guildId: interaction.guildId, locale: interaction.locale })} ` : ""}${description} ${amount}${progressBar}${element.isOptional ? `\n${client.language({ textId: "Награда", guildId: interaction.guildId, locale: interaction.locale })}: ${element.optionalRewards.map(reward => {
+                                `${emoji}${element.isOptional ? `${client.language({ textId: "(ДОП.)", guildId: interaction.guildId, locale: interaction.locale })} ` : ""}${description} ${amount}${progressBar}${element.isOptional && element.optionalRewards ? `\n${client.language({ textId: "Награда", guildId: interaction.guildId, locale: interaction.locale })}: ${element.optionalRewards.map(reward => {
                                     let name = ``
                                     if (reward.type === RewardType.Currency) name = `${settings.displayCurrencyEmoji}**${settings.currencyName}**`
                                     else if (reward.type === RewardType.Experience) name = `${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}**`

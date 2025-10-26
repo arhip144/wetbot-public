@@ -48,7 +48,7 @@ module.exports = {
                                     .setRequired(false)
                                     .setStyle(TextInputStyle.Paragraph)
                                     .setPlaceholder(`${client.language({ textId: `Рекомендуется изображение 900x300`, guildId: interaction.guildId, locale: interaction.locale })}`)
-                                    .setValue(`${settings.rank_card.background || ""}`)
+                                    .setValue(`${settings.rank_card.background || " "}`)
                             ),
                         new LabelBuilder()
                             .setLabel(`${client.language({ textId: `Яркость`, guildId: interaction.guildId, locale: interaction.locale })}`)

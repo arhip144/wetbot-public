@@ -165,8 +165,9 @@ const itemSchema = new Schema({
         min_transfer: { type: Number, default: 0.01 },
         max_transfer: { type: Number },
         open_mode: { type: String, default: "single" },
-        notCrashable: { type: Boolean, default: false }
-})
-itemSchema.index({ name: 1, guildID: 1 }, { unique: true })
-const name = "items"
-module.exports = models[name] || model(name, itemSchema)
+        notCrashable: { type: Boolean, default: false },
+        blackJackBan: { type: Boolean, default: false }
+});
+itemSchema.index({ name: 1, guildID: 1 }, { unique: true });
+const name = "items";
+module.exports = models[name] || model(name, itemSchema);

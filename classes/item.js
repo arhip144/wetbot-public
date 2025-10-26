@@ -60,6 +60,7 @@ class Item {
         this.open_mode = item.open_mode
         this.notAuctionable = item.notAuctionable
         this.notCrashable = item.notCrashable
+        this.blackJackBan = item.blackJackBan
 	}
     get enabled() {
         return this.visible

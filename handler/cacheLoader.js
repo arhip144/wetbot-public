@@ -39,6 +39,7 @@ const cache = {
     emojiSelectors: new Collection(),
     auctions: new Collection(),
     customRoles: new Collection(),
+    blackjack: new Collection(),
     ready: false
 }
 const loadCache = async (client) => {

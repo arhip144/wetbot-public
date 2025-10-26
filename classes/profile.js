@@ -882,7 +882,7 @@ class Profile {
         if (typeof achievement !== "object") {
             achievement = this.client.cache.achievements.find(ach => ach.id === achievement && ach.enabled)
         }
-        if (this.achievements.some(e => e.achievmentID === achievement.id)) return
+        if (this.achievements?.some(e => e.achievmentID === achievement.id)) return
         const guild = this.client.guilds.cache.get(this.guildID)
         if (guild) {
             const member = await guild.members.fetch(this.userID).catch(e => null)

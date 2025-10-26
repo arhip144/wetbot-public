@@ -338,9 +338,10 @@ module.exports = {
                 if (client.cache.quests.some(e => e.name.toLowerCase() === args.name.toLowerCase() && e.guildID === interaction.guildId)) {
                     return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Квест с названием`, guildId: interaction.guildId, locale: interaction.locale })}: <${args.name}>> ${client.language({ textId: `уже существует, выбери другое название`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 }
-                let copyQuest = structuredClone(Object.assign({}, { ...originalQuest, client: undefined, rewards: [], targets: [] }))
+                let copyQuest = structuredClone(Object.assign({}, { ...originalQuest, client: undefined, rewards: [], targets: [], nextQuests: [] }))
                 if (originalQuest.rewards.length) copyQuest.rewards = JSON.parse(JSON.stringify(originalQuest.rewards))
                 if (originalQuest.targets.length) copyQuest.targets = JSON.parse(JSON.stringify(originalQuest.targets))
+                if (originalQuest.nextQuests.length) copyQuest.nextQuests = JSON.parse(JSON.stringify(originalQuest.nextQuests))
                 delete copyQuest._id
                 copyQuest.name = args.name
                 copyQuest.questID = uniqid.time()
@@ -1023,8 +1024,9 @@ module.exports = {
                                 )
                             } else label.setTextInputComponent(
                                 new TextInputBuilder()
-                                    .setCustomId("object").setStyle(TextInputStyle.Short)
-                                    .setRequired(false)
+                                    .setCustomId("object")
+                                    .setStyle(TextInputStyle.Short)
+                                    .setRequired(type === "giveToNPC" ? true : false)
                                     .setPlaceholder(`${client.language({ textId: type === "quests" ? `${client.language({ textId: `Название квеста`, guildId: interaction.guildId, locale: interaction.locale })}` :  type === "fishing" || type === "mining" || type === "marketplace" || type === "itemsOpened" || type === "itemsReceived" || type === "itemsCrafted" || type === "itemsUsed" || type === "itemsBoughtInShop" || type === "itemsBoughtOnMarket" || type === "itemsSold" || type === "drop" || type === "transfer" || type === "giveToNPC" ? `${client.language({ textId: `Название предмета`, guildId: interaction.guildId, locale: interaction.locale })}` : type === "wormholesSpawned" ? `${client.language({ textId: `Название червоточины`, guildId: interaction.guildId, locale: interaction.locale })}` : type === "UsedPromocode" ? `${client.language({ textId: `Код промокода`, guildId: interaction.guildId, locale: interaction.locale })}` : ``, guildId: selectMenuInteraction.guildId, locale: selectMenuInteraction.locale })}`)
                             )
                             components.push(label)
@@ -1360,7 +1362,7 @@ module.exports = {
                             }))
                         }
                         return interaction.reply({ content: `${client.language({ textId: `Квест`, guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: `был добавлен`, guildId: interaction.guildId, locale: interaction.locale })} ${totalMembers} ${client.language({ textId: `пользователям`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                    }
+                    } else
                     if (interaction.values[0] === "addToMember") {
                         const modal = new ModalBuilder()
                             .setCustomId(`addToMember_${interaction.id}`)
@@ -1416,7 +1418,7 @@ module.exports = {
                             return interaction.reply({ content: `${client.language({ textId: `Квест`, guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: `был добавлен`, guildId: interaction.guildId, locale: interaction.locale })} ${client.language({ textId: `пользователям`, guildId: interaction.guildId, locale: interaction.locale })} ${addedToUsers.map(e => `<@${e}>`).join(", ")}`, flags: ["Ephemeral"] })
                         }
                         
-                    }
+                    } else
                     if (interaction.values[0] === "delMembers") {
                         let totalMembers = 0
                         await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && profile.quests?.some(q => q.questID === quest.questID)).map(async profile => {
@@ -1426,7 +1428,7 @@ module.exports = {
                             totalMembers++
                         }))
                         return interaction.reply({ content: `${client.language({ textId: `Квест`, guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: `был удален`, guildId: interaction.guildId, locale: interaction.locale })} ${client.language({ textId: `у`, guildId: interaction.guildId, locale: interaction.locale })} ${totalMembers} ${client.language({ textId: `пользователей`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                    }
+                    } else
                     if (interaction.values[0] === "delFromMember") {
                         const modal = new ModalBuilder()
                             .setCustomId(`delFromMember_${interaction.id}`)
@@ -1460,7 +1462,7 @@ module.exports = {
                             }
                             return interaction.reply({ content: `${client.language({ textId: `Квест`, guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: `был удален`, guildId: interaction.guildId, locale: interaction.locale })} ${client.language({ textId: `у пользователей`, guildId: interaction.guildId, locale: interaction.locale })} ${deletedFromUsers.map(e => `<@${e}>`).join(", ")}`, flags: ["Ephemeral"] })
                         }
-                    }
+                    } else
                     if (interaction.values[0] === "clearProgress_members") {
                         let totalMembers = 0
                         if (quest.community) {
@@ -1492,7 +1494,7 @@ module.exports = {
                             }))
                         }
                         return interaction.reply({ content: `${client.language({ textId: `Прогресс квеста`, guildId: interaction.guildId, locale: interaction.locale })} ${quest.displayEmoji}**${quest.name}** ${client.language({ textId: `был очищен у`, guildId: interaction.guildId, locale: interaction.locale })} ${totalMembers} ${client.language({ textId: `пользователей`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                    }
+                    } else
                     if (interaction.values[0] === "clearProgress_member") {
                         const modal = new ModalBuilder()
                             .setCustomId(`clearProgress_member_${interaction.id}`)
@@ -1633,12 +1635,12 @@ module.exports = {
                                                 value = `${index}`
                                             }
                                             else if (reward.type === RewardType.Item) {
-                                                const item = client.cache.items.find(e => e.itemID === element.id && e.enabled && !e.temp)
+                                                const item = client.cache.items.find(e => e.itemID === reward.id && e.enabled && !e.temp)
                                                 if (item) {
                                                     label = `${item.name} (${reward.amount.toLocaleString()})`
                                                     emoji = item.displayEmoji
                                                 } else {
-                                                    label = `${element.id} (${reward.amount.toLocaleString()})`
+                                                    label = `${reward.id} (${reward.amount.toLocaleString()})`
                                                     emoji = client.config.emojis.unknown
                                                 }
                                                 value = `${index}`
@@ -2058,7 +2060,7 @@ module.exports = {
             const description = quest.getDescription(element, interaction.locale)
             targetArray.push([
                 targetIndex === 0 ? `-# ${quest.requiresAllTasks ? `${client.language({ textId: "Для выполнения квеста выполните все задачи", guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: "Для выполнения квеста выполните любую задачу", guildId: interaction.guildId, locale: interaction.locale })}`}` : undefined,
-                `${element.isOptional ? `${client.language({ textId: "(ДОП.)", guildId: interaction.guildId, locale: interaction.locale })} ` : ""}${description}${element.isOptional ? `\n⤷⎯⎯⎯⎯⟶${client.language({ textId: "Награда", guildId: interaction.guildId, locale: interaction.locale })}: ${element.optionalRewards.map(reward => {
+                `${element.isOptional ? `${client.language({ textId: "(ДОП.)", guildId: interaction.guildId, locale: interaction.locale })} ` : ""}${description}${element.isOptional  && element.optionalRewards ? `\n⤷⎯⎯⎯⎯⟶${client.language({ textId: "Награда", guildId: interaction.guildId, locale: interaction.locale })}: ${element.optionalRewards.map(reward => {
                     let name = ``
                     if (reward.type === RewardType.Currency) name = `${settings.displayCurrencyEmoji}**${settings.currencyName}**`
                     else if (reward.type === RewardType.Experience) name = `${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}**`

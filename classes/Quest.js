@@ -37,7 +37,7 @@ class Quest {
             await profile.save()
         }))
         await Promise.all(this.client.cache.quests.filter(quest => quest.nextQuests.some(nextQuest => nextQuest === this.questID)).map(async quest => {
-            quest.nextQuests = quest.nextQuests.filter(nextQuest !== this.questID)
+            quest.nextQuests = quest.nextQuests.filter(nextQuest => nextQuest !== this.questID)
             await quest.save()
         }))
         this.client.cache.quests.delete(this.questID)

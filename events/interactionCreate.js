@@ -41,8 +41,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
 			return interaction.respond(options.filter(e => e.name.toLowerCase().includes(focus.toLowerCase())).slice(0, 24)).catch(e => null)
 		}
     	if (interaction.commandName === "achievement-give-to-user") {
-			const userID = interaction.options.get("user")?.value
-			if (!userID) return interaction.respond([]).catch(e => null)
     		const focus = interaction.options.getFocused()
     		const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && (focus ? (e.name.toLowerCase() === focus.toLowerCase() || e.id.toLowerCase() === focus.toLowerCase()) : true)).sort((a, b) => a.name < b.name).first(25)
     		const options = []
@@ -1090,7 +1088,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
 		}
 		if (interaction.commandName === "quests") {
 			const focus = interaction.options.getFocused()
-    		const quests = client.cache.quests.filter(e => e.guildID === interaction.guildId && e.name.toLowerCase().includes(focus.toLowerCase()) && e.isEnabled).first(25)
+			const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
+    		const quests = client.cache.quests.filter(e => e.guildID === interaction.guildId && e.name.toLowerCase().includes(focus.toLowerCase()) && e.isEnabled && ((e.active || profile.quests?.some(e1 => e1.questID === e.questID)))).first(25)
     		const options = []
 			quests.forEach(quest => {
 				const isDefaultEmoji = node_emoji.hasEmoji(quest.emoji || "")
@@ -1105,6 +1104,24 @@ client.on(Events.InteractionCreate, async (interaction) => {
 			const focus = interaction.options.getFocused()
     		const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
 			const items = client.cache.items.filter(item => item.guildID === interaction.guildId && item.enabled && !item.temp && item.found && !item.notCrashable && item.name.toLowerCase().includes(focus.toLowerCase()) && profile.inventory.some(x => x.itemID === item.itemID && x.amount > 0)).sort((a, b) => b.name > a.name).first(24)
+    		const options = []
+    		items.forEach(item => {
+				const isDefaultEmoji = node_emoji.hasEmoji(item.emoji || "")
+    			options.push({
+    				name: !isDefaultEmoji ? item.name : item.displayEmoji + item.name,
+    				value: item.name
+    			})
+    		})
+			const settings = client.cache.settings.get(interaction.guildId)
+			options.unshift(
+				{ value: "currency", name: settings.currencyName },
+			)
+    		return interaction.respond(options).catch(e => null)
+		}
+		if (interaction.commandName === "blackjack") {
+			const focus = interaction.options.getFocused()
+    		const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
+			const items = client.cache.items.filter(item => item.guildID === interaction.guildId && item.enabled && !item.temp && item.found && !item.blackJackBan && item.name.toLowerCase().includes(focus.toLowerCase()) && profile.inventory.some(x => x.itemID === item.itemID && x.amount > 0)).sort((a, b) => b.name > a.name).first(24)
     		const options = []
     		items.forEach(item => {
 				const isDefaultEmoji = node_emoji.hasEmoji(item.emoji || "")

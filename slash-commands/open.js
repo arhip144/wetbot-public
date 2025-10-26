@@ -163,7 +163,7 @@ module.exports = {
                 else userKeyAmount = userItemKey.amount
             }
         }
-        if (item.amount < 1) canOpen = false
+        if (!item || item.amount < 1) canOpen = false
         //ОТКРЫТИЕ//
         let rewards, object_items
         let openAmount = 1
@@ -207,13 +207,13 @@ module.exports = {
                             return interaction.reply({ content: `${client.config.emojis.NO} **${modalArgs.amount}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                         }
                         const amount = +modalArgs.amount
-                        if (amount <= 0 || amount > 1000) {
-                            return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Число не должно быть`, guildId: interaction.guildId, locale: interaction.locale })} <= 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 1000`, flags: ["Ephemeral"] })
+                        if (amount <= 0 || amount > 100000) {
+                            return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Число не должно быть`, guildId: interaction.guildId, locale: interaction.locale })} <= 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 100000`, flags: ["Ephemeral"] })
                         }
                         openAmount = amount
                     } else return    
                 } else {
-                    openAmount = 1000
+                    openAmount = 100000
                     if (serverItem.max_open) {
                         openAmount = serverItem.max_open
                     }
