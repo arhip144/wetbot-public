@@ -121,12 +121,6 @@
       "es-ES": "Este objeto no existe",
       "ru": "Такого предмета не существует"
     },
-    "Ждите кулдаун": {
-      "en-US": "Wait cooldown",
-      "uk": "Зачекайте оновлення",
-      "es-ES": "Espera a que finalice la recarga",
-      "ru": "Ждите кулдаун"
-    },
     "сек": {
       "en-US": "secs",
       "uk": "сек",
@@ -205,30 +199,6 @@
       "es-ES": "Objetos",
       "ru": "Предметы"
     },
-    "Я сейчас проверяю Вас": {
-      "en-US": "I'm checking you now",
-      "uk": "Я зараз перевіряю вас",
-      "es-ES": "Te estoy chequeando en este momento",
-      "ru": "Я сейчас проверяю Вас"
-    },
-    "Неверный ответ Steam API": {
-      "en-US": "Invalid response from Steam API",
-      "uk": "Невірна відповідь Steam API",
-      "es-ES": "Respuesta inválida de la API de Steam",
-      "ru": "Неверный ответ Steam API"
-    },
-    "Введен SteamID с недействительным пользователем": {
-      "en-US": "Entered SteamID with invalid user",
-      "uk": "Введено SteamID з недійсним користувачем",
-      "es-ES": "Introducido SteamID con usuario no válido",
-      "ru": "Введен SteamID с недействительным пользователем"
-    },
-    "Пожалуйста, добавьте меня в Steam для получения роли": {
-      "en-US": "Please add me in Steam for the role",
-      "uk": "Будь ласка, додайте мене в Steam для отримання ролі",
-      "es-ES": "Por favor, añádeme en Steam para el rol",
-      "ru": "Пожалуйста, добавьте меня в Steam для получения роли"
-    },
     "Ошибка": {
       "en-US": "Error",
       "uk": "Помилка",
@@ -240,12 +210,6 @@
       "uk": "Роль",
       "es-ES": "Rol",
       "ru": "Роль"
-    },
-    "Звание сбросится через": {
-      "en-US": "Rank will be reset",
-      "uk": "Звання скинеться через",
-      "es-ES": "El rango será reseteado",
-      "ru": "Звание сбросится через"
     },
     "Ты уже получил ежедневную награду": {
       "en-US": "You have already got your daily reward",
@@ -469,12 +433,6 @@
       "es-ES": "Emojis",
       "ru": "Эмодзи"
     },
-    "Добавить/удалить предмет из избранного": {
-      "en-US": "Add/remove item from favorites",
-      "uk": "Додати/видалити предмет з обраного",
-      "es-ES": "Añadir/eliminar objeto de favoritos",
-      "ru": "Добавить/удалить предмет из избранного"
-    },
     "Предмет": {
       "en-US": "Item",
       "uk": "Предмет",
@@ -541,41 +499,11 @@
       "es-ES": "Ha sido añadido al usuario",
       "ru": "добавлен пользователю"
     },
-    "Выдача предметов завершена": {
-      "en-US": "Item giveaway completed",
-      "uk": "Видача предметів завершена",
-      "es-ES": "Sorteo de objetos completado",
-      "ru": "Выдача предметов завершена"
-    },
-    "Введите число": {
-      "en-US": "Enter the number",
-      "uk": "Введіть число",
-      "es-ES": "Introduce el número",
-      "ru": "Введите число"
-    },
-    "и": {
-      "en-US": "and",
-      "uk": "і",
-      "es-ES": "y",
-      "ru": "и"
-    },
-    "добавлено пользователю": {
-      "en-US": "has been added to the user",
-      "uk": "додано користувачу",
-      "es-ES": "ha sido añadido al usuario",
-      "ru": "добавлено пользователю"
-    },
     "Принято": {
       "en-US": "Accepted",
       "uk": "Прийнято",
       "es-ES": "Aceptado",
       "ru": "Принято"
-    },
-    "была принята": {
-      "en-US": "was accepted",
-      "uk": "була прийнята",
-      "es-ES": "fue aceptado",
-      "ru": "была принята"
     },
     "Раздача": {
       "en-US": "Giveaway",
@@ -595,24 +523,6 @@
       "es-ES": "Motivo",
       "ru": "Причина"
     },
-    "в формате": {
-      "en-US": "in the format",
-      "uk": "у форматі",
-      "es-ES": "con el formato",
-      "ru": "в формате"
-    },
-    "день": {
-      "en-US": "day",
-      "uk": "день",
-      "es-ES": "día",
-      "ru": "день"
-    },
-    "час": {
-      "en-US": "hour",
-      "uk": "година",
-      "es-ES": "hora",
-      "ru": "час"
-    },
     "Валюта": {
       "en-US": "Currency",
       "uk": "Валюта",
@@ -630,12 +540,6 @@
       "uk": "У тебе недостатньо",
       "es-ES": "No tienes suficiente",
       "ru": "У тебя недостаточно"
-    },
-    "нельзя раздавать": {
-      "en-US": "can't give out",
-      "uk": "не можна роздавати",
-      "es-ES": "no se puede sortear",
-      "ru": "нельзя раздавать"
     },
     "Награда": {
       "en-US": "Reward",
@@ -757,12 +661,6 @@
       "es-ES": "Finalizar",
       "ru": "Закончить"
     },
-    "Список": {
-      "en-US": "List",
-      "uk": "Список",
-      "es-ES": "Lista",
-      "ru": "Список"
-    },
     "У меня нет прав для канала": {
       "en-US": "I don't have permissions for the channel",
       "uk": "У мене немає прав для каналу",
@@ -775,23 +673,11 @@
       "es-ES": "Necesito los siguientes permisos",
       "ru": "Мне нужны следующие права"
     },
-    "Управлять сообщениям": {
-      "en-US": "Manage messages",
-      "uk": "Керувати повідомленнями",
-      "es-ES": "Gestionar mensajes",
-      "ru": "Управлять сообщениям"
-    },
     "Просмотр канала": {
       "en-US": "View channel",
       "uk": "Перегляд каналу",
       "es-ES": "Ver el canal",
       "ru": "Просмотр канала"
-    },
-    "Добавлять реакции": {
-      "en-US": "Add reactions",
-      "uk": "Додавати реакції",
-      "es-ES": "Añadir reacciones",
-      "ru": "Добавлять реакции"
     },
     "Отправлять сообщения": {
       "en-US": "Send messages",
@@ -846,12 +732,6 @@
       "uk": "Рибалка",
       "es-ES": "Pesca",
       "ru": "Рыбалка"
-    },
-    "Автоголосовые каналы": {
-      "en-US": "Autovoice channels",
-      "uk": "Автоголосові канали",
-      "es-ES": "Canales de voz automáticos",
-      "ru": "Автоголосовые каналы"
     },
     "Магазин": {
       "en-US": "Shop",
@@ -1050,18 +930,6 @@
       "uk": "Загальний чат",
       "es-ES": "Chat general",
       "ru": "Общий чат"
-    },
-    "Канал для раздач": {
-      "en-US": "Channel for giveaways",
-      "uk": "Канал для роздач",
-      "es-ES": "Canal de sorteos",
-      "ru": "Канал для раздач"
-    },
-    "Канал для мемов": {
-      "en-US": "Channel for memes",
-      "uk": "Канал для мемів",
-      "es-ES": "Canal de memes",
-      "ru": "Канал для мемов"
     },
     "Исключенные роли для получения опыта, валюты, предметов, репутации, достижений и выполнения квестов": {
       "en-US": "Banned roles for gaining XP, currency, items, reputation, achievements and completing quests",
@@ -1320,30 +1188,6 @@
       "uk": "Відбувається, коли користувач редагує профіль",
       "es-ES": "Sucede cuando un usuario actualiza su perfil",
       "ru": "Происходит, когда пользователь редактирует профиль"
-    },
-    "Происходит, когда создают событие": {
-      "en-US": "Emitted, when scheduled event is created",
-      "uk": "Відбувається, коли створюють подію",
-      "es-ES": "Sucede cuando se crea un evento programado",
-      "ru": "Происходит, когда создают событие"
-    },
-    "Удаление события": {
-      "en-US": "Scheduled event delete",
-      "uk": "Видалення події",
-      "es-ES": "Eliminación de evento programado",
-      "ru": "Удаление события"
-    },
-    "Происходит, когда удаляют событие": {
-      "en-US": "Emitted, when scheduled event is deleted",
-      "uk": "Відбувається, коли видаляють подію",
-      "es-ES": "Sucede cuando un evento programado es eliminado",
-      "ru": "Происходит, когда удаляют событие"
-    },
-    "Изменение события": {
-      "en-US": "Scheduled event updated",
-      "uk": "Зміна події",
-      "es-ES": "Actualización de evento programado",
-      "ru": "Изменение события"
     },
     "Создание приглашения": {
       "en-US": "Invite create",
@@ -1651,12 +1495,6 @@
       "es-ES": "Vendiste objetos por",
       "ru": "Ты продал предметы за"
     },
-    "НЕИЗВЕСТНЫЙ ПРЕДМЕТ": {
-      "en-US": "UNKNOWN ITEM",
-      "uk": "НЕВІДОМИЙ ПРЕДМЕТ",
-      "es-ES": "OBJETO DESCONOCIDO",
-      "ru": "НЕИЗВЕСТНЫЙ ПРЕДМЕТ"
-    },
     "Чтобы использовать предмет введи команду: /use <item>": {
       "en-US": "To use an item, enter the command: /use <item>",
       "uk": "Щоб використати предмет, введи команду: /use <предмет>",
@@ -1716,12 +1554,6 @@
       "uk": "Магазин сервера",
       "es-ES": "Tienda del servidor",
       "ru": "Магазин сервера"
-    },
-    "Таблица лидеров": {
-      "en-US": "Leaderboard",
-      "uk": "Таблиця лідерів",
-      "es-ES": "Clasificación",
-      "ru": "Таблица лидеров"
     },
     "Достижения": {
       "en-US": "Achievements",
@@ -1969,12 +1801,6 @@
       "es-ES": "Enviar un mensaje a un canal",
       "ru": "Отправляется сообщение в канал"
     },
-    "Отправляется сообщение в ЛС": {
-      "en-US": "Sending a message to PM",
-      "uk": "Надсилається повідомлення в ЛС",
-      "es-ES": "Enviar mensaje a MP",
-      "ru": "Отправляется сообщение в ЛС"
-    },
     "Удаляет с сервера": {
       "en-US": "Removes from the server",
       "uk": "Видаляє з сервера",
@@ -2155,12 +1981,6 @@
       "es-ES": "Esta no es una interacción tuya",
       "ru": "Не твоя кнопка/меню"
     },
-    "ДОСТИЖЕНИЯ": {
-      "en-US": "ACHIEVEMENTS",
-      "uk": "ДОСЯГНЕННЯ",
-      "es-ES": "LOGROS",
-      "ru": "ДОСТИЖЕНИЯ"
-    },
     "НАЗВАНИЕ": {
       "en-US": "NAME",
       "uk": "НАЗВА",
@@ -2178,12 +1998,6 @@
       "uk": "Символи",
       "es-ES": "Símbolos",
       "ru": "Символы"
-    },
-    "Введи": {
-      "en-US": "Enter",
-      "uk": "Введи",
-      "es-ES": "Introducir",
-      "ru": "Введи"
     },
     "Emoji": {
       "en-US": "Emoji",
@@ -2203,12 +2017,6 @@
       "es-ES": "emoji personalizado",
       "ru": "эмодзи сервера"
     },
-    "Число": {
-      "en-US": "Number",
-      "uk": "Число",
-      "es-ES": "Número",
-      "ru": "Число"
-    },
     "Награды": {
       "en-US": "Rewards",
       "uk": "Нагороди",
@@ -2226,12 +2034,6 @@
       "uk": "Додати роль",
       "es-ES": "Añadir rol",
       "ru": "Добавить роль"
-    },
-    "Удалить роль": {
-      "en-US": "Remove role",
-      "uk": "Видалити роль",
-      "es-ES": "Eliminar rol",
-      "ru": "Удалить роль"
     },
     "Написать": {
       "en-US": "Write",
@@ -2305,12 +2107,6 @@
       "es-ES": "Pescar",
       "ru": "Порыбачить"
     },
-    "Найти": {
-      "en-US": "Find",
-      "uk": "Знайти",
-      "es-ES": "Encontrar",
-      "ru": "Найти"
-    },
     "или": {
       "en-US": "or",
       "uk": "або",
@@ -2328,12 +2124,6 @@
       "uk": "Виконати квести",
       "es-ES": "Completar misiones",
       "ru": "Выполнить квесты"
-    },
-    "все предметы": {
-      "en-US": "all items",
-      "uk": "всі предмети",
-      "es-ES": "todos los objetos",
-      "ru": "все предметы"
     },
     "Создать раздачу": {
       "en-US": "Create giveaway",
@@ -2395,24 +2185,6 @@
       "es-ES": "Editar el logro",
       "ru": "Редактировать достижение"
     },
-    "символов": {
-      "en-US": "symbols",
-      "uk": "символів",
-      "es-ES": "símbolos",
-      "ru": "символов"
-    },
-    "содержит запрещенные слова": {
-      "en-US": "contains banned words",
-      "uk": "містить заборонені слова",
-      "es-ES": "contiene palabras excluídas",
-      "ru": "содержит запрещенные слова"
-    },
-    "Запрещенные слова": {
-      "en-US": "Banned words",
-      "uk": "Заборонені слова",
-      "es-ES": "Palabras excluídas",
-      "ru": "Запрещенные слова"
-    },
     "Введена пустая строка": {
       "en-US": "Empty string entered",
       "uk": "Введено порожній рядок",
@@ -2424,18 +2196,6 @@
       "uk": "Рядок",
       "es-ES": "Cadena",
       "ru": "Строка"
-    },
-    "не содержит эмодзи": {
-      "en-US": "not contains emoji",
-      "uk": "не містить емодзі",
-      "es-ES": "no contenie emojis",
-      "ru": "не содержит эмодзи"
-    },
-    "содержит не поддерживаемый эмодзи": {
-      "en-US": "contains not supported emoji",
-      "uk": "містить непідтримуваний емодзі",
-      "es-ES": "contiene un emoji no soportado",
-      "ru": "содержит не поддерживаемый эмодзи"
     },
     "Количество не должно быть": {
       "en-US": "Quantity should not be",
@@ -2479,18 +2239,6 @@
       "es-ES": "Establecer",
       "ru": "Установить"
     },
-    "Изменить количество": {
-      "en-US": "Edit quantity",
-      "uk": "Змінити кількість",
-      "es-ES": "Editar cantidad",
-      "ru": "Изменить количество"
-    },
-    "У меня нет права": {
-      "en-US": "I don't have permission",
-      "uk": "У мене немає права",
-      "es-ES": "No tengo permiso",
-      "ru": "У меня нет права"
-    },
     "Управлять каналами": {
       "en-US": "Manage channels",
       "uk": "Керувати каналами",
@@ -2509,41 +2257,11 @@
       "es-ES": "Canal de voz",
       "ru": "Голосовой канал"
     },
-    "Созданы каналы": {
-      "en-US": "Channels created",
-      "uk": "Створені канали",
-      "es-ES": "Canales creados",
-      "ru": "Созданы каналы"
-    },
-    "Не удалось создать каналы. Возможно у меня нет прав": {
-      "en-US": "Unable to create channels. Perhaps I don't have permissions",
-      "uk": "Не вдалося створити канали. Можливо, у мене немає прав",
-      "es-ES": "No me es posible crear canales. Puede que no tenga permisos",
-      "ru": "Не удалось создать каналы. Возможно у меня нет прав"
-    },
-    "Пингани в чат категорию или напиши ID категории где будут создавать голосовые каналы": {
-      "en-US": "Mention the category or ID where voice channels will be created",
-      "uk": "Згадай в чаті категорію або напиши ID категорії, де будуть створюватися голосові канали",
-      "es-ES": "Menciona o introduce la ID de la categoría donde serán creados los canales de voz",
-      "ru": "Пингани в чат категорию или напиши ID категории где будут создавать голосовые каналы"
-    },
     "Для удаления введи": {
       "en-US": "Enter to delete",
       "uk": "Для видалення введи",
       "es-ES": "Introducir para eliminar",
       "ru": "Для удаления введи"
-    },
-    "Пингани в чат канал или напиши ID канала при заходе в который будет создаваться голосовой канал": {
-      "en-US": "Mention the channel or ID, upon entering which a voice channel will be created",
-      "uk": "Згадай в чаті канал або напиши ID каналу, при вході в який буде створюватися голосовий канал",
-      "es-ES": "Menciona o introduce la ID del canal que creará un nuevo canal de voz al entrar en él",
-      "ru": "Пингани в чат канал или напиши ID канала при заходе в который будет создаваться голосовой канал"
-    },
-    "Напиши в чат, как будет называться созданный голосовой канал": {
-      "en-US": "Send in the channel the name to be used as the channel name",
-      "uk": "Напиши в чат, як називатиметься створений голосовий канал",
-      "es-ES": "Escribe el texto que será utilizado como nombre de canal",
-      "ru": "Напиши в чат, как будет называться созданный голосовой канал"
     },
     "Можете употреблять переменные": {
       "en-US": "You can use variables",
@@ -2551,59 +2269,11 @@
       "es-ES": "Puedes usar variables",
       "ru": "Можете употреблять переменные"
     },
-    "имя пользователя создавший канала": {
-      "en-US": "the username of the member who created the channel",
-      "uk": "ім'я користувача, який створив канал",
-      "es-ES": "el nombre de usuario que creo el canal",
-      "ru": "имя пользователя создавший канала"
-    },
-    "номер канала": {
-      "en-US": "the channel number",
-      "uk": "номер каналу",
-      "es-ES": "número del canal",
-      "ru": "номер канала"
-    },
-    "случайный эмодзи": {
-      "en-US": "random emoji",
-      "uk": "випадковий емодзі",
-      "es-ES": "emoji aleatorio",
-      "ru": "случайный эмодзи"
-    },
-    "Создать автоголосовой канал": {
-      "en-US": "Create autovoice channel",
-      "uk": "Створити автоголосовий канал",
-      "es-ES": "Crear canal de voz automático",
-      "ru": "Создать автоголосовой канал"
-    },
-    "Изменить категорию автоголосовых каналов": {
-      "en-US": "Edit the category of autovoice channels",
-      "uk": "Змінити категорію автоголосових каналів",
-      "es-ES": "Editar la categoría de canales de voz automáticos",
-      "ru": "Изменить категорию автоголосовых каналов"
-    },
-    "Установленная категория": {
-      "en-US": "Setted category",
-      "uk": "Встановлена категорія",
-      "es-ES": "Categoría establecida",
-      "ru": "Установленная категория"
-    },
-    "Изменить канал для создания автоголосовых каналов": {
-      "en-US": "Edit the channel for creating autovoice channels",
-      "uk": "Змінити канал для створення автоголосових каналів",
-      "es-ES": "Editar canal de creación de CV automáticos",
-      "ru": "Изменить канал для создания автоголосовых каналов"
-    },
     "Установленный канал": {
       "en-US": "Setted channel",
       "uk": "Встановлений канал",
       "es-ES": "Canal establecido",
       "ru": "Установленный канал"
-    },
-    "Изменить название автоголосового канала": {
-      "en-US": "Edit the name of the created channel",
-      "uk": "Змінити назву автоголосового каналу",
-      "es-ES": "Editar el nombre del canal creado",
-      "ru": "Изменить название автоголосового канала"
     },
     "Напиши в чат название магазина": {
       "en-US": "Send in the channel the name of shop",
@@ -2754,12 +2424,6 @@
       "uk": "Згадай в чаті загальний канал для спілкування",
       "es-ES": "Menciona el chat general",
       "ru": "Пингани в чат общий канал для общения"
-    },
-    "Пингани в чат канал для мемов. В этом канале можно отправлять только сообщения с вложениями, например видео или изображение. Так же бот будет ставить реакцию лайка под сообщением": {
-      "en-US": "Mention the channel for memes. You can only send messages in this channel with attachments, such as a video or image. Also, the bot will add a like reaction under the message",
-      "uk": "Згадай в чаті канал для мемів. У цьому каналі можна надсилати лише повідомлення з вкладеннями, наприклад відео чи зображення. Також бот ставитиме реакцію лайка під повідомленням",
-      "es-ES": "Menciona el canal para memes. Solo se podrá enviar mensajes con adjuntos a este canal, como videos o iágenes. Asimismo, el bot añadira una reacción like al mensaje",
-      "ru": "Пингани в чат канал для мемов. В этом канале можно отправлять только сообщения с вложениями, например видео или изображение. Так же бот будет ставить реакцию лайка под сообщением"
     },
     "Добавить/Удалить канал в/из список(а) исключенных": {
       "en-US": "Add/remove the channel from banned list",
@@ -3181,18 +2845,6 @@
       "es-ES": "POR DEFECTO",
       "ru": "ПО УМОЛЧАНИЮ"
     },
-    "Пингани в чат или напиши ID роли для ранга": {
-      "en-US": "Mention the role or write ID for rank",
-      "uk": "Пингани в чат або напиши ID ролі для рангу",
-      "es-ES": "Menciona el rol o escribe su ID para el rango",
-      "ru": "Пингани в чат или напиши ID роли для ранга"
-    },
-    "Изменить канал": {
-      "en-US": "Edit channel",
-      "uk": "Змінити канал",
-      "es-ES": "Editar canal",
-      "ru": "Изменить канал"
-    },
     "Вкл. всё": {
       "en-US": "Enable all",
       "uk": "Увімк. все",
@@ -3264,12 +2916,6 @@
       "uk": "Роль з ID",
       "es-ES": "El rol con ID",
       "ru": "Роль c ID"
-    },
-    "Название не должно быть более 100 символов": {
-      "en-US": "The name must not be more than 100 characters",
-      "uk": "Назва не повинна бути більше 100 символів",
-      "es-ES": "El nombre no debe contener más de 100 caracteres",
-      "ru": "Название не должно быть более 100 символов"
     },
     "Голосовой канал не найден": {
       "en-US": "The voice channel not found",
@@ -3433,12 +3079,6 @@
       "es-ES": "RAREZA",
       "ru": "РЕДКОСТЬ"
     },
-    "МАГАЗИН": {
-      "en-US": "SHOP",
-      "uk": "МАГАЗИН",
-      "es-ES": "TIENDA",
-      "ru": "МАГАЗИН"
-    },
     "Невозможно добавить в магазин: не указана цена или валюта": {
       "en-US": "Unable to add to store: no price or currency specified",
       "uk": "Неможливо додати до магазину: не вказана ціна або валюта",
@@ -3469,24 +3109,6 @@
       "es-ES": "Para cancelar introduce",
       "ru": "Для отмены введи"
     },
-    "в магазине": {
-      "en-US": "in the shop",
-      "uk": "в магазині",
-      "es-ES": "en la tienda",
-      "ru": "в магазине"
-    },
-    "Текущее количество": {
-      "en-US": "The current quantity",
-      "uk": "Поточна кількість",
-      "es-ES": "La cantidad actual",
-      "ru": "Текущее количество"
-    },
-    "пользователя": {
-      "en-US": "of member",
-      "uk": "користувача",
-      "es-ES": "del usuario",
-      "ru": "пользователя"
-    },
     "Да": {
       "en-US": "Yes",
       "uk": "Так",
@@ -3516,12 +3138,6 @@
       "uk": "Додати рецепт",
       "es-ES": "Añadir receta",
       "ru": "Добавить рецепт"
-    },
-    "Выбери количество получаемого предмета": {
-      "en-US": "Choose the quantity of the item to craft",
-      "uk": "Виберіть кількість отримуваного предмета",
-      "es-ES": "Escoge la cantidad a recibir del objeto creado",
-      "ru": "Выбери количество получаемого предмета"
     },
     "за данный крафт. Можно выбрать диапазон чисел, тогда в данном случае будет выбрано случайное число из данного диапазона": {
       "en-US": "for this craft. You can select a range of numbers, then in this case a random number from this range will be selected",
@@ -3612,12 +3228,6 @@
       "uk": "Тут ти можеш вибрати, які події будуть відбуватися при використанні предмета. Цей крок можна пропустити",
       "es-ES": "Aquí puedes elegir que eventos sucederán cuando se utiliza el objeto. Este paso puede ser omitido",
       "ru": "Здесь ты можешь выбрать, какие события будут происходить при использовании предмета. Этот шаг можно пропустить"
-    },
-    "Эту роль": {
-      "en-US": "This role",
-      "uk": "Цю роль",
-      "es-ES": "Este rol",
-      "ru": "Эту роль"
     },
     "Если это временная роль, то напиши в минутах через сколько она будет удаляться": {
       "en-US": "If this is a temporary role, then write in minutes after how long it will be deleted",
@@ -3931,12 +3541,6 @@
       "es-ES": "no fue encontrado en la base de datos",
       "ru": "не был найден в базе данных"
     },
-    "Для улучшения используй команду": {
-      "en-US": "To upgrade use the command",
-      "uk": "Для покращення використовуй команду",
-      "es-ES": "Para mejorar utiliza el comando",
-      "ru": "Для улучшения используй команду"
-    },
     "СОЗДАТЬ": {
       "en-US": "CREATE",
       "uk": "СТВОРИТИ",
@@ -4068,12 +3672,6 @@
       "uk": "Мінімальна ціна не повинна бути більше максимальної ціни",
       "es-ES": "el precio mínimo no debería ser superior al precio máximo",
       "ru": "Минимальная цена не должна быть больше максимальной цены"
-    },
-    "ЧЕРВОТОЧИНЫ": {
-      "en-US": "WORMHOLES",
-      "uk": "ЧЕРВОТОЧИНИ",
-      "es-ES": "AGUJEROS DE GUSANO",
-      "ru": "ЧЕРВОТОЧИНЫ"
     },
     "Ошибка: предмета с ID": {
       "en-US": "Error: item with ID",
@@ -4207,23 +3805,11 @@
       "es-ES": "Usuario",
       "ru": "Пользователь"
     },
-    "ВСЕ": {
-      "en-US": "ALL",
-      "uk": "ВСЕ",
-      "es-ES": "TODO",
-      "ru": "ВСЕ"
-    },
     "Пользователи": {
       "en-US": "Members",
       "uk": "Користувачі",
       "es-ES": "Usuarios",
       "ru": "Пользователи"
-    },
-    "Добавить/удалить предмет": {
-      "en-US": "Add/remove item",
-      "uk": "Додати/видалити предмет",
-      "es-ES": "Añadir/eliminar objeto",
-      "ru": "Добавить/удалить предмет"
     },
     "Данного лота уже не существует": {
       "en-US": "This lot no longer exists",
@@ -4236,18 +3822,6 @@
       "uk": "не можна купувати на маркеті",
       "es-ES": "no puede ser comprado en el mercado",
       "ru": "нельзя покупать на маркете"
-    },
-    "Создать лот": {
-      "en-US": "Create lot",
-      "uk": "Створити лот",
-      "es-ES": "Crear lote",
-      "ru": "Создать лот"
-    },
-    "Фильтр": {
-      "en-US": "Filter",
-      "uk": "Фільтр",
-      "es-ES": "Filtro",
-      "ru": "Фильтр"
     },
     "Купить лот": {
       "en-US": "Buy lot",
@@ -4308,12 +3882,6 @@
       "uk": "увійшов у шлюб з",
       "es-ES": "casado con",
       "ru": "вступил в брак с"
-    },
-    "вступила в брак с": {
-      "en-US": "married with",
-      "uk": "увійшла у шлюб з",
-      "es-ES": "casada con",
-      "ru": "вступила в брак с"
     },
     "вступил(-а) в брак с": {
       "en-US": "married with",
@@ -4423,47 +3991,11 @@
       "es-ES": "Para abrir necesitas",
       "ru": "Для открытия требуется"
     },
-    "руб": {
-      "en-US": "RUB",
-      "uk": "руб",
-      "es-ES": "RUB",
-      "ru": "руб"
-    },
-    "Запрос": {
-      "en-US": "Request by",
-      "uk": "Запит",
-      "es-ES": "Solicitado por",
-      "ru": "Запрос"
-    },
     "и еще": {
       "en-US": "and more",
       "uk": "і ще",
       "es-ES": "y más",
       "ru": "и еще"
-    },
-    "минута": {
-      "en-US": "minute",
-      "uk": "хвилина",
-      "es-ES": "minuto",
-      "ru": "минута"
-    },
-    "минуты": {
-      "en-US": "minutes",
-      "uk": "хвилини",
-      "es-ES": "minutos",
-      "ru": "минуты"
-    },
-    "часов": {
-      "en-US": "hours",
-      "uk": "годин",
-      "es-ES": "horas",
-      "ru": "часов"
-    },
-    "часа": {
-      "en-US": "hours",
-      "uk": "години",
-      "es-ES": "horas",
-      "ru": "часа"
     },
     "Дата рождения": {
       "en-US": "Date of birthday",
@@ -4693,18 +4225,6 @@
       "es-ES": "no encontrado en el servidor",
       "ru": "не найдена на сервере"
     },
-    "выключить": {
-      "en-US": "disable",
-      "uk": "вимкнути",
-      "es-ES": "deshabilitar",
-      "ru": "выключить"
-    },
-    "включить": {
-      "en-US": "enable",
-      "uk": "увімкнути",
-      "es-ES": "habilitar",
-      "ru": "включить"
-    },
     "Сообщение не отправлено. Ошибка": {
       "en-US": "Message is not sent. Error",
       "uk": "Повідомлення не відправлено. Помилка",
@@ -4932,24 +4452,6 @@
       "uk": "грудень",
       "es-ES": "Diciembre",
       "ru": "декабрь"
-    },
-    "год": {
-      "en-US": "year",
-      "uk": "рік",
-      "es-ES": "año",
-      "ru": "год"
-    },
-    "В таблице лидеров пока никого нет": {
-      "en-US": "No one in leaderboard yet",
-      "uk": "У таблиці лідерів поки нікого немає",
-      "es-ES": "Nadie en la clasificación todavía",
-      "ru": "В таблице лидеров пока никого нет"
-    },
-    "за все время": {
-      "en-US": "all time",
-      "uk": "за весь час",
-      "es-ES": "total",
-      "ru": "за все время"
     },
     "на сервере": {
       "en-US": "on server",
@@ -5221,23 +4723,11 @@
       "es-ES": "no fue explorado: no encontrado",
       "ru": "не будет изучен: не найден"
     },
-    "ПРОДОЛЖИТЬ": {
-      "en-US": "CONTINUE",
-      "uk": "ПРОДОВЖИТИ",
-      "es-ES": "CONTINUAR",
-      "ru": "ПРОДОЛЖИТЬ"
-    },
     "ОТМЕНА": {
       "en-US": "CANCEL",
       "uk": "СКАСУВАННЯ",
       "es-ES": "CANCELAR",
       "ru": "ОТМЕНА"
-    },
-    "Введите": {
-      "en-US": "Enter",
-      "uk": "Введіть",
-      "es-ES": "Introducir",
-      "ru": "Введите"
     },
     "была добавлена": {
       "en-US": "was added",
@@ -5665,12 +5155,6 @@
       "es-ES": "Objetos por bump",
       "ru": "Предметы за бамп"
     },
-    "Валюта за лайк": {
-      "en-US": "Currency for like",
-      "uk": "Валюта за лайк",
-      "es-ES": "Dinero por 'me gusta'",
-      "ru": "Валюта за лайк"
-    },
     "Предметы за лайк": {
       "en-US": "Items for like",
       "uk": "Предмети за лайк",
@@ -5796,12 +5280,6 @@
       "uk": "Скасування підтвердження через",
       "es-ES": "Cancelar confirmación tras",
       "ru": "Отмена подтверждения через"
-    },
-    "пользователь": {
-      "en-US": "member",
-      "uk": "користувач",
-      "es-ES": "usuario",
-      "ru": "пользователь"
     },
     "ОЧИСТКА СЕРВЕРА": {
       "en-US": "WIPE SERVER",
@@ -6019,12 +5497,6 @@
       "es-ES": "recogió",
       "ru": "забрал(-а)"
     },
-    "Взять": {
-      "en-US": "Accept",
-      "uk": "Взяти",
-      "es-ES": "Aceptar",
-      "ru": "Взять"
-    },
     "ПОВТОРНЫЙ": {
       "en-US": "REPEATED",
       "uk": "ПОВТОРНИЙ",
@@ -6127,12 +5599,6 @@
       "es-ES": "Roles eliminados",
       "ru": "Удалены роли"
     },
-    "квеста": {
-      "en-US": "of quest",
-      "uk": "квесту",
-      "es-ES": "de la misión",
-      "ru": "квеста"
-    },
     "спасибо за бамп": {
       "en-US": "thanks for bump",
       "uk": "дякую за бамп",
@@ -6162,12 +5628,6 @@
       "uk": "з'явилася",
       "es-ES": "apareció",
       "ru": "появилась"
-    },
-    "Ошибка выдачи роли": {
-      "en-US": "Role assignment error",
-      "uk": "Помилка видачі ролі",
-      "es-ES": "ErrorS de asignación de rol",
-      "ru": "Ошибка выдачи роли"
     },
     "зашел на сервер": {
       "en-US": "has joined to the server",
@@ -6265,12 +5725,6 @@
       "es-ES": "Ausente",
       "ru": "Отсутствует"
     },
-    "Неизвестна": {
-      "en-US": "Unknown",
-      "uk": "Невідома",
-      "es-ES": "Desconocido",
-      "ru": "Неизвестна"
-    },
     "Бот вошел на сервер": {
       "en-US": "Bot join",
       "uk": "Бот зайшов на сервер",
@@ -6312,12 +5766,6 @@
       "uk": "Подію створено",
       "es-ES": "Evento creado",
       "ru": "Событие создано"
-    },
-    "Событие": {
-      "en-US": "Event",
-      "uk": "Подія",
-      "es-ES": "Evento",
-      "ru": "Событие"
     },
     "Событие удалено": {
       "en-US": "Event delete",
@@ -6439,12 +5887,6 @@
       "es-ES": "Mensaje eliminado",
       "ru": "Сообщение удалено"
     },
-    "Автор сообщения": {
-      "en-US": "Message author",
-      "uk": "Автор повідомлення",
-      "es-ES": "Autor del mensaje",
-      "ru": "Автор сообщения"
-    },
     "Отсутствуют": {
       "en-US": "NO",
       "uk": "Відсутні",
@@ -6510,18 +5952,6 @@
       "uk": "Аргументи",
       "es-ES": "Argumentos",
       "ru": "Аргументы"
-    },
-    "создан": {
-      "en-US": "is created",
-      "uk": "створено",
-      "es-ES": "creado",
-      "ru": "создан"
-    },
-    "Произошла ошибка": {
-      "en-US": "An error has occurred",
-      "uk": "Сталася помилка",
-      "es-ES": "Ha ocurrido un error",
-      "ru": "Произошла ошибка"
     },
     "name": {
       "en-US": "Name",
@@ -6721,12 +6151,6 @@
       "es-ES": "Añadir",
       "ru": "Добавлено"
     },
-    "Язык": {
-      "en-US": "Language",
-      "uk": "Мова",
-      "es-ES": "Idioma",
-      "ru": "Язык"
-    },
     "из червоточины": {
       "en-US": "from wormhole",
       "uk": "з червоточини",
@@ -6738,12 +6162,6 @@
       "uk": "Додати до магазину",
       "es-ES": "Añadir a la tienda",
       "ru": "Добавить в магазин"
-    },
-    "Далее": {
-      "en-US": "Next",
-      "uk": "Далі",
-      "es-ES": "Siguiente",
-      "ru": "Далее"
     },
     "Трофеи": {
       "en-US": "Trophies",
@@ -6931,12 +6349,6 @@
       "es-ES": "El porcentaje del bonus no puede ser < 0",
       "ru": "Процент бустера не может быть < 0"
     },
-    "Максимум бонусных каналов": {
-      "en-US": "Maximum bonus channels",
-      "uk": "Максимум бонусних каналів",
-      "es-ES": "Máximo de canales de bonus",
-      "ru": "Максимум бонусных каналов"
-    },
     "За общение в голосовом канале ты": {
       "en-US": "For spend time in voice channel you",
       "uk": "За спілкування в голосовому каналі ти",
@@ -6955,47 +6367,11 @@
       "es-ES": "Objeto con ID",
       "ru": "Предмет с ID"
     },
-    "Терминология параметров": {
-      "en-US": "Parameter terminology",
-      "uk": "Термінологія параметрів",
-      "es-ES": "Terminología de parámetros",
-      "ru": "Терминология параметров"
-    },
     "Приложения": {
       "en-US": "Apps",
       "uk": "Додатки",
       "es-ES": "Aplicaciones",
       "ru": "Приложения"
-    },
-    "Руководство": {
-      "en-US": "Manual",
-      "uk": "Керівництво",
-      "es-ES": "Manual",
-      "ru": "Руководство"
-    },
-    "ТЕРМИНОЛОГИЯ НЕКОТОРЫХ ПАРАМЕТРОВ": {
-      "en-US": "TERMINOLOGY OF SOME PARAMETERS",
-      "uk": "ТЕРМІНОЛОГІЯ ДЕЯКИХ ПАРАМЕТРІВ",
-      "es-ES": "TERMINILOGÍA DE ALGUNOS PARÁMETROS",
-      "ru": "ТЕРМИНОЛОГИЯ НЕКОТОРЫХ ПАРАМЕТРОВ"
-    },
-    "Изученный": {
-      "en-US": "Explored",
-      "uk": "Вивчений",
-      "es-ES": "Explorado",
-      "ru": "Изученный"
-    },
-    "Этот параметр влияет на отображение информации о предмете, если предмет неизученный, то он будет отображаться как: ||??????????||. Для того чтобы он стал изученным, любому пользователю необходимо получить его в инвентарь, то есть найти его в первые. Либо использовать командой **/use** предмет, у которого есть свойство **Изучение предмета**. Для ручного переключения этого параметра, необходимо выполнить команду **/manager-items edit**, выбрать необходимый предмет, перейти в раздел **Параметры** и переключить параметр **Известный**": {
-      "en-US": "This parameter affects the display of information about the item, if the item is unexplored, then it will be displayed as: ||??????????||. In order for it to become explored, any user needs to get it into inventory, that is, find it first. Or use the **/use** command to use an item that has the **Explore item** property. To manually switch this parameter, you need to execute the command **/manager-items edit**, select the desired item, go to the **Options** section and switch the **Explore** parameter",
-      "uk": "Цей параметр впливає на відображення інформації про предмет, якщо предмет невивчений, то він буде відображатися як: ||??????????||. Для того щоб він став вивченим, будь-якому користувачеві необхідно отримати його в інвентар, тобто знайти його вперше. Або використати командою **/use** предмет, у якого є властивість **Вивчення предмета**. Для ручного переключення цього параметра необхідно виконати команду **/manager-items edit**, вибрати необхідний предмет, перейти в розділ **Параметри** і переключити параметр **Відомий**",
-      "es-ES": "Este parámetro afecta cómo se muestra la información de un objeto. Si el objeto no ha sido descubierto, se mostrará como: ||??????????||. Para que pase a estar descubierto, cualquier usuario debe obtenerlo en su inventario, es decir, encontrarlo por primera vez. También puede descubrirse usando el comando **/usar** sobre un objeto que tenga la propiedad **Explorar objeto**. Para cambiar este parámetro manualmente, ejecuta el comando **/gestion-de-objetos editar**, selecciona el objeto deseado, entra en la sección **Opciones** y activa el parámetro **Conocido**.",
-      "ru": "Этот параметр влияет на отображение информации о предмете, если предмет неизученный, то он будет отображаться как: ||??????????||. Для того чтобы он стал изученным, любому пользователю необходимо получить его в инвентарь, то есть найти его в первые. Либо использовать командой **/use** предмет, у которого есть свойство **Изучение предмета**. Для ручного переключения этого параметра, необходимо выполнить команду **/manager-items edit**, выбрать необходимый предмет, перейти в раздел **Параметры** и переключить параметр **Известный**"
-    },
-    "Этот параметр позволяет включать и выключать предмет глобально на сервере. Невидимые предметы нельзя никаким образом получить, нельзя посмотреть о них информацию, предметы исчезают, но не удаляются из инвентарей пользователей. Для ручного переключения этого параметра, необходимо выполнить команду **/manager-items edit**, выбрать необходимый предмет, перейти в раздел **Параметры** и переключить параметр **Видимый**": {
-      "en-US": "This setting allows you to enable and disable the item globally on the server. Invisible items cannot be obtained in any way, you can not see information about them, items disappear, but are not deleted from users' inventories. To manually switch this parameter, you need to execute the command **/manager-items edit**, select the desired item, go to the **Options** section and switch the **Visible** parameter",
-      "uk": "Цей параметр дозволяє включати та виключати предмет глобально на сервері. Невидимі предмети не можна отримати жодним чином, не можна подивитися інформацію про них, предмети зникають, але не видаляються з інвентарів користувачів. Для ручного переключення цього параметра необхідно виконати команду **/manager-items edit**, вибрати необхідний предмет, перейти в розділ **Параметри** і переключити параметр **Видимий**",
-      "es-ES": "Este parámetro permite activar o desactivar un objeto globalmente en el servidor. Los objetos invisibles no pueden obtenerse de ninguna forma ni se puede ver información sobre ellos. Desaparecen, pero no se eliminan de los inventarios de los usuarios. Para cambiar este parámetro manualmente, ejecuta el comando **/gestion-de-objetos editar**, selecciona el objeto deseado, entra en la sección **Opciones** y activa el parámetro **Visible**.",
-      "ru": "Этот параметр позволяет включать и выключать предмет глобально на сервере. Невидимые предметы нельзя никаким образом получить, нельзя посмотреть о них информацию, предметы исчезают, но не удаляются из инвентарей пользователей. Для ручного переключения этого параметра, необходимо выполнить команду **/manager-items edit**, выбрать необходимый предмет, перейти в раздел **Параметры** и переключить параметр **Видимый**"
     },
     "Пример ссылки": {
       "en-US": "Link example",
@@ -7206,36 +6582,6 @@
       "uk": "На сервері не існує предметів з рибальства",
       "es-ES": "No existen objetos de pesca en este servidor",
       "ru": "На сервере не существует предметов из рыбалки"
-    },
-    "было зачислено на сервер": {
-      "en-US": "was added to the server",
-      "uk": "було зараховано на сервер",
-      "es-ES": "fue añadido al servidor",
-      "ru": "было зачислено на сервер"
-    },
-    "количество": {
-      "en-US": "amount",
-      "uk": "кількість",
-      "es-ES": "cantidad",
-      "ru": "количество"
-    },
-    "Ты не найден в таблице лидеров.": {
-      "en-US": "You are not found on the leaderboard.",
-      "uk": "Тебе не знайдено в таблиці лідерів.",
-      "es-ES": "No has sido encontrado en la clasificación",
-      "ru": "Ты не найден в таблице лидеров."
-    },
-    "Найти себя": {
-      "en-US": "Find yourself",
-      "uk": "Знайти себе",
-      "es-ES": "Encuéntrate",
-      "ru": "Найти себя"
-    },
-    "Максимум стилей": {
-      "en-US": "Maximum styles",
-      "uk": "Максимум стилів",
-      "es-ES": "Estilos máximos",
-      "ru": "Максимум стилей"
     },
     "Бонусных каналов": {
       "en-US": "Bonus channels",
@@ -7585,12 +6931,6 @@
       "es-ES": "Añadir embed",
       "ru": "Добавить эмбед"
     },
-    "Отправь файл в формате JSON эмбеда": {
-      "en-US": "Send attachment in JSON format of embed",
-      "uk": "Надішліть файл у форматі JSON ембеда",
-      "es-ES": "Enviar adjunto en formato JSON",
-      "ru": "Отправь файл в формате JSON эмбеда"
-    },
     "Эмбед с индексом": {
       "en-US": "Embed with index",
       "uk": "Ембед з індексом",
@@ -7675,23 +7015,11 @@
       "es-ES": "El número total de caracteres en todos los campos de Título, Descripción, Campo de nombre, Campo de valor, Pie y Encabezado en todas los embeds adjuntos a un mensaje no debe superar los 6000 caracteres.",
       "ru": "Общая сумма символов во всех полях Заглавие, Описание, Поле-имя, Поле-значение, Нижний колонтитул и Верхний колонтитул во всех эмбедах, прикрепленных к сообщению, не должна превышать 6000 символов."
     },
-    "Размер вложения не должен превышать 8МБ": {
-      "en-US": "Attachment size must not exceed 8MB",
-      "uk": "Розмір вкладення не повинен перевищувати 8МБ",
-      "es-ES": "El tamaño del adjunto no debe exceder los 8MB",
-      "ru": "Размер вложения не должен превышать 8МБ"
-    },
     "Формат вложения должен быть .json": {
       "en-US": "Attachment format must be .json",
       "uk": "Формат вкладення повинен бути .json",
       "es-ES": "El formato del adjunto debe ser .json",
       "ru": "Формат вложения должен быть .json"
-    },
-    "Нет вложения": {
-      "en-US": "No attachment",
-      "uk": "Немає вкладення",
-      "es-ES": "Sin adjuntos",
-      "ru": "Нет вложения"
     },
     "Эмодзи удалено": {
       "en-US": "Emoji deleted",
@@ -7747,18 +7075,6 @@
       "es-ES": "Todo",
       "ru": "Все"
     },
-    "иметь": {
-      "en-US": "have",
-      "uk": "мати",
-      "es-ES": "tiene",
-      "ru": "иметь"
-    },
-    "иметь одно из": {
-      "en-US": "have one of",
-      "uk": "мати одне з",
-      "es-ES": "tiene uno de",
-      "ru": "иметь одно из"
-    },
     "НОВАЯ КАТЕГОРИЯ": {
       "en-US": "NEW CATEGORY",
       "uk": "НОВА КАТЕГОРІЯ",
@@ -7794,12 +7110,6 @@
       "uk": "Назва предмета || ID предмета",
       "es-ES": "Nombre del objeto || ID del objeto",
       "ru": "Название предмета || ID предмета"
-    },
-    "Предмет с названием или ID": {
-      "en-US": "Item with name or ID",
-      "uk": "Предмет з назвою або ID",
-      "es-ES": "Objeto con nombre o ID",
-      "ru": "Предмет с названием или ID"
     },
     "Нет прав": {
       "en-US": "No permissions",
@@ -7861,41 +7171,11 @@
       "es-ES": "No existen categorías",
       "ru": "Категорий нет."
     },
-    "Максимум категорий": {
-      "en-US": "Maximum categories",
-      "uk": "Максимум категорій",
-      "es-ES": "Categorías máximas",
-      "ru": "Максимум категорий"
-    },
     "Не удалось найти реакцию для раздачи": {
       "en-US": "Couldn't find reaction for giveaway",
       "uk": "Не вдалося знайти реакцію для роздачі",
       "es-ES": "No se pudo encontrar reacción para el sorteo",
       "ru": "Не удалось найти реакцию для раздачи"
-    },
-    "сек.": {
-      "en-US": "secs.",
-      "uk": "сек.",
-      "es-ES": "segs.",
-      "ru": "сек."
-    },
-    "мин.": {
-      "en-US": "mins.",
-      "uk": "хв.",
-      "es-ES": "mins",
-      "ru": "мин."
-    },
-    "ч.": {
-      "en-US": "hrs.",
-      "uk": "год.",
-      "es-ES": "hrs",
-      "ru": "ч."
-    },
-    "мс.": {
-      "en-US": "ms.",
-      "uk": "мс.",
-      "es-ES": "ms.",
-      "ru": "мс."
     },
     "Введите название вашего квеста": {
       "en-US": "Enter the name of your quest",
@@ -8107,12 +7387,6 @@
       "es-ES": "Cambiar nombre, descripción, imagen, color",
       "ru": "Изменить название, описание, картинку, цвет"
     },
-    "Добавить/удалить награду": {
-      "en-US": "Add/Remove reward",
-      "uk": "Додати/видалити нагороду",
-      "es-ES": "Añadir/eliminar objeto",
-      "ru": "Добавить/удалить награду"
-    },
     "Сделать активным": {
       "en-US": "Set to active",
       "uk": "Зробити активним",
@@ -8191,12 +7465,6 @@
       "es-ES": "Sorteo de objetos completado!",
       "ru": "Выдача предметов завершена!"
     },
-    "участниками": {
-      "en-US": "members",
-      "uk": "учасниками",
-      "es-ES": "miembros",
-      "ru": "участниками"
-    },
     "Роль с ID": {
       "en-US": "Role with ID",
       "uk": "Роль з ID",
@@ -8263,12 +7531,6 @@
       "es-ES": "Efectos negativos",
       "ru": "Отрицательные эффекты"
     },
-    "Максимум квестов": {
-      "en-US": "Maximum quests",
-      "uk": "Максимум квестів",
-      "es-ES": "Misiones máximas",
-      "ru": "Максимум квестов"
-    },
     "Квест с именем или ID": {
       "en-US": "Quest with name or ID",
       "uk": "Квест з ім'ям або ID",
@@ -8298,12 +7560,6 @@
       "uk": "У користувача видалено квест",
       "es-ES": "Misión eliminada del usuario",
       "ru": "У пользователя удален квест"
-    },
-    "нет такого предмета": {
-      "en-US": "no such item",
-      "uk": "немає такого предмета",
-      "es-ES": "no existe tal objeto",
-      "ru": "нет такого предмета"
     },
     "Роли с ID": {
       "en-US": "Role with ID",
@@ -8347,23 +7603,11 @@
       "es-ES": "No tienes el nivel necesario para usar",
       "ru": "У тебя недостаточно уровня для использования"
     },
-    "Недостаточно": {
-      "en-US": "Not enough",
-      "uk": "Недостатньо",
-      "es-ES": "Insuficiente",
-      "ru": "Недостаточно"
-    },
     "требует неизвестный предмет": {
       "en-US": "Requires an unknown item",
       "uk": "вимагає невідомий предмет",
       "es-ES": "Requiere un objeto desconocido",
       "ru": "требует неизвестный предмет"
-    },
-    "в инвентаре": {
-      "en-US": "in inventory",
-      "uk": "в інвентарі",
-      "es-ES": "en el inventario",
-      "ru": "в инвентаре"
     },
     "Невозможно использовать предмет": {
       "en-US": "Unable to use item",
@@ -8382,12 +7626,6 @@
       "uk": "не віднято: не було знайдено",
       "es-ES": "no subtraido: no encontrado",
       "ru": "не вычтен: не был найден"
-    },
-    "with": {
-      "en-US": "with",
-      "uk": "з",
-      "es-ES": "con",
-      "ru": "c"
     },
     "к цене": {
       "en-US": "to price",
@@ -8479,12 +7717,6 @@
       "es-ES": "Eliminará todos los lotes en el mercado",
       "ru": "Удалит все лоты на маркете"
     },
-    "Удалить все предметы": {
-      "en-US": "Remove all items",
-      "uk": "Видалити усі предмети",
-      "es-ES": "Eliminar todos los objetos",
-      "ru": "Удалить все предметы"
-    },
     "Введите число N": {
       "en-US": "Enter the number N",
       "uk": "Введіть число N",
@@ -8496,24 +7728,6 @@
       "uk": "Кількість для виконання завдання (число N)",
       "es-ES": "Cantidad para completar la tarea (número X)",
       "ru": "Количество для выполнения задачи (число N)"
-    },
-    "ID канала": {
-      "en-US": "Channel ID",
-      "uk": "ID каналу",
-      "es-ES": "ID del canal",
-      "ru": "ID канала"
-    },
-    "ID пользователя": {
-      "en-US": "User ID",
-      "uk": "ID користувача",
-      "es-ES": "ID del usuario",
-      "ru": "ID пользователя"
-    },
-    "ID червоточины": {
-      "en-US": "Wormhole ID",
-      "uk": "ID червоточини",
-      "es-ES": "ID del agujero de gusano",
-      "ru": "ID червоточины"
     },
     "Добавить задачу": {
       "en-US": "Add task",
@@ -8623,23 +7837,11 @@
       "es-ES": "por usar",
       "ru": "для использования"
     },
-    "ID квеста": {
-      "en-US": "Quest ID",
-      "uk": "ID квесту",
-      "es-ES": "ID de misión",
-      "ru": "ID квеста"
-    },
     "Маркет": {
       "en-US": "Market",
       "uk": "Маркет",
       "es-ES": "Mercado",
       "ru": "Маркет"
-    },
-    "ID роли": {
-      "en-US": "Role ID",
-      "uk": "ID ролі",
-      "es-ES": "ID del rol",
-      "ru": "ID роли"
     },
     "Такой роли не существует": {
       "en-US": "This role does not exist.",
@@ -8683,12 +7885,6 @@
       "es-ES": "reputación obtenida por hora",
       "ru": "репутации за один час"
     },
-    "получаемых предметов": {
-      "en-US": "gained items",
-      "uk": "отримуваних предметів",
-      "es-ES": "objetos obtenidos",
-      "ru": "получаемых предметов"
-    },
     "**Предметы**": {
       "en-US": "**Items**",
       "uk": "**Предмети**",
@@ -8713,12 +7909,6 @@
       "es-ES": "Tipo de rol",
       "ru": "Тип роли"
     },
-    "РОЛИ": {
-      "en-US": "ROLES",
-      "uk": "РОЛІ",
-      "es-ES": "ROLES",
-      "ru": "РОЛИ"
-    },
     "На сервере нет ролей с доходом или убытком": {
       "en-US": "There are no income or loss roles on the server",
       "uk": "На сервері немає ролей з доходом або збитком",
@@ -8730,12 +7920,6 @@
       "uk": "Для створення ролі з доходом або збитком, використовуй команду",
       "es-ES": "Para crear un rol con beneficios o con pérdidas, usa el comando",
       "ru": "Для создания роли с доходом или убытком, используй команду"
-    },
-    "У": {
-      "en-US": "At",
-      "uk": "У",
-      "es-ES": "En",
-      "ru": "У"
     },
     "у": {
       "en-US": "from",
@@ -8791,12 +7975,6 @@
       "es-ES": "Permisos",
       "ru": "Права"
     },
-    "Пользователь должен иметь": {
-      "en-US": "The user must have",
-      "uk": "Користувач повинен мати",
-      "es-ES": "El usuario debe tener",
-      "ru": "Пользователь должен иметь"
-    },
     "У этого пользователя нет доступа к просмотру этого канала": {
       "en-US": "This user does not have access to view this channel",
       "uk": "У цього користувача немає доступу до перегляду цього каналу",
@@ -8820,12 +7998,6 @@
       "uk": "Рецепт відомий",
       "es-ES": "La receta es conocida",
       "ru": "Рецепт известен"
-    },
-    "Любой": {
-      "en-US": "Any",
-      "uk": "Будь-який",
-      "es-ES": "Cualquiera",
-      "ru": "Любой"
     },
     "Рецепт неизвестен": {
       "en-US": "Recipe unknown",
@@ -8934,18 +8106,6 @@
       "uk": "Інструмент",
       "es-ES": "Herramienta",
       "ru": "Инструмент"
-    },
-    "Кулдаун команды /mining: 30 сек.": {
-      "en-US": "Cooldown for command /mining: 30 secs.",
-      "uk": "Кулдаун команди /mining: 30 сек.",
-      "es-ES": "Recarga para el comando /minar: 30 segs.",
-      "ru": "Кулдаун команды /mining: 30 сек."
-    },
-    "Кулдаун команды /mining: 0 сек.": {
-      "en-US": "Cooldown for command /mining: 0 secs.",
-      "uk": "Кулдаун команди /mining: 0 сек.",
-      "es-ES": "Recarga para el comando /minar: 0 segs.",
-      "ru": "Кулдаун команды /mining: 0 сек."
     },
     "Скидка или штраф к цене при покупке в зависимости от репутации": {
       "en-US": "Discount or penalty to the price when buying, depending on the reputation",
@@ -9445,41 +8605,11 @@
       "es-ES": "en una columna",
       "ru": "в колонке"
     },
-    "не найдено компонента": {
-      "en-US": "component not found",
-      "uk": "не знайдено компонента",
-      "es-ES": "componente no encontrado",
-      "ru": "не найдено компонента"
-    },
     "Компонент успешно удалён": {
       "en-US": "Component successfully removed",
       "uk": "Компонент успішно видалено",
       "es-ES": "Componente eliminado correctamente",
       "ru": "Компонент успешно удалён"
-    },
-    "ДОКУМЕНТАЦИЯ": {
-      "en-US": "DOCUMENTATIONS",
-      "uk": "ДОКУМЕНТАЦІЯ",
-      "es-ES": "DOCUMENTACIÓN",
-      "ru": "ДОКУМЕНТАЦИЯ"
-    },
-    "Документация доступна по ссылке:": {
-      "en-US": "Documentation is available at the link:",
-      "uk": "Документація доступна за посиланням:",
-      "es-ES": "Documentación disponible en:",
-      "ru": "Документация доступна по ссылке:"
-    },
-    "Автор документации:": {
-      "en-US": "Documentation author:",
-      "uk": "Автор документації:",
-      "es-ES": "Autor de la documentación:",
-      "ru": "Автор документации:"
-    },
-    "Документация": {
-      "en-US": "Documentation",
-      "uk": "Документація",
-      "es-ES": "Documentación:",
-      "ru": "Документация"
     },
     "Очистит все трофеи у пользователей": {
       "en-US": "Clears all users trophies",
@@ -9655,12 +8785,6 @@
       "es-ES": "Abrir",
       "ru": "Открыть"
     },
-    "червоточин": {
-      "en-US": "wormholes",
-      "uk": "червоточин",
-      "es-ES": "agujeros de gusano",
-      "ru": "червоточин"
-    },
     "Использовать": {
       "en-US": "Use",
       "uk": "Використати",
@@ -9769,18 +8893,6 @@
       "es-ES": "MINERÍA",
       "ru": "МАЙНИНГ"
     },
-    "Стартовый набор отсутствует": {
-      "en-US": "Starter kit is missing",
-      "uk": "Стартовий набір відсутній",
-      "es-ES": "Falta el kit inicial ",
-      "ru": "Стартовый набор отсутствует"
-    },
-    "МБ": {
-      "en-US": "MB",
-      "uk": "МБ",
-      "es-ES": "MB",
-      "ru": "МБ"
-    },
     "Включен": {
       "en-US": "Enabled",
       "uk": "Увімкнено",
@@ -9852,12 +8964,6 @@
       "uk": "Дата початку",
       "es-ES": "Fecha de inicio",
       "ru": "Дата начала"
-    },
-    "Дата начала не должна быть больше даты окончания": {
-      "en-US": "The start date must not be greater than the end date",
-      "uk": "Дата початку не повинна бути більшою за дату завершення",
-      "es-ES": "La fecha de inicio no debe ser posterior a la final",
-      "ru": "Дата начала не должна быть больше даты окончания"
     },
     "Комментарий": {
       "en-US": "A comment",
@@ -10159,12 +9265,6 @@
       "es-ES": "Diseño ",
       "ru": "Оформление"
     },
-    "Добавить/удалить роль": {
-      "en-US": "Add/remove a role",
-      "uk": "Додати/видалити роль",
-      "es-ES": "Añadir/elimar un rol",
-      "ru": "Добавить/удалить роль"
-    },
     "Отсутствует аргумент": {
       "en-US": "Missing argument",
       "uk": "Відсутній аргумент",
@@ -10201,90 +9301,6 @@
       "es-ES": "Introduce el nombre del regalo",
       "ru": "Введите название подарка"
     },
-    "При использовании нескольких аккаунтов для апвота бота - вы будете ЗАБЛОКИРОВАНЫ!": {
-      "en-US": "When using multiple accounts to upvote a bot, you will be BLOCKED!",
-      "uk": "При використанні кількох акаунтів для апвота бота - ви будете ЗАБЛОКОВАНІ!",
-      "es-ES": "¡Si usas varias cuentas para votar por el bot, serás BLOQUEADO!",
-      "ru": "При использовании нескольких аккаунтов для апвота бота - вы будете ЗАБЛОКИРОВАНЫ!"
-    },
-    "Тема обращения": {
-      "en-US": "Topic",
-      "uk": "Тема звернення",
-      "es-ES": "Tema",
-      "ru": "Тема обращения"
-    },
-    "Создать обращение": {
-      "en-US": "Create a ticket",
-      "uk": "Створити звернення",
-      "es-ES": "Crear un ticket",
-      "ru": "Создать обращение"
-    },
-    "Введите тему обращения": {
-      "en-US": "Enter the subject of the ticket",
-      "uk": "Введіть тему звернення",
-      "es-ES": "Introduce el asunto del ticket",
-      "ru": "Введите тему обращения"
-    },
-    "Здравствуйте": {
-      "en-US": "Hello",
-      "uk": "Вітаю",
-      "es-ES": "Hola",
-      "ru": "Здравствуйте"
-    },
-    "Задавайте Ваш вопрос, мы постараемся как можно скорее ответить": {
-      "en-US": "Ask your question, we will try to answer as soon as possible",
-      "uk": "Задавайте своє питання, ми постараємося відповісти якнайшвидше",
-      "es-ES": "Por favor, plantea tu consulta. Procuraremos responderte tan pronto como nos sea posible",
-      "ru": "Задавайте Ваш вопрос, мы постараемся как можно скорее ответить"
-    },
-    "Если Ваш вопрос решён - закрывайте обращение": {
-      "en-US": "If your issue is resolved, close the request",
-      "uk": "Якщо ваше питання вирішено - закривайте звернення",
-      "es-ES": "Si tu consulta se resolvió, cierra el ticket",
-      "ru": "Если Ваш вопрос решён - закрывайте обращение"
-    },
-    "Закрыть обращение": {
-      "en-US": "Close a ticket",
-      "uk": "Закрити звернення",
-      "es-ES": "Cerrar ticket",
-      "ru": "Закрыть обращение"
-    },
-    "Ваше обращение было создано": {
-      "en-US": "Your ticket has been created",
-      "uk": "Ваше звернення було створено",
-      "es-ES": "Tu ticket ha sido creado",
-      "ru": "Ваше обращение было создано"
-    },
-    "Обращение уже закрыто": {
-      "en-US": "Ticket is already closed",
-      "uk": "Звернення вже закрите",
-      "es-ES": "Tu ticket ya ha sido cerrado",
-      "ru": "Обращение уже закрыто"
-    },
-    "Обращение было закрыто пользователем": {
-      "en-US": "The ticket was closed by",
-      "uk": "Звернення було закрито користувачем",
-      "es-ES": "El ticket fue cerrado por",
-      "ru": "Обращение было закрыто пользователем"
-    },
-    "Сохранено": {
-      "en-US": "Saved",
-      "uk": "Збережено",
-      "es-ES": "Guardado",
-      "ru": "Сохранено"
-    },
-    "Сохранить": {
-      "en-US": "Save",
-      "uk": "Зберегти",
-      "es-ES": "Guardar",
-      "ru": "Сохранить"
-    },
-    "Загрузить": {
-      "en-US": "Load",
-      "uk": "Завантажити",
-      "es-ES": "Cargar",
-      "ru": "Загрузить"
-    },
     "Категории": {
       "en-US": "Shop categories",
       "uk": "Категорії магазину",
@@ -10302,24 +9318,6 @@
       "uk": "Доходні ролі",
       "es-ES": "Beneficios por rol",
       "ru": "Доходные роли"
-    },
-    "Стили червоточин": {
-      "en-US": "Wormhole styles",
-      "uk": "Стилі червоточин",
-      "es-ES": "Estilos de agujero de gusano",
-      "ru": "Стили червоточин"
-    },
-    "Профили пользователей": {
-      "en-US": "Users profiles",
-      "uk": "Профілі користувачів",
-      "es-ES": "Perfiles de usuario",
-      "ru": "Профили пользователей"
-    },
-    "Дата сохранения": {
-      "en-US": "Backup date",
-      "uk": "Дата збереження",
-      "es-ES": "Fechad de copia de seguridad",
-      "ru": "Дата сохранения"
     },
     "Изменение пользователя": {
       "en-US": "Member update",
@@ -10554,12 +9552,6 @@
       "uk": "Вставте в чат посилання вебхука, де будуть публікуватися логи",
       "es-ES": "Introduce en el canal el enlace del webhook donde se publicarán los registros",
       "ru": "Вставь в чат ссылку вебхука, где будут публиковаться логи"
-    },
-    "Для базового функционала доступно только: **Создание команды**": {
-      "en-US": "For basic functionality available only: **Command create**",
-      "uk": "Для базового функціоналу доступно лише: **Створення команди**",
-      "es-ES": "Solo para funcionalidad básica disponible: **Crear un comando**",
-      "ru": "Для базового функционала доступно только: **Создание команды**"
     },
     "Бот": {
       "en-US": "Bot",
@@ -10849,12 +9841,6 @@
       "es-ES": "Copiar agujero de gusano",
       "ru": "Скопировать червоточину"
     },
-    "Достигнуто максимум червоточин": {
-      "en-US": "Maximum wormhole reached",
-      "uk": "Досягнуто максимум червоточин",
-      "es-ES": "Alcanzado el máximo de agujeros de gusano",
-      "ru": "Достигнуто максимум червоточин"
-    },
     "Включить все": {
       "en-US": "Enable all",
       "uk": "Увімкнути все",
@@ -11088,12 +10074,6 @@
       "uk": "Скасувати все",
       "es-ES": "Cancelar todo",
       "ru": "Отменить всё"
-    },
-    "Управление квестами": {
-      "en-US": "Quest Management",
-      "uk": "Управління квестами",
-      "es-ES": "Gestión de Misiones",
-      "ru": "Управление квестами"
     },
     "Нет доступных ежедневных квестов для взятия": {
       "en-US": "No daily quests available to take",
@@ -11377,12 +10357,6 @@
       "es-ES": "Cantidad de objetos por receta",
       "ru": "Количество предмета для рецепта"
     },
-    "Выбран": {
-      "en-US": "Selected",
-      "uk": "Обрано",
-      "es-ES": "Seleccionado",
-      "ru": "Выбран"
-    },
     "Количество получаемых предметов": {
       "en-US": "Number of items received",
       "uk": "Кількість отримуваних предметів",
@@ -11484,12 +10458,6 @@
       "uk": "Оберіть ролі",
       "es-ES": "Escoger roles",
       "ru": "Выбери роли"
-    },
-    "Удалено": {
-      "en-US": "Removed",
-      "uk": "Видалено",
-      "es-ES": "Eliminado",
-      "ru": "Удалено"
     },
     "Требуемое количество для открытия кейса": {
       "en-US": "Required quantity to open a case",
@@ -12847,12 +11815,6 @@
       "es-ES": "Este comando tiene un permiso desconocido",
       "ru": "Для этой команды установлено неизвестное право"
     },
-    "Система прав позволяет ограничивать те или иные действия пользователей на основе их статистики. Система прав дает возможность ограничить различные действия с предметами, участие в раздачах, получение предметов и многое другое на основе статистики пользователя, его ролей, его инвентаря, а так же в каком канале было запущено действие.": {
-      "en-US": "The system of permission allows you to restrict certain actions of users based on their statistics. The permission system makes it possible to restrict various actions with items, giveaways, receiving items and much more based on user statistics, their roles, their inventory, as well as in which channel the action was launched.",
-      "uk": "Система прав дозволяє обмежувати ті чи інші дії користувачів на основі їх статистики. Система прав дає можливість обмежити різні дії з предметами, участь у роздачах, отримання предметів та багато іншого на основі статистики користувача, його ролей, його інвентаря, а також у якому каналі було запущено дію.",
-      "es-ES": "El sistema de permisos permite restringir ciertas acciones de los usuarios según sus estadísticas. Permite restringir diversas acciones con objetos, la participación en sorteos, la obtención de objetos y mucho más, según las estadísticas del usuario, sus roles, su inventario y el canal en el que se realizó la acción.",
-      "ru": "Система прав позволяет ограничивать те или иные действия пользователей на основе их статистики. Система прав дает возможность ограничить различные действия с предметами, участие в раздачах, получение предметов и многое другое на основе статистики пользователя, его ролей, его инвентаря, а так же в каком канале было запущено действие."
-    },
     "Удалит все права": {
       "en-US": "Will delete all permissions",
       "uk": "Видалити всі права",
@@ -13723,66 +12685,6 @@
       "es-ES": "Tus estadísticas",
       "ru": "Ваша статистика"
     },
-    "API ключ сервера": {
-      "en-US": "API key of server",
-      "uk": "API ключ сервера",
-      "es-ES": "Clave API del servidor",
-      "ru": "API ключ сервера"
-    },
-    "Скрыт": {
-      "en-US": "Hidden",
-      "uk": "Приховано",
-      "es-ES": "Oculto",
-      "ru": "Скрыт"
-    },
-    "Никому не сообщайте API ключ, иначе вашу экономику могут взломать!": {
-      "en-US": "Do not tell anyone the API key, otherwise your economy may be hacked!",
-      "uk": "Нікому не повідомляйте API ключ, інакше вашу економіку можуть зламати!",
-      "es-ES": "No compartas tu Clave API con nadie, de lo contrario, tu configuración podría verse comprometida",
-      "ru": "Никому не сообщайте API ключ, иначе вашу экономику могут взломать!"
-    },
-    "Создать новый ключ": {
-      "en-US": "Create a new key",
-      "uk": "Створити новий ключ",
-      "es-ES": "Crear una nueva clave",
-      "ru": "Создать новый ключ"
-    },
-    "Показать ключ": {
-      "en-US": "Show key",
-      "uk": "Показати ключ",
-      "es-ES": "Mostrar clave",
-      "ru": "Показать ключ"
-    },
-    "Удалить ключ": {
-      "en-US": "Delete key",
-      "uk": "Видалити ключ",
-      "es-ES": "Eliminar clave",
-      "ru": "Удалить ключ"
-    },
-    "Создайте API ключ": {
-      "en-US": "Create an API key",
-      "uk": "Створіть API ключ",
-      "es-ES": "Crear una clave API",
-      "ru": "Создайте API ключ"
-    },
-    "Создать ключ": {
-      "en-US": "Create key",
-      "uk": "Створити ключ",
-      "es-ES": "Crear clave",
-      "ru": "Создать ключ"
-    },
-    "Доступ к API": {
-      "en-US": "Access to API",
-      "uk": "Доступ до API",
-      "es-ES": "Acceso a la API",
-      "ru": "Доступ к API"
-    },
-    "Клик": {
-      "en-US": "Click",
-      "uk": "Клік",
-      "es-ES": "Click",
-      "ru": "Клик"
-    },
     "Предметов продано на маркете": {
       "en-US": "Items sold on market",
       "uk": "Предметів продано на ринку",
@@ -13794,12 +12696,6 @@
       "uk": "Учасник з",
       "es-ES": "Miembro desde",
       "ru": "Участник с"
-    },
-    "НОВЫЙ ПЛАТЁЖ": {
-      "en-US": "NEW PAYMENT",
-      "uk": "НОВИЙ ПЛАТІЖ",
-      "es-ES": "NUEVO PAGO",
-      "ru": "НОВЫЙ ПЛАТЁЖ"
     },
     "HOURS_SMALL": {
       "en-US": "h",
@@ -13951,12 +12847,6 @@
       "es-ES": "Fabricar",
       "ru": "Крафт"
     },
-    "Закрыть": {
-      "en-US": "Close",
-      "uk": "Закрити",
-      "es-ES": "Cerrar",
-      "ru": "Закрыть"
-    },
     "следующий доход": {
       "en-US": "next income",
       "uk": "наступний дохід",
@@ -13975,25 +12865,6 @@
       "es-ES": "Hora (UTC)",
       "ru": "Время (UTC)"
     },
-    "Автор сообщения не найден на сервере": {
-      "en-US": "The author of the message was not found on the server",
-      "uk": "Автора повідомлення не знайдено на сервері",
-      "es-ES": "El autor no fue hallado en el servidor",
-      "ru": "Автор сообщения не найден на сервере"
-    },
-    "Автор сообщения не должен быть ботом": {
-      "en-US": "The author of the message should not be a bot",
-      "uk": "Автор повідомлення не повинен бути ботом",
-      "es-ES": "El autor del mensaje no debe ser un bot",
-      "ru": "Автор сообщения не должен быть ботом"
-    },
-    "Автором сообщения не должен быть ты": {
-      "en-US": "The author of the message should not be you",
-      "uk": "Автором повідомлення не повинен бути ти",
-      "es-ES": "El autor del mensaeje no deberías ser tú",
-      "ru": "Автором сообщения не должен быть ты"
-    },
-  
     "Сумма шансов всех предметов выдаваемых за голосовую активность не должна превышать 100": {
       "en-US": "The sum of the chances of all items issued for voice activity should not exceed 100",
       "uk": "Сума шансів усіх предметів, що видаються за голосову активність, не повинна перевищувати 100",
@@ -14426,12 +13297,6 @@
       "es-ES": "por 📝misiones al día",
       "ru": "по 📝квестам за день"
     },
-    "по предмету": {
-      "en-US": "by item",
-      "uk": "за предметом",
-      "es-ES": "por objeto",
-      "ru": "по предмету"
-    },
     "!currency": {
       "en-US": "by 🪙currency",
       "uk": "за 🪙валютою",
@@ -14569,48 +13434,6 @@
       "uk": "Приховати останню активність",
       "es-ES": "Ocultar última vez en línea",
       "ru": "Скрыть последнюю активность"
-    },
-    "Изменить роли премьер режима": {
-      "en-US": "Change the roles of the premiere mode",
-      "uk": "Змінити ролі прем'єр режиму",
-      "es-ES": "Editar los roles del modo premiere",
-      "ru": "Изменить роли премьер режима"
-    },
-    "Удалить роли премьер режима": {
-      "en-US": "Remove the roles of the premiere mode",
-      "uk": "Видалити ролі прем'єр режиму",
-      "es-ES": "Eliminar los roles del modo premiere",
-      "ru": "Удалить роли премьер режима"
-    },
-    "нет роли": {
-      "en-US": "no role",
-      "uk": "немає ролі",
-      "es-ES": "sin roles",
-      "ru": "нет роли"
-    },
-    "Твой ранг": {
-      "en-US": "Your rank",
-      "uk": "Твій ранг",
-      "es-ES": "Tu rango",
-      "ru": "Твой ранг"
-    },
-    "Ранг не изменён": {
-      "en-US": "Rank not changed",
-      "uk": "Ранг не змінено",
-      "es-ES": "El rango no ha cambiado",
-      "ru": "Ранг не изменён"
-    },
-    "У тебя нет ранга в премьер режиме": {
-      "en-US": "You don't have a rank in premiere mode",
-      "uk": "У тебе немає рангу в прем'єр режимі",
-      "es-ES": "No tienes un rango en modo premiere",
-      "ru": "У тебя нет ранга в премьер режиме"
-    },
-    "Премьер режим": {
-      "en-US": "Premiere mode",
-      "uk": "Прем'єр режим",
-      "es-ES": "Modo premiere",
-      "ru": "Премьер режим"
     },
     "было удалено": {
       "en-US": "was deleted",
@@ -14857,42 +13680,6 @@
       "uk": "Встановити ціну покупки",
       "es-ES": "Establecer el precio de compra",
       "ru": "Установить цену покупки"
-    },
-    "Доступ к маркету сервера (/market)": {
-      "en-US": "Access to market (/market)",
-      "uk": "Доступ до маркету сервера (/market)",
-      "es-ES": "Acceso al mercado (/mercado)",
-      "ru": "Доступ к маркету сервера (/market)"
-    },
-    "Доступ к созданию раздач (/manager-giveaways)": {
-      "en-US": "Access to create giveaways (/manager-giveaways)",
-      "uk": "Доступ до створення роздач (/manager-giveaways)",
-      "es-ES": "Acceso a crear sorteos (/gestión-de-sorteos)",
-      "ru": "Доступ к созданию раздач (/manager-giveaways)"
-    },
-    "Доступ к созданию подарков (/manager-gifts)": {
-      "en-US": "Access to create gifts (/manager-gifts)",
-      "uk": "Доступ до створення подарунків (/manager-gifts)",
-      "es-ES": "Acceso a crear regalos (/gestión-de-regalos)",
-      "ru": "Доступ к созданию подарков (/manager-gifts)"
-    },
-    "Доступ к созданию прав (/manager-permissions)": {
-      "en-US": "Access to create permissions (/manager-permissions)",
-      "uk": "Доступ до створення прав (/manager-permissions)",
-      "es-ES": "Acceso a crear permisos (/gestión-de-permisos)",
-      "ru": "Доступ к созданию прав (/manager-permissions)"
-    },
-    "Доступ к использованию работы (/work)": {
-      "en-US": "Access to use work (/work)",
-      "uk": "Доступ до використання роботи (/work)",
-      "es-ES": "Acceso a trabajos (/trabajar)",
-      "ru": "Доступ к использованию работы (/work)"
-    },
-    "скидка": {
-      "en-US": "discount",
-      "uk": "знижка",
-      "es-ES": "descuento",
-      "ru": "скидка"
     },
     "установить цену": {
       "en-US": "set a price",
@@ -15218,12 +14005,6 @@
       "es-ES": "Color (HEX)",
       "ru": "Цвет (HEX)"
     },
-    "Создание кастомной роли": {
-      "en-US": "Creating a custom role",
-      "uk": "Створення кастомної ролі",
-      "es-ES": "Crear un rol personalizdo",
-      "ru": "Создание кастомной роли"
-    },
     "хочет создать кастомную роль": {
       "en-US": "wants to create a custom role",
       "uk": "хоче створити кастомну роль",
@@ -15452,12 +14233,6 @@
       "es-ES": "Este rol no puede comprarse",
       "ru": "Эту роль нельзя покупать"
     },
-    "Доступ к созданию кастомной роли (/custom-role)": {
-      "en-US": "Access to create a custom role (/custom-role)",
-      "uk": "Доступ до створення кастомної ролі (/custom-role)",
-      "es-ES": "Crear roles personalizados (/rol-personalizado)",
-      "ru": "Доступ к созданию кастомной роли (/custom-role)"
-    },
     "Cron-паттерн": {
       "en-US": "Cron-pattern",
       "uk": "Cron-патерн",
@@ -15650,222 +14425,6 @@
       "es-ES": "Restado",
       "ru": "Вычтено"
     },
-    "Привет! Спасибо что пригласили меня. Для просмотра всех команд введи слэш команду </help:1150455841779105911>. Также для корректной работы всех функций мне нужны следующие права:": {
-      "en-US": "Hello! Thank you for inviting me. To view all commands, enter the slash command </help:1150455841779105911>. Also, for the correct working of all features, I need the following permissions:",
-      "uk": "Привіт! Дякую, що запросили мене. Для перегляду всіх команд введіть слеш-команду </help:1150455841779105911>. Також для коректної роботи всіх функцій мені потрібні такі права:",
-      "es-ES": "¡Hola! Gracias por invitarme. Para ver todos los comandos, introduce el comando </ayuda:1150455841779105911>. Además, para que todas las funciones funcionen correctamente, necesito los siguientes permisos:",
-      "ru": "Привет! Спасибо что пригласили меня. Для просмотра всех команд введи слэш команду </help:1150455841779105911>. Также для корректной работы всех функций мне нужны следующие права:"
-    },
-    "Управлять сервером": {
-      "en-US": "Manage Server",
-      "uk": "Керувати сервером",
-      "es-ES": "Administrador",
-      "ru": "Управлять сервером"
-    },
-    "Управлять ролями": {
-      "en-US": "Manager Roles",
-      "uk": "Керувати ролями",
-      "es-ES": "Gestionar roles",
-      "ru": "Управлять ролями"
-    },
-    "Просматривать журнал аудита": {
-      "en-US": "View Audit Log",
-      "uk": "Переглядати журнал аудиту",
-      "es-ES": "Ver el registro de auditoría",
-      "ru": "Просматривать журнал аудита"
-    },
-    "Читать сообщения": {
-      "en-US": "Read messages",
-      "uk": "Читати повідомлення",
-      "es-ES": "Leer mensajes",
-      "ru": "Читать сообщения"
-    },
-    "Отправлять сообщения в ветках": {
-      "en-US": "Send messages in Threads",
-      "uk": "Надсилати повідомлення у гілках",
-      "es-ES": "Enviar mensajes en hilos",
-      "ru": "Отправлять сообщения в ветках"
-    },
-    "Управлять сообщениями": {
-      "en-US": "Manage Messages",
-      "uk": "Керувати повідомленнями",
-      "es-ES": "Gestionar mensajes",
-      "ru": "Управлять сообщениями"
-    },
-    "Прикреплять файлы": {
-      "en-US": "Attach Files",
-      "uk": "Прикріплювати файли",
-      "es-ES": "Adjuntar archivos",
-      "ru": "Прикреплять файлы"
-    },
-    "Упоминание @everyone, @here и всех ролей": {
-      "en-US": "Mention @everyone, @here and All Roles",
-      "uk": "Згадування @everyone, @here та всіх ролей",
-      "es-ES": "Mencionar @everyone, @here y todos los roles",
-      "ru": "Упоминание @everyone, @here и всех ролей"
-    },
-    "Использовать внешние эмодзи": {
-      "en-US": "Use External Emojis",
-      "uk": "Використовувати зовнішні емодзі",
-      "es-ES": "Usar emojis externos",
-      "ru": "Использовать внешние эмодзи"
-    },
-    "Для того, чтобы настроить меня, введи слэш команду **/manager-settings**": {
-      "en-US": "To set me up, enter the slash command **/manager-settings**",
-      "uk": "Щоб налаштувати мене, введи слеш-команду **/manager-settings**",
-      "es-ES": "Para configurarme, introduce el comando **/gestión-de-configuraciones**",
-      "ru": "Для того, чтобы настроить меня, введи слэш команду **/manager-settings**"
-    },
-    "ПРЕДМЕТЫ": {
-      "en-US": "ITEMS",
-      "uk": "ПРЕДМЕТИ",
-      "es-ES": "OBJETOS",
-      "ru": "ПРЕДМЕТЫ"
-    },
-    "Для того, чтобы создать предметы, введи слэш команду **/manager-items**": {
-      "en-US": "To create items, enter the slash command **/manager-items**",
-      "uk": "Щоб створити предмети, введи слеш-команду **/manager-items**",
-      "es-ES": "Para crear objetos, introduce el comando **/gestión-de-objetos**",
-      "ru": "Для того, чтобы создать предметы, введи слэш команду **/manager-items**"
-    },
-    "Для того, чтобы создать достижения, введи слэш команду **/manager-achievements**": {
-      "en-US": "To create achievements, enter the slash command **/manager-achievements**",
-      "uk": "Щоб створити досягнення, введи слеш-команду **/manager-achievements**",
-      "es-ES": "Para crear logros, introduce el comando **/gestión-logros**",
-      "ru": "Для того, чтобы создать достижения, введи слэш команду **/manager-achievements**"
-    },
-    "Для того, чтобы создать червоточины, введи слэш команду **/manager-wormholes**": {
-      "en-US": "To create wormholes, enter the slash command **/manager-wormholes**",
-      "uk": "Щоб створити червоточини, введи слеш-команду **/manager-wormholes**",
-      "es-ES": "Para crear agujeros de gusano, introduce el comando **/gestor-agujeros-de-gusano**",
-      "ru": "Для того, чтобы создать червоточины, введи слэш команду **/manager-wormholes**"
-    },
-    "Для того, чтобы создать квесты, введи слэш команду **/manager-quests**": {
-      "en-US": "To create quests, enter the slash command **/manager-quests**",
-      "uk": "Щоб створити квести, введи слеш-команду **/manager-quests**",
-      "es-ES": "Para crear misiones, introduce el comando **/gestión-de-misiones**",
-      "ru": "Для того, чтобы создать квесты, введи слэш команду **/manager-quests**"
-    },
-    "ДОХОДНЫЕ РОЛИ": {
-      "en-US": "INCOME ROLES",
-      "uk": "ДОХІДНІ РОЛІ",
-      "es-ES": "ROLES CON INGRESOS",
-      "ru": "ДОХОДНЫЕ РОЛИ"
-    },
-    "Для того, чтобы создать доходные роли, введи слэш команду **/manager-roles**": {
-      "en-US": "To create income roles, enter the slash command **/manager-roles**",
-      "uk": "Щоб створити дохідні ролі, введи слеш-команду **/manager-roles**",
-      "es-ES": "Para crear roles con ingresos, introduce el comando **/gestor-de-roles**",
-      "ru": "Для того, чтобы создать доходные роли, введи слэш команду **/manager-roles**"
-    },
-    "РАБОТА": {
-      "en-US": "JOBS",
-      "uk": "РОБОТА",
-      "es-ES": "TRABAJOS",
-      "ru": "РАБОТА"
-    },
-    "Для того, чтобы создать работу, введи слэш команду **/manager-jobs**": {
-      "en-US": "To create a job, enter the slash command **/manager-jobs**",
-      "uk": "Щоб створити роботу, введи слеш-команду **/manager-jobs**",
-      "es-ES": "Para crear un trabajo, introduce el comando **/gestión-trabajos**",
-      "ru": "Для того, чтобы создать работу, введи слэш команду **/manager-jobs**"
-    },
-    "РАЗДАЧИ": {
-      "en-US": "GIVEAWAYS",
-      "uk": "РОЗДАЧІ",
-      "es-ES": "SORTEOS",
-      "ru": "РАЗДАЧИ"
-    },
-    "Для того, чтобы создать раздачу, введи слэш команду **/manager-giveaways**": {
-      "en-US": "To create a giveaway, enter the slash command **/manager-giveaways**",
-      "uk": "Щоб створити роздачу, введи слеш-команду **/manager-giveaways**",
-      "es-ES": "Para crear un sorteo, introduce el comando **/gestión-de-sorteos**",
-      "ru": "Для того, чтобы создать раздачу, введи слэш команду **/manager-giveaways**"
-    },
-    "ЕСТЬ ВОПРОСЫ?": {
-      "en-US": "ANY QUESTIONS?",
-      "uk": "Є ПИТАННЯ?",
-      "es-ES": "¿ALGUNA PREGUNTA?",
-      "ru": "ЕСТЬ ВОПРОСЫ?"
-    },
-    "Заходи на [сервер поддержки]": {
-      "en-US": "Go to [support server]",
-      "uk": "Заходь на [сервер підтримки]",
-      "es-ES": "Visita el [servidor de soporte]",
-      "ru": "Заходи на [сервер поддержки]"
-    },
-    "ОТМЕНИТЬ ПЛАТЁЖ": {
-      "en-US": "CANCEL PAYMENT",
-      "uk": "СКАСУВАТИ ПЛАТІЖ",
-      "es-ES": "CANCELAR PAGO",
-      "ru": "ОТМЕНИТЬ ПЛАТЁЖ"
-    },
-    "Платёж отменён": {
-      "en-US": "Payment canceled",
-      "uk": "Платіж скасовано",
-      "es-ES": "Pago cancelado",
-      "ru": "Платёж отменён"
-    },
-    "У вас есть недоплаченный счёт": {
-      "en-US": "You have an unpaid bill",
-      "uk": "У вас є неповністю оплачений рахунок",
-      "es-ES": "Tienes un recibo pendiente de pago",
-      "ru": "У вас есть недоплаченный счёт"
-    },
-    "ДОПЛАТИТЬ": {
-      "en-US": "PAY IN ADDITION",
-      "uk": "ДОПЛАТИТИ",
-      "es-ES": "PAGAR DIFERENCIA",
-      "ru": "ДОПЛАТИТЬ"
-    },
-    "Инструкция оплаты": {
-      "en-US": "Pay manual",
-      "uk": "Інструкція з оплати",
-      "es-ES": "Pago manual",
-      "ru": "Инструкция оплаты"
-    },
-    "Выбор криптовалюты для оплаты": {
-      "en-US": "Select cryptocurrency for payment",
-      "uk": "Вибір криптовалюти для оплати",
-      "es-ES": "Escoge la criptomoneda para el pago",
-      "ru": "Выбор криптовалюты для оплаты"
-    },
-    "Получение адреса платежа": {
-      "en-US": "Receiving payment address",
-      "uk": "Отримання адреси платежу",
-      "es-ES": "Obtener dirección de pago",
-      "ru": "Получение адреса платежа"
-    },
-    "Совершение платежа из вашего кошелька": {
-      "en-US": "Making payment from your wallet",
-      "uk": "Здійснення платежу з вашого гаманця",
-      "es-ES": "Realizar el pago desde tu monedero",
-      "ru": "Совершение платежа из вашего кошелька"
-    },
-    "Подтверждение и отправка платежа": {
-      "en-US": "Confirmation and sending of payment",
-      "uk": "Підтвердження та відправлення платежу",
-      "es-ES": "Confirmación y envío del pago",
-      "ru": "Подтверждение и отправка платежа"
-    },
-    "Ожидание подтверждения от блокчейна": {
-      "en-US": "Waiting for confirmation from the blockchain",
-      "uk": "Очікування підтвердження від блокчейну",
-      "es-ES": "Confirmación y envío del pago",
-      "ru": "Ожидание подтверждения от блокчейна"
-    },
-    "Завершение заказа": {
-      "en-US": "Completing the order",
-      "uk": "Завершення замовлення",
-      "es-ES": "Finalización del pedido",
-      "ru": "Завершение заказа"
-    },
-    "Рекомендации": {
-      "en-US": "Recommendations",
-      "uk": "Рекомендації",
-      "es-ES": "Recomendaciones",
-      "ru": "Рекомендации"
-    },
     "male": {
       "en-US": "Male",
       "uk": "Хлопець",
@@ -15877,12 +14436,6 @@
       "uk": "Дівчина",
       "es-ES": "Mujer",
       "ru": "Девушка"
-    },
-    "Редактировать профиль": {
-      "en-US": "Edit profile",
-      "uk": "Редагувати профіль",
-      "es-ES": "Editar perfil",
-      "ru": "Редактировать профиль"
     },
     "лайкнул твой профиль": {
       "en-US": "liked your profile",
@@ -15914,23 +14467,11 @@
       "es-ES": "Tipo de final",
       "ru": "Тип окончания"
     },
-    "По достижению`": {
-      "en-US": "For achieving",
-      "uk": "При досягненні",
-      "es-ES": "Por lograr",
-      "ru": "По достижению`"
-    },
     "реакций": {
       "en-US": "reactions",
       "uk": "реакцій",
       "es-ES": "reacciones",
       "ru": "реакций"
-    },
-    "серверов": {
-      "en-US": "servers",
-      "uk": "серверів",
-      "es-ES": "servidores",
-      "ru": "серверов"
     },
     "участников": {
       "en-US": "members",
@@ -15968,12 +14509,6 @@
       "es-ES": "Número de usuarios",
       "ru": "Количество участников"
     },
-    "Количество серверов": {
-      "en-US": "Numbers of servers",
-      "uk": "Кількість серверів",
-      "es-ES": "Número de servidores",
-      "ru": "Количество серверов"
-    },
     "Множитель": {
       "en-US": "Multiplier",
       "uk": "Множник",
@@ -16009,12 +14544,6 @@
       "uk": "Видалити множники каналу",
       "es-ES": "Eliminar multiplicadores de canal",
       "ru": "Удалить множители канала"
-    },
-    "Достигнуто максимум каналов: 100": {
-      "en-US": "Maximum channels reached: 100",
-      "uk": "Досягнуто максимум каналів: 100",
-      "es-ES": "Alcanzado el número máximo de canales: 100",
-      "ru": "Достигнуто максимум каналов: 100"
     },
     "Канал с названием": {
       "en-US": "The channel with the name",
@@ -16081,18 +14610,6 @@
       "uk": "Множники каналу",
       "es-ES": "Multiplicadores de canal",
       "ru": "Множители канала"
-    },
-    "Достигнуто максимум стилей: 25": {
-      "en-US": "Maximum of styles reached: 25",
-      "uk": "Досягнуто максимум стилів: 25",
-      "es-ES": "Alcanzado máximo de estilos: 25",
-      "ru": "Достигнуто максимум стилей: 25"
-    },
-    "Достигнуто максимум категорий: 25": {
-      "en-US": "Maximum of categories reached: 25",
-      "uk": "Досягнуто максимум категорій: 25",
-      "es-ES": "Alcanzado máximo de categorías: 25",
-      "ru": "Достигнуто максимум категорий: 25"
     },
     "Личный профиль": {
       "en-US": "Personal profile",
@@ -16171,18 +14688,6 @@
       "uk": "Поле",
       "es-ES": "Campo",
       "ru": "Поле"
-    },
-    "Доступ к автогенераторам промокодов (/promocode-autogenerators)": {
-      "en-US": "Access to promocode autogenerators (/promocode-autogenerators)",
-      "uk": "Доступ до автогенераторів промокодів (/promocode-autogenerators)",
-      "es-ES": "Acceso a autogeneradores de códigos promocionales (/generador-automatico-codigos)",
-      "ru": "Доступ к автогенераторам промокодов (/promocode-autogenerators)"
-    },
-    "Максимум промокодов": {
-      "en-US": "Maximum of promocodes",
-      "uk": "Максимум промокодів",
-      "es-ES": "Máximo de códigos promocionales",
-      "ru": "Максимум промокодов"
     },
     "Удалит все автогенераторы промокодов": {
       "en-US": "Will delete all promocode autogenerators",
@@ -16520,12 +15025,6 @@
       "es-ES": "Patrón-Cron de generación de códigos promocionales",
       "ru": "Cron-паттерн (время) генерации промокода"
     },
-    "Промокод уже существует, выбери другой код": {
-      "en-US": "it already exists, choose another code",
-      "uk": "промокод вже існує, вибери інший код",
-      "es-ES": "ya existe, elige otro código",
-      "ru": "уже существует, выбери другой код"
-    },
     "Менеджер промокодов": {
       "en-US": "Manager of promocodes",
       "uk": "Менеджер промокодів",
@@ -16700,12 +15199,6 @@
       "es-ES": "ID del servidor",
       "ru": "ID сервера"
     },
-    "Сервера с ID": {
-      "en-US": "Server with ID",
-      "uk": "Сервера з ID",
-      "es-ES": "Servidor con ID",
-      "ru": "Сервера с ID"
-    },
     "является ботом, с ботами нельзя взаимодействовать": {
       "en-US": "is a bot, you can't interact with a bot",
       "uk": "є ботом, з ботами не можна взаємодіяти",
@@ -16717,12 +15210,6 @@
       "uk": "не був знайдений",
       "es-ES": "no encontrado",
       "ru": "не был найден"
-    },
-    "получили": {
-      "en-US": "received",
-      "uk": "отримали",
-      "es-ES": "recibido",
-      "ru": "получили"
     },
     "Этот эмодзи не поддерживается": {
       "en-US": "This emojis is not supported",
@@ -16928,18 +15415,6 @@
       "es-ES": "X a X minutos",
       "ru": "от X до X минут"
     },
-    "года": {
-      "en-US": "years",
-      "uk": "роки",
-      "es-ES": "año",
-      "ru": "года"
-    },
-    "лет": {
-      "en-US": "years",
-      "uk": "років",
-      "es-ES": "años",
-      "ru": "лет"
-    },
     "Находиться на сервере": {
       "en-US": "Being on the server",
       "uk": "Перебувати на сервері",
@@ -17060,47 +15535,11 @@
       "es-ES": "oculta",
       "ru": "скрыты"
     },
-    "отобразить": {
-      "en-US": "show",
-      "uk": "відобразити",
-      "es-ES": "mostrar",
-      "ru": "отобразить"
-    },
-    "скрыть": {
-      "en-US": "hide",
-      "uk": "приховати",
-      "es-ES": "ocultar",
-      "ru": "скрыть"
-    },
-    "награды": {
-      "en-US": "rewards",
-      "uk": "нагороди",
-      "es-ES": "recompensas",
-      "ru": "награды "
-    },
-    "шансы": {
-      "en-US": "chances",
-      "uk": "шанси",
-      "es-ES": "probabilidades",
-      "ru": "шансы"
-    },
-    "кулдауны": {
-      "en-US": "cooldowns",
-      "uk": "кулдауни",
-      "es-ES": "recargas",
-      "ru": "кулдауны"
-    },
     "На сколько времени? (минуты)": {
       "en-US": "For how long? (minutes)",
       "uk": "На скільки часу? (хвилини)",
       "es-ES": "¿Por cuánto tiempo? (minutos)",
       "ru": "На сколько времени? (минуты)"
-    },
-    "На": {
-      "en-US": "For",
-      "uk": "На",
-      "es-ES": "Durante",
-      "ru": "На"
     },
     "Навсегда": {
       "en-US": "Forever",
@@ -17306,12 +15745,6 @@
       "es-ES": "Mostrar trabajo en autocompletar si no se encuentra disponible",
       "ru": "Отображать работу в автозаполнении, если не доступна"
     },
-    "Оплатить подписку Boosty на 1 месяц или навсегда. Перед оплатой пожалуйста свяжите аккаунт Boosty с Discord и зайдите на сервер поддержки, чтобы платёж обработался автоматически": {
-      "en-US": "Pay for a Boosty subscription for 1 month or forever. Before making a payment, please link your Boosty account to Discord and log in to the support server so that the payment is processed automatically",
-      "uk": "Оплатити підписку Boosty на 1 місяць або назавжди. Перед оплатою, будь ласка, зв'яжіть акаунт Boosty з Discord та зайдіть на сервер підтримки, щоб платіж обробився автоматично",
-      "es-ES": "Paga una suscripción a Boosty por un mes o para siempre. Antes de pagar, vincula tu cuenta de Boosty a Discord y visita el servidor de soporte para que el pago se procese automáticamente.",
-      "ru": "Оплатить подписку Boosty на 1 месяц или навсегда. Перед оплатой пожалуйста свяжите аккаунт Boosty с Discord и зайдите на сервер поддержки, чтобы платёж обработался автоматически"
-    },
     "Количество знаков ставки после точки не должно быть больше 2": {
       "en-US": "The length of bet signs after the dot should not be more than 2",
       "uk": "Кількість знаків ставки після точки не повинна бути більше 2",
@@ -17329,24 +15762,6 @@
       "uk": "Коефіцієнт гри:",
       "es-ES": "Coeficiente de juego:",
       "ru": "Коэффициент игры:"
-    },
-    "Твой коэффициент:": {
-      "en-US": "Your coefficient:",
-      "uk": "Твій коефіцієнт:",
-      "es-ES": "Tu coeficiente",
-      "ru": "Твой коэффициент:"
-    },
-    "🎉Ты выиграл:": {
-      "en-US": "🎉You've won:",
-      "uk": "🎉Ти виграв:",
-      "es-ES": "🎉Has ganado",
-      "ru": "🎉Ты выиграл:"
-    },
-    "💸Ты проиграл:": {
-      "en-US": "💸You've lost:",
-      "uk": "💸Ти програв:",
-      "es-ES": "💸Has perdido",
-      "ru": "💸Ты проиграл:"
     },
     "Мини-игры": {
       "en-US": "Mini-games",
@@ -17492,12 +15907,6 @@
       "es-ES": "Establecer bonus a la RP para todos",
       "ru": "Установить бустер репутации для всех пользователей"
     },
-    "rp_booster": {
-      "en-US": "RP booster",
-      "uk": "Бустер репутації",
-      "es-ES": "Bonus a la RP",
-      "ru": "Бустер репутации"
-    },
     "Переключить режим складывания бустеров": {
       "en-US": "Switch the booster stacking mode",
       "uk": "Переключити режим складання бустерів",
@@ -17611,12 +16020,6 @@
       "uk": "Емодзі обрано",
       "es-ES": "Emoji seleccionado",
       "ru": "Эмодзи выбран"
-    },
-    "Нажмите кнопку 'Ввести вручную и вставьте в окно (юникод эмодзи)[https://emojiguide.org/]": {
-      "en-US": "Click the 'Enter manually' button and paste (unicode emoji)[https://emojiguide.org/] into the window",
-      "uk": "Натисніть кнопку 'Ввести вручну' та вставте у вікно (юнікод емодзі)[https://emojiguide.org/]",
-      "es-ES": "Haz click en el botón 'Introducir manualmente' y pega el (unicode del emoji)[https://emojiguide.org/]",
-      "ru": "Нажмите кнопку 'Ввести вручную и вставьте в окно (юникод эмодзи)[https://emojiguide.org/]"
     },
     "Открыть страницу": {
       "en-US": "Open page",
@@ -18002,48 +16405,6 @@
       "es-ES": "El canal 'Al jugador Global' no está configurado. Para configurarlo, ve a </gestión-de-configuraciones:1150455842294988946> -> MR7.",
       "ru": "Не настроен канал 'К игроку на всё время'. Для настройки, перейдите </manager-settings:1150455842294988946> -> MR7"
     },
-    "Имя игрока": {
-      "en-US": "Player name",
-      "uk": "Ім'я гравця",
-      "es-ES": "Nombre del jugador",
-      "ru": "Имя игрока"
-    },
-    "Карточка применена к игроку": {
-      "en-US": "The card is applied to the player",
-      "uk": "Картка застосована до гравця",
-      "es-ES": "La tarjeta ha sido aplicada al jugador",
-      "ru": "Карточка применена к игроку"
-    },
-    "на сезон": {
-      "en-US": "for a season",
-      "uk": "на сезон",
-      "es-ES": "por una temporada",
-      "ru": "на сезон"
-    },
-    "Применение карточки к игроку": {
-      "en-US": "Applying a card to a player",
-      "uk": "Застосування картки до гравця",
-      "es-ES": "Aplicar una tarjeta a un jugador",
-      "ru": "Применение карточки к игроку"
-    },
-    "на всё время": {
-      "en-US": "for all time",
-      "uk": "на весь час",
-      "es-ES": "global",
-      "ru": "на всё время"
-    },
-    "к игроку": {
-      "en-US": "for player",
-      "uk": "до гравця",
-      "es-ES": "al jugador",
-      "ru": "к игроку"
-    },
-    "применил карточку": {
-      "en-US": "applied a card",
-      "uk": "застосував картку",
-      "es-ES": "tarjeta aplicada",
-      "ru": "применил карточку"
-    },
     "Применяется к команде без ограничений": {
       "en-US": "Applying to a team with no restrictions",
       "uk": "Застосовується до команди без обмежень",
@@ -18056,60 +16417,6 @@
       "es-ES": "El canal para el 'Equipo sin restricciones' no está configurado. Para configurarlo, ve a </gestión-de-configuraciones:1150455842294988946> -> MR7",
       "ru": "Не настроен канал 'К команде без ограничений'. Для настройки, перейдите </manager-settings:1150455842294988946> -> MR7"
     },
-    "Навык": {
-      "en-US": "Skill",
-      "uk": "Навичка",
-      "es-ES": "Habilidad",
-      "ru": "Навык"
-    },
-    "Название команды": {
-      "en-US": "Team name",
-      "uk": "Назва команди",
-      "es-ES": "Nombre del equipo",
-      "ru": "Название команды"
-    },
-    "Применение карточки к команде без ограничений": {
-      "en-US": "Applying card to team with no restrictions",
-      "uk": "Застосування картки до команди без обмежень",
-      "es-ES": "Aplicar tarjeta a equipo sin restricciones",
-      "ru": "Применение карточки к команде без ограничений"
-    },
-    "Карточка применена к команде": {
-      "en-US": "The card is applied to the team",
-      "uk": "Картка застосована до команди",
-      "es-ES": "La tarjeta ha sido aplicada al equipo",
-      "ru": "Карточка применена к команде"
-    },
-    "Позиция": {
-      "en-US": "Position",
-      "uk": "Позиція",
-      "es-ES": "Posición",
-      "ru": "Позиция"
-    },
-    "Канал 'К игроку на сезон'": {
-      "en-US": "Channel 'To the player for the season'",
-      "uk": "Канал 'До гравця на сезон'",
-      "es-ES": "Canal 'Al jugador de la temporada'",
-      "ru": "Канал 'К игроку на сезон'"
-    },
-    "Канал 'К игроку на всё время'": {
-      "en-US": "Channel 'To the player for all time'",
-      "uk": "Канал 'До гравця на весь час'",
-      "es-ES": "Canal 'Al jugador de todos Globals'",
-      "ru": "Канал 'К игроку на всё время'"
-    },
-    "Канал 'К команде без ограничений'": {
-      "en-US": "Channel 'To the team without restrictions'",
-      "uk": "Канал 'До команди без обмежень'",
-      "es-ES": "Canal 'Al equipo sin límites'",
-      "ru": "Канал 'К команде без ограничений'"
-    },
-    "Канал 'К игроку без ограничений'": {
-      "en-US": "Channel 'To the player without restrictions'",
-      "uk": "Канал 'До гравця без обмежень'",
-      "es-ES": "Canal 'Al jugador sin restricciones'",
-      "ru": "Канал 'К игроку без ограничений'"
-    },
     "Не настроен канал 'К игроку без ограничений'. Для настройки, перейдите </manager-settings:1150455842294988946> -> MR7": {
       "en-US": "The channel 'For the player with no restrictions' is not configured. To configure it, go to </manager-settings:1150455842294988946> -> MR7",
       "uk": "Не налаштовано канал 'До гравця без обмежень'. Для налаштування перейдіть </manager-settings:1150455842294988946> -> MR7",
@@ -18121,30 +16428,6 @@
       "uk": "Застосовується до гравця без обмежень",
       "es-ES": "Aplicar a un jugador in restricciones",
       "ru": "Применяется к игроку без ограничений"
-    },
-    "Применение карточки к игроку без ограничений": {
-      "en-US": "Applying card to player with no restrictions",
-      "uk": "Застосування картки до гравця без обмежень",
-      "es-ES": "Aplicar tarjeta a jugador sin restricciones",
-      "ru": "Применение карточки к игроку без ограничений"
-    },
-    "применил карточку без ограничений": {
-      "en-US": "applied a card with no restrictions",
-      "uk": "застосував картку без обмежень",
-      "es-ES": "tarjeta aplicada sin restricciones",
-      "ru": "применил карточку без ограничений"
-    },
-    "Карточка применена к игроку без ограничений": {
-      "en-US": "The card is applied to the player with no restrictions",
-      "uk": "Картка застосована до гравця без обмежень",
-      "es-ES": "Tarjeta aplicada al jugador sin restricciones",
-      "ru": "Карточка применена к игроку без ограничений"
-    },
-    "Карточка применена к команде без ограничений": {
-      "en-US": "The card is applied to the team with no restrictions",
-      "uk": "Картка застосована до команди без обмежень",
-      "es-ES": "Tarjea aplicada al equipo sin restricciones",
-      "ru": "Карточка применена к команде без ограничений"
     },
     "Найдено несколько эмодзи. Выберите одно.": {
       "en-US": "Several emojis were found. Choose one.",
@@ -18608,18 +16891,6 @@
       "es-ES": "horas seguidas en canal de voz",
       "ru": "ч. подряд в голосовом канале"
     },
-    "рублей": {
-      "en-US": "russian rubles",
-      "uk": "рублів",
-      "es-ES": "rublos rusos",
-      "ru": "рублей"
-    },
-    "Достичь": {
-      "en-US": "Reach",
-      "uk": "Досягти",
-      "es-ES": "Alcanzar",
-      "ru": "Достичь"
-    },
     "Червоточины с ID": {
       "en-US": "Wormhole with ID",
       "uk": "Червоточини з ID",
@@ -18662,12 +16933,6 @@
       "es-ES": "Encontrar todos los objetos",
       "ru": "Найти все предметы"
     },
-    "Задонатить": {
-      "en-US": "Donate",
-      "uk": "Задонатити",
-      "es-ES": "Donar",
-      "ru": "Задонатить"
-    },
     "Выполнить все достижения": {
       "en-US": "Complete all achievements",
       "uk": "Виконати всі досягнення",
@@ -18709,12 +16974,6 @@
       "uk": "Відсутня задача досягнення",
       "es-ES": "Tarea de logro faltante",
       "ru": "Отсутствует задача достижения"
-    },
-    "XX минут": {
-      "en-US": "XX minutes",
-      "uk": "XX хвилин",
-      "es-ES": "XX minutos",
-      "ru": "XX минут"
     },
     "Выиграть ставку": {
       "en-US": "Win a bet",
@@ -18835,12 +17094,6 @@
       "uk": "Підзадачу виконано",
       "es-ES": "Subtarea completada",
       "ru": "Подзадача выполнена"
-    },
-    "выполнена": {
-      "en-US": "is done",
-      "uk": "виконано",
-      "es-ES": "terminada",
-      "ru": "выполнена"
     },
     "Это взаимодействие выключено правом": {
       "en-US": "This interaction is disabled by permission",
@@ -19052,12 +17305,6 @@
       "es-ES": "Información predeterminado",
       "ru": "Сбросить информацию"
     },
-    "Отправь изображение": {
-      "en-US": "Send the image",
-      "uk": "Надішліть зображення",
-      "es-ES": "Enviar imagen",
-      "ru": "Отправь изображение"
-    },
     "Изменить информацию": {
       "en-US": "Change Information",
       "uk": "Змінити інформацію",
@@ -19166,48 +17413,6 @@
       "es-ES": "El ID del componente no pertenece a ningún comando conocido.",
       "ru": "ID компонента не принадлежит ни к одной из известных команд"
     },
-    "Из списка поддерживаемых выберите криптовалюту и сеть, которые вы хотите использовать для оплаты. Также укажите электронный адрес для получения уведомления о платеже.\nУбедитесь в том, что на вашем криптовалютном кошельке имеется достаточная сумма для осуществления платежа. Помните о том, что отправка средств в криптовалюте предполагает взимание комиссии сети.\nДалее нажмите кнопку «Оплатить».": {
-      "en-US": "From the list of supported ones, select the cryptocurrency and network you want to use for payment. ",
-      "uk": "Зі списку підтримуваних виберіть криптовалюту та мережу, яку хочете використовувати для оплати. Також укажіть адресу електронної пошти, щоб отримувати сповіщення про платежі.\nПереконайтеся, що у вашому криптовалютному гаманці достатньо коштів для здійснення платежу. Пам’ятайте, що надсилання коштів у криптовалюті передбачає стягнення плати за мережу.\nДалі натисніть кнопку «Оплатити».",
-      "es-ES": "De la lista de las admitidas, seleccione la criptomoneda y la red que desea utilizar para el pago. Proporcione también una dirección de correo electrónico para recibir notificaciones de pago.\nAsegúrese de tener fondos suficientes en su billetera de criptomonedas para realizar el pago. Recuerde que enviar fondos en criptomonedas implica cobrar una tarifa de red.\nA continuación, haga clic en el botón \"Pagar\".",
-      "ru": "Из списка поддерживаемых выберите криптовалюту и сеть, которые вы хотите использовать для оплаты. Также укажите электронный адрес для получения уведомления о платеже.\nУбедитесь в том, что на вашем криптовалютном кошельке имеется достаточная сумма для осуществления платежа. Помните о том, что отправка средств в криптовалюте предполагает взимание комиссии сети.\nДалее нажмите кнопку «Оплатить»."
-    },
-    "На следующем шаге процесса оплаты будет отображен уникальный платежный адрес для осуществления транзакции, сопровождаемый QR-кодом.\nСкопируйте платежный адрес или отсканируйте QR-код с помощью мобильного приложения вашего криптокошелька или биржи. Следите за точностью, так как отправка криптовалюты на неправильный адрес может привести к потере средств.": {
-      "en-US": "The next step in the payment process will display the unique billing address for the transaction, accompanied by a QR code.\nCopy the billing address or scan the QR code using your crypto wallet or exchange's mobile app. ",
-      "uk": "На наступному етапі процесу платежу відобразиться унікальна платіжна адреса для транзакції разом із QR-кодом.\nСкопіюйте платіжну адресу або відскануйте QR-код за допомогою свого криптогаманця або мобільного додатку біржі. Забезпечте точність, оскільки надсилання криптовалюти на неправильну адресу може призвести до втрати коштів.",
-      "es-ES": "El siguiente paso en el proceso de pago mostrará la dirección de facturación única para la transacción, acompañada de un código QR.\nCopie la dirección de facturación o escanee el código QR usando su billetera criptográfica o la aplicación móvil de Exchange. Asegúrese de que sea preciso, ya que enviar criptomonedas a la dirección incorrecta puede provocar la pérdida de fondos.",
-      "ru": "На следующем шаге процесса оплаты будет отображен уникальный платежный адрес для осуществления транзакции, сопровождаемый QR-кодом.\nСкопируйте платежный адрес или отсканируйте QR-код с помощью мобильного приложения вашего криптокошелька или биржи. Следите за точностью, так как отправка криптовалюты на неправильный адрес может привести к потере средств."
-    },
-    "Откройте свой криптовалютный кошелек, с которого вы собираетесь отправить платеж. В разделе «Отправить» или «Вывод» выберите соответствующую криптовалюту и сеть.\nВведите скопированный адрес (или отсканируйте QR-код) вашего кошелька. Введите точную сумму криптовалюты, необходимую для совершения транзакции.\nПомните о комиссии за транзакцию, взимаемой вашим кошельком или сетью блокчейн, которую, возможно, придется добавить к общей сумме отправки. При отправке средств необходимо проверить то, что в сервис CryptoCloud дойдет верная сумма после вычета всех комиссий.\nБольшинство провайдеров добавляют комиссию к необходимой сумме, но есть кошельки и биржи, в которых сумма комиссии вычитается из общей суммы отправки.\nЕсли вы отправите неверную сумму, система определит ваш платеж и рассчитает минимальную сумму, которую необходимо доплатить.": {
-      "en-US": "Open your cryptocurrency wallet from which you are going to send the payment. ",
-      "uk": "Відкрийте свій криптовалютний гаманець, з якого ви збираєтеся відправити платіж. У розділі «Надіслати» або «Вивести» виберіть відповідну криптовалюту та мережу.\nВведіть скопійовану адресу (або відскануйте QR-код) свого гаманця. Введіть точну суму криптовалюти, необхідну для завершення транзакції.\nПам’ятайте про комісію за транзакцію, яку стягує ваш гаманець або мережа блокчейну, яку, можливо, доведеться додати до загальної надісланої суми. Під час надсилання коштів потрібно перевірити, чи правильна сума надійде до служби CryptoCloud після вирахування всіх комісій.\nБільшість провайдерів додають комісію до необхідної суми, але є гаманці та біржі, на яких сума комісії вираховується із загальної суми відправлення.\nЯкщо ви відправите неправильну суму, система визначить ваш платіж і розрахує мінімальну суму, яку потрібно доплатити.",
-      "es-ES": "Abre tu billetera de criptomonedas desde la cual vas a enviar el pago. En la sección \"Enviar\" o \"Retirar\", seleccione la criptomoneda y la red apropiadas.\nIngrese la dirección copiada (o escanee el código QR) de su billetera. Ingrese la cantidad exacta de criptomoneda requerida para completar la transacción.\nTenga en cuenta las tarifas de transacción que cobra su billetera o red blockchain, que es posible que deban agregarse al monto total enviado. Al enviar fondos, debe verificar que la cantidad correcta llegue al servicio CryptoCloud después de deducir todas las comisiones.\nLa mayoría de los proveedores agregan una comisión a la cantidad requerida, pero hay billeteras e intercambios en los que el monto de la comisión se deduce del monto total enviado.\nSi envía la cantidad incorrecta, el sistema determinará su pago y calculará la cantidad mínima que debe pagar adicional.",
-      "ru": "Откройте свой криптовалютный кошелек, с которого вы собираетесь отправить платеж. В разделе «Отправить» или «Вывод» выберите соответствующую криптовалюту и сеть.\nВведите скопированный адрес (или отсканируйте QR-код) вашего кошелька. Введите точную сумму криптовалюты, необходимую для совершения транзакции.\nПомните о комиссии за транзакцию, взимаемой вашим кошельком или сетью блокчейн, которую, возможно, придется добавить к общей сумме отправки. При отправке средств необходимо проверить то, что в сервис CryptoCloud дойдет верная сумма после вычета всех комиссий.\nБольшинство провайдеров добавляют комиссию к необходимой сумме, но есть кошельки и биржи, в которых сумма комиссии вычитается из общей суммы отправки.\nЕсли вы отправите неверную сумму, система определит ваш платеж и рассчитает минимальную сумму, которую необходимо доплатить."
-    },
-    "Счет доступен для оплаты в течение ограниченного количества времени. Для вашего удобства на странице оплаты вы увидите таймер обратного отсчета.\nЕсли вы отправили средства, а счет завершился, то он подтвердится сразу, как только средства будут получены. В случае, если ваш счет истекает, а вы еще не оплатили, советуем создать или запросить новый счет для оплаты.\nПрежде чем подтвердить совершение транзакции, перепроверьте адрес и сумму. Помните, что транзакции в блокчейне необратимы. Далее следуйте процедуре вашего кошелька для авторизации и отправки транзакции. Это может включать двухфакторную аутентификацию или другие меры безопасности.": {
-      "en-US": "The invoice is available for payment for a limited amount of time. ",
-      "uk": "Рахунок доступний для оплати протягом обмеженого часу. Для вашої зручності ви побачите таймер зворотного відліку на сторінці платежу.\nЯкщо ви надіслали кошти й обліковий запис завершено, це буде підтверджено, щойно кошти будуть отримані. Якщо термін дії вашого облікового запису закінчився, а ви ще не заплатили, радимо створити або надіслати запит на новий рахунок для оплати.\nПерш ніж підтверджувати транзакцію, ще раз перевірте адресу та суму. Пам'ятайте, що транзакції в блокчейні є незворотними. Далі виконайте процедуру свого гаманця, щоб авторизувати та надіслати трансакцію. Це може включати двофакторну автентифікацію або інші заходи безпеки.",
-      "es-ES": "La factura está disponible para pago por un período de tiempo limitado. Para su comodidad, verá un temporizador de cuenta regresiva en la página de pago.\nSi envió fondos y la cuenta se completó, se confirmará tan pronto como se reciban los fondos. En caso de que su cuenta caduque y aún no haya pagado, le recomendamos crear o solicitar una nueva cuenta para el pago.\nAntes de confirmar la transacción, verifique la dirección y el monto. Recuerde que las transacciones en blockchain son irreversibles. Luego, siga el procedimiento de su billetera para autorizar y enviar la transacción. Esto puede incluir autenticación de dos factores u otras medidas de seguridad.",
-      "ru": "Счет доступен для оплаты в течение ограниченного количества времени. Для вашего удобства на странице оплаты вы увидите таймер обратного отсчета.\nЕсли вы отправили средства, а счет завершился, то он подтвердится сразу, как только средства будут получены. В случае, если ваш счет истекает, а вы еще не оплатили, советуем создать или запросить новый счет для оплаты.\nПрежде чем подтвердить совершение транзакции, перепроверьте адрес и сумму. Помните, что транзакции в блокчейне необратимы. Далее следуйте процедуре вашего кошелька для авторизации и отправки транзакции. Это может включать двухфакторную аутентификацию или другие меры безопасности."
-    },
-    "После подтверждения данные о транзакции будут отправлены в блокчейн. Как только платежный сервис определит вашу транзакцию, статус на экране изменится. Скорость подтверждения операции зависит от выбранной криптовалюты и загруженности сети Blockchain. Обычно подтверждение операции занимает от 2 минут до 10 минут. Оплата счетов в Bitcoin может занимать до 1 часа и более.\nВы можете использовать проводник блокчейна для мониторинга транзакции, например [Blockchair](https://blockchair.com) или [Tronscan](https://tronscan.org/). Вам понадобится идентификатор транзакции, который обычно предоставляется кошельком после отправки платежа.": {
-      "en-US": "Once confirmed, the transaction data will be sent to the blockchain. ",
-      "uk": "Після підтвердження дані транзакції будуть надіслані в блокчейн. Щойно платіжна служба виявить вашу транзакцію, статус на екрані зміниться. Швидкість підтвердження транзакції залежить від обраної криптовалюти та завантаженості мережі Blockchain. Зазвичай підтвердження транзакції займає від 2 хвилин до 10 хвилин. Оплата рахунків у біткойнах може тривати до 1 години або більше.\nВи можете використовувати блокчейн-провідник для моніторингу транзакції, наприклад [Blockchair](https://blockchair.com) або [Tronscan](https://tronscan.org/). Вам знадобиться ідентифікатор транзакції, який зазвичай надається гаманцем після надсилання платежу.",
-      "es-ES": "Una vez confirmada, los datos de la transacción se enviarán a la cadena de bloques. Una vez que el servicio de pago detecte su transacción, el estado en la pantalla cambiará. La velocidad de confirmación de la transacción depende de la criptomoneda seleccionada y de la congestión de la red Blockchain. Normalmente, la confirmación de la transacción tarda entre 2 y 10 minutos. Pagar facturas en Bitcoin puede tardar hasta 1 hora o más.\nPuede utilizar un explorador de blockchain para monitorear la transacción, como [Blockchair](https://blockchair.com) o [Tronscan](https://tronscan.org/). Necesitará el ID de la transacción, que normalmente proporciona la billetera después de enviar el pago.",
-      "ru": "После подтверждения данные о транзакции будут отправлены в блокчейн. Как только платежный сервис определит вашу транзакцию, статус на экране изменится. Скорость подтверждения операции зависит от выбранной криптовалюты и загруженности сети Blockchain. Обычно подтверждение операции занимает от 2 минут до 10 минут. Оплата счетов в Bitcoin может занимать до 1 часа и более.\nВы можете использовать проводник блокчейна для мониторинга транзакции, например [Blockchair](https://blockchair.com) или [Tronscan](https://tronscan.org/). Вам понадобится идентификатор транзакции, который обычно предоставляется кошельком после отправки платежа."
-    },
-    "Как только транзакция будет подтверждена платежным сервисом, вы получите уведомление об успешном платеже. В этот момент статус вашего заказа изменится на «Оплачен».\nПосле подтверждения мы приступим к обработке вашего заказа.": {
-      "en-US": "Once the transaction is confirmed by the payment service, you will receive a notification about the successful payment. ",
-      "uk": "Після підтвердження транзакції платіжним сервісом ви отримаєте повідомлення про успішну оплату. На цьому етапі статус вашого замовлення зміниться на «Оплачено».\nПісля підтвердження ми почнемо обробку вашого замовлення.",
-      "es-ES": "Una vez que el servicio de pago confirme la transacción, recibirá una notificación sobre el pago exitoso. En este punto, el estado de su pedido cambiará a \"Pagado\".\nDespués de la confirmación, comenzaremos a procesar su pedido.",
-      "ru": "Как только транзакция будет подтверждена платежным сервисом, вы получите уведомление об успешном платеже. В этот момент статус вашего заказа изменится на «Оплачен».\nПосле подтверждения мы приступим к обработке вашего заказа."
-    },
-    "* Сохраняйте идентификатор транзакции и любую другую информацию о вашем платеже для дальнейшего использования.\n* Всегда проверяйте, что вы отправляете платеж на корректный адрес, правильно выбрав валюту и сеть.": {
-      "en-US": "*Save your transaction ID and any other information about your payment for future reference.\n* Always make sure you are sending the payment to the correct address, currency and network.",
-      "uk": "*Збережіть свій ідентифікатор транзакції та будь-яку іншу інформацію про платіж для використання в майбутньому.\n* Завжди переконайтеся, що ви надсилаєте платіж на правильну адресу, валюту та мережу.",
-      "es-ES": "*Guarde su ID de transacción y cualquier otra información sobre su pago para referencia futura.\n* Asegúrese siempre de enviar el pago a la dirección, moneda y red correctas.",
-      "ru": "* Сохраняйте идентификатор транзакции и любую другую информацию о вашем платеже для дальнейшего использования.\n* Всегда проверяйте, что вы отправляете платеж на корректный адрес, правильно выбрав валюту и сеть."
-    },
     "У тебя уже есть такая роль": {
       "en-US": "You already have such a role",
       "uk": "У вас вже є така роль",
@@ -19231,12 +17436,6 @@
       "uk": "Спільнота не виконала цілей цього квесту",
       "es-ES": "La comunidad no completó los objetivos de esta misión.",
       "ru": "Сообщество не выполнило задачи этого квеста"
-    },
-    "мне нужны следующие права:\n1. Отправка сообщений\n2. Добавлять реакции": {
-      "en-US": "I need the following rights:\n1. ",
-      "uk": "Мені потрібні такі права:\n1. Надсилання повідомлень\n2. Додайте реакції",
-      "es-ES": "Necesito los siguientes derechos:\n1. Envío de mensajes\n2. Agregar reacciones",
-      "ru": "мне нужны следующие права:\n1. Отправка сообщений\n2. Добавлять реакции"
     },
     "Эта раздача уже принята": {
       "en-US": "This giveaway has already been accepted",
@@ -19267,24 +17466,6 @@
       "uk": "При досягненні",
       "es-ES": "Al llegar",
       "ru": "По достижению"
-    },
-    "Раздача была принята пользователем": {
-      "en-US": "The giveaway has been accepted by the user",
-      "uk": "Роздача була прийнята користувачем",
-      "es-ES": "El sorteo ha sido aceptado por el usuario.",
-      "ru": "Раздача была принята пользователем"
-    },
-    "Раздача была принята с изменениями пользователем": {
-      "en-US": "The distribution has been accepted with changes by the user",
-      "uk": "Розсилку прийнято зі змінами користувачем",
-      "es-ES": "La distribución ha sido aceptada con cambios por parte del usuario.",
-      "ru": "Раздача была принята пользователем"
-    },
-    "Логи не найдены": {
-      "en-US": "No logs found",
-      "uk": "Журнали не знайдено",
-      "es-ES": "No se encontraron registros",
-      "ru": "Логи не найдены"
     },
     "День рождения": {
       "en-US": "Birthday",
@@ -19328,30 +17509,6 @@
       "es-ES": "Servidor cambiado",
       "ru": "Сервер изменен"
     },
-    "ПРОМОКОДЫ": {
-      "en-US": "PROMO CODES",
-      "uk": "ПРОМОКОДИ",
-      "es-ES": "CÓDIGOS PROMOCIONALES",
-      "ru": "ПРОМОКОДЫ"
-    },
-    "Для того, чтобы создать промокод, введи слэш команду **/manager-promocodes**": {
-      "en-US": "To create a promotional code, enter the slash command **/manager-promocodes**",
-      "uk": "Щоб створити промокод, введіть команду **/manager-promocodes**.",
-      "es-ES": "Para crear un código promocional, ingrese el comando de barra diagonal **/manager-promocodes**",
-      "ru": "Для того, чтобы создать промокод, введи слэш команду **/manager-promocodes**"
-    },
-    "Ранг обнулится через 28 дн": {
-      "en-US": "Rank will be reset after 28 days",
-      "uk": "Рейтинг буде скинуто через 28 днів",
-      "es-ES": "El rango se restablecerá después de 28 días.",
-      "ru": "Ранг обнулится через 28 дн"
-    },
-    "Ранг обновлён": {
-      "en-US": "Rank updated",
-      "uk": "Рейтинг оновлено",
-      "es-ES": "Rango actualizado",
-      "ru": "Ранг обновлён"
-    },
     "Пользователь не найден на сервере": {
       "en-US": "User not found on server",
       "uk": "Користувача не знайдено на сервері",
@@ -19381,12 +17538,6 @@
       "uk": "Наступна ставка має бути не менше",
       "es-ES": "La próxima apuesta debe ser al menos",
       "ru": "Следующая ставка должна составлять минимум"
-    },
-    "Нет бэкапа": {
-      "en-US": "No backup",
-      "uk": "Без резервного копіювання",
-      "es-ES": "Sin respaldo",
-      "ru": "Нет бэкапа"
     },
     "Ошибка получения цены": {
       "en-US": "Error getting price",
@@ -19436,36 +17587,6 @@
       "es-ES": "La suma de las posibilidades de todos los elementos otorgados para un mensaje no debe exceder 100",
       "ru": "Сумма шансов всех предметов выдаваемых за сообщение не должна превышать 100"
     },
-    "Продолжить оплату или создать новый платёж?": {
-      "en-US": "Continue payment or create a new payment?",
-      "uk": "Продовжити платіж чи створити новий платіж?",
-      "es-ES": "¿Continuar con el pago o crear un nuevo pago?",
-      "ru": "Продолжить оплату или создать новый платёж?"
-    },
-    "Для получения уникальной роли донатера (при донате от 50р) на сервере поддержки - перед оплатой зайдите на сервер": {
-      "en-US": "To obtain a unique role as a donator (for a donation of 50 rubles) on the support server - go to the server before paying",
-      "uk": "Щоб отримати унікальну роль донора (за пожертвування 50 рублів) на сервері підтримки - зайдіть на сервер перед оплатою",
-      "es-ES": "Para obtener un rol único como donante (por una donación de 50 rublos) en el servidor de soporte, vaya al servidor antes de pagar",
-      "ru": "Для получения уникальной роли донатера (при донате от 50р) на сервере поддержки - перед оплатой зайдите на сервер"
-    },
-    "в процессе обработки. Проверка платежа происходит каждую минуту": {
-      "en-US": "during processing. ",
-      "uk": "під час обробки. Підтвердження платежу відбувається щохвилини",
-      "es-ES": "durante el procesamiento. La verificación del pago ocurre cada minuto",
-      "ru": "в процессе обработки. Проверка платежа происходит каждую минуту"
-    },
-    "Эту команду необходимо использовать на сервере": {
-      "en-US": "This command must be used on the server",
-      "uk": "Цю команду необхідно використовувати на сервері",
-      "es-ES": "Este comando debe usarse en el servidor.",
-      "ru": "Эту команду необходимо использовать на сервере"
-    },
-    "мне нужны следующие права:\n1. Отправка сообщений": {
-      "en-US": "I need the following rights:\n1. ",
-      "uk": "Мені потрібні такі права:\n1. Надсилання повідомлень",
-      "es-ES": "Necesito los siguientes derechos:\n1. enviando mensajes",
-      "ru": "мне нужны следующие права:\n1. Отправка сообщений"
-    },
     "Число не может быть": {
       "en-US": "The number cannot be",
       "uk": "Номер не може бути",
@@ -19477,24 +17598,6 @@
       "uk": "Встановлення ціни",
       "es-ES": "Fijando el precio",
       "ru": "Установка цены"
-    },
-    "— Создание происходит прикреплением выпадающего меню к любому сообщению бота.\n— Создать сообщение от бота можно с помощью команд </say:1150455842680885358> или </embed-generator:1150455841779105902>.": {
-      "en-US": "— Creation occurs by attaching a drop-down menu to any bot message.\n— You can create a message from a bot using the commands </say:1150455842680885358> or </embed-generator:1150455841779105902>.",
-      "uk": "— Створення відбувається шляхом додавання спадного меню до будь-якого повідомлення бота.\n— Ви можете створити повідомлення від бота за допомогою команд </say:1150455842680885358> або </embed-generator:1150455841779105902>.",
-      "es-ES": "— La creación se produce adjuntando un menú desplegable a cualquier mensaje de bot.\n— Puede crear un mensaje desde un bot usando los comandos </say:1150455842680885358> o </embed-generator:1150455841779105902>.",
-      "ru": "— Создание происходит прикреплением выпадающего меню к любому сообщению бота.\n— Создать сообщение от бота можно с помощью команд </say:1150455842680885358> или </embed-generator:1150455841779105902>."
-    },
-    "— С этим параметром можно выбрать до 25 ролей одновременно.\n— Если выбранная роль уже есть у пользователя и на нее нет цены, то роль будет убрана.\n— Если выбранная роль уже есть у пользователя и на нее есть цена, то роль не будет убрана.": {
-      "en-US": "— With this parameter, you can select up to 25 roles at a time.\n— If the user already has the selected role and there is no price for it, then the role will be removed.\n— If the user already has the selected role and there is a price for it, then the role will not be removed.",
-      "uk": "— За допомогою цього параметра ви можете вибрати до 25 ролей одночасно.\n— Якщо користувач уже має вибрану роль і для неї немає ціни, то роль буде видалено.\n— Якщо користувач уже має вибрану роль і для неї є ціна, роль не буде видалено.",
-      "es-ES": "— Con este parámetro, puede seleccionar hasta 25 funciones a la vez.\n— Si el usuario ya tiene la función seleccionada y no hay un precio para ella, entonces la función se eliminará.\n— Si el usuario ya tiene la función seleccionada y hay un precio para ella, entonces la función no se eliminará.",
-      "ru": "— С этим параметром можно выбрать до 25 ролей одновременно.\n— Если выбранная роль уже есть у пользователя и на нее нет цены, то роль будет убрана.\n— Если выбранная роль уже есть у пользователя и на нее есть цена, то роль не будет убрана."
-    },
-    "— С этим параметром можно выбрать только одну роль.\n— Если выбранная роль уже есть у пользователя, то роль не будет убрана.\n— При выборе роли все остальные роли будут убраны, даже если на них есть цена.": {
-      "en-US": "— With this parameter, you can only select one role.\n— If the user already has the selected role, the role will not be removed.\n— When selecting a role, all other roles will be removed, even if they have a price.",
-      "uk": "— За допомогою цього параметра ви можете вибрати лише одну роль.\n— Якщо користувач уже має вибрану роль, роль не буде видалено.\n— Під час вибору ролі всі інші ролі будуть видалені, навіть якщо вони мають ціну.",
-      "es-ES": "— Con este parámetro, solo puedes seleccionar un rol.\n— Si el usuario ya tiene el rol seleccionado, el rol no se eliminará.\n— Al seleccionar un rol, todos los demás roles se eliminarán, incluso si tienen un precio.",
-      "ru": "— С этим параметром можно выбрать только одну роль.\n— Если выбранная роль уже есть у пользователя, то роль не будет убрана.\n— При выборе роли все остальные роли будут убраны, даже если на них есть цена."
     },
     "Изменить слоты": {
       "en-US": "Change slots",
@@ -19562,12 +17665,6 @@
       "es-ES": "no se agregará: ya tomado",
       "ru": "не будет добавлен: уже взят"
     },
-    "к команде": {
-      "en-US": "to the team",
-      "uk": "до команди",
-      "es-ES": "al equipo",
-      "ru": "к команде"
-    },
     "Буст репутации очищен": {
       "en-US": "Reputation boost cleared",
       "uk": "Підвищення репутації видалено",
@@ -19609,12 +17706,6 @@
       "uk": "Ролі автоматичного доходу включені",
       "es-ES": "Roles de ingresos de automóviles en",
       "ru": "Авто доход ролей на"
-    },
-    "Мин. чел. - это сколько минимум человек необходимо для активации бонуса за каждого человека.\nМакс. чел. - это сколько максимум людей бот будет считать для бонуса за каждого человека. Если бонус за каждого человека - 5%, то каждому человеку будет идти бонус 5%*кол-во человек": {
-      "en-US": "Min. ",
-      "uk": "Хв. людей - це мінімальна кількість людей, необхідна для активації бонусу для кожної людини.\nМакс. людей - це максимальна кількість людей, яку бот буде нараховувати для бонусу для кожної людини. Якщо бонус для кожної особи становить 5%, то кожна особа отримає бонус у розмірі 5%*кількість людей",
-      "es-ES": "Mín. personas: este es el número mínimo de personas necesarias para activar el bono para cada persona.\nMáx. personas: esta es la cantidad máxima de personas que el bot contará para obtener una bonificación para cada persona. Si el bono para cada persona es del 5%, entonces cada persona recibirá un bono del 5%*número de personas",
-      "ru": "Мин. чел. - это сколько минимум человек необходимо для активации бонуса за каждого человека.\nМакс. чел. - это сколько максимум людей бот будет считать для бонуса за каждого человека. Если бонус за каждого человека - 5%, то каждому человеку будет идти бонус 5%*кол-во человек"
     },
     "не является HEX кодом цвета": {
       "en-US": "is not a HEX color code",
@@ -19796,12 +17887,6 @@
       "es-ES": "¿La tarea es opcional?",
       "ru": "Задача опциональная?"
     },
-    "За выполнение опциональных задач пользователь получает дополнительную награду. Завершение квеста не требует выполнения опциональной задачи.": {
-      "en-US": "For completing optional tasks, the user receives an additional reward. ",
-      "uk": "За виконання факультативних завдань користувач отримує додаткову винагороду. Для виконання квесту не потрібно виконувати необов’язкову мету.",
-      "es-ES": "Por completar tareas opcionales, el usuario recibe una recompensa adicional. Completar la misión no requiere completar un objetivo opcional.",
-      "ru": "За выполнение опциональных задач пользователь получает дополнительную награду. Завершение квеста не требует выполнения опциональной задачи."
-    },
     "Вы отменили редактирование целей. Вернуться к [квесту]": {
       "en-US": "You have canceled editing goals. ",
       "uk": "Ви скасували редагування цілей. Повернутися до [квесту]",
@@ -19934,12 +18019,6 @@
       "es-ES": "Seleccione una tarea opcional",
       "ru": "Выбери опциональную задачу"
     },
-    "Квест не может одновременно иметь тип 'Ежедневный' и тип 'Еженедельный'\nКвест не может одновременно иметь тип 'Сообщество' и тип 'Повторный'": {
-      "en-US": "A quest cannot be both a 'Daily' type and a 'Weekly' type\nA quest cannot be both a 'Community' type and a 'Repeat' type",
-      "uk": "Квест не може одночасно мати тип «Щоденний» і «Щотижневий» тип\nКвест не може одночасно мати тип «Спільнота» і «Повторний» тип",
-      "es-ES": "Una misión no puede ser del tipo \"Diaria\" y del tipo \"Semanal\" al mismo tiempo.\nUna misión no puede ser del tipo \"Comunitaria\" y del tipo \"Repetida\" al mismo tiempo.",
-      "ru": "Квест не может одновременно иметь тип 'Ежедневный' и тип 'Еженедельный'\nКвест не может одновременно иметь тип 'Сообщество' и тип 'Повторный'"
-    },
     "Квесты с данным типом имеют общий прогресс для целей": {
       "en-US": "Quests with this type have common progress for the objectives",
       "uk": "Квести цього типу мають загальний прогрес для цілей",
@@ -20048,18 +18127,6 @@
       "es-ES": "El importe de los ingresos no está configurado.",
       "ru": "Не настроено количество дохода"
     },
-    "API": {
-      "en-US": "API",
-      "uk": "API",
-      "es-ES": "API",
-      "ru": "API"
-    },
-    "Кастомизация уведомлений": {
-      "en-US": "Customization of notifications",
-      "uk": "Налаштування повідомлень",
-      "es-ES": "Personalización de notificaciones",
-      "ru": "Кастомизация уведомлений"
-    },
     "отключенный": {
       "en-US": "disabled",
       "uk": "вимкнено",
@@ -20113,12 +18180,6 @@
       "uk": "Очікуйте кулдаун",
       "es-ES": "Espere un tiempo de reutilización",
       "ru": "Ожидайте кулдаун"
-    },
-    "Присуждается за сообщение в не исключенных текстовых каналах.\nИсключенные каналы можно настроить в \\\"Настройки каналов\\\"": {
-      "en-US": "Awarded for posting in non-excluded text channels.\nExcluded channels can be configured in \\\"Channel Settings\\\"",
-      "uk": "Присуджується за публікацію в невиключених текстових каналах.\nВиключені канали можна налаштувати в \\\"Параметрах каналу\\\"",
-      "es-ES": "Otorgado por publicar en canales de texto no excluidos.\nLos canales excluidos se pueden configurar en \\\"Configuración del canal\\\"",
-      "ru": "Присуждается за сообщение в не исключенных текстовых каналах.\nИсключенные каналы можно настроить в \\\"Настройки каналов\\\""
     },
     "Нижний колонтитул - Имя": {
       "en-US": "Footer - Name",
@@ -20197,18 +18258,6 @@
       "uk": "Репутація користувача (RP) не повинна бути нижче -1000",
       "es-ES": "La reputación del usuario (RP) no debe ser inferior a -1000",
       "ru": "Репутация (RP) у пользователя не должна быть меньше -1000"
-    },
-    "Выберите выборку из списка": {
-      "en-US": "Select a selection from the list",
-      "uk": "Виберіть вибір зі списку",
-      "es-ES": "Seleccione una selección de la lista",
-      "ru": "Выберите выборку из списка"
-    },
-    "с": {
-      "en-US": "from",
-      "uk": "с",
-      "es-ES": "desde",
-      "ru": "с"
     },
     "Очистит весь инвентарь ролей": {
       "en-US": "Will clear the entire role inventory",
@@ -20342,18 +18391,6 @@
       "es-ES": "Apuesta en blackjack",
       "ru": "Ставится в блекджеке"
     },
-    "💰Выигрыш:": {
-      "en-US": "💰Gain:",
-      "uk": "💰Виграш:",
-      "es-ES": "💰Ganancia:",
-      "ru": "💰Выигрыш:"
-    },
-    "Авто-вывод": {
-      "en-US": "Auto-withdraw",
-      "uk": "Авто-висновок",
-      "es-ES": "Tirada-automática",
-      "ru": "Авто-вывод"
-    },
     "Вывести": {
       "en-US": "Withdraw",
       "uk": "Виводити",
@@ -20365,18 +18402,6 @@
       "uk": "не був доданий до прибуткової ролі, ліміт - 10 предметів",
       "es-ES": "no fue añadido al rol de ingresos, límite - 10 artículos",
       "ru": "не был добавлен в доходную роль, лимит - 10 предметов"
-    },
-    "роли": {
-      "en-US": "roles",
-      "uk": "ролі",
-      "es-ES": "roles",
-      "ru": "роли"
-    },
-    "ролей": {
-      "en-US": "roles",
-      "uk": "ролей",
-      "es-ES": "roles",
-      "ru": "ролей"
     },
     "Купить предметы на маркете": {
       "en-US": "Buy items on the market",
@@ -20395,30 +18420,6 @@
       "uk": "",
       "es-ES": "",
       "ru": "сезонный уровень"
-    },
-    "": {
-      "en-US": "",
-      "uk": "",
-      "es-ES": "",
-      "ru": ""
-    },
-    "": {
-      "en-US": "",
-      "uk": "",
-      "es-ES": "",
-      "ru": ""
-    },
-    "": {
-      "en-US": "",
-      "uk": "",
-      "es-ES": "",
-      "ru": ""
-    },
-    "": {
-      "en-US": "",
-      "uk": "",
-      "es-ES": "",
-      "ru": ""
     }
   }
 }
