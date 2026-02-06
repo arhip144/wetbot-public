@@ -32,23 +32,23 @@ class CustomRole {
         if (!this.timeoutDeleteId) this.timeoutDeleteId = lt.setTimeout(async () => {
             if (this.status !== "moderation") return this.delete()
             const guild = this.client.guilds.cache.get(this.guildID)
-            const member = await guild.members.fetch(this.userID).catch(e => null)
+            const member = await guild.members.fetch(this.userID).catch(() => null)
             if (member) {
                 const profile = await this.client.functions.fetchProfile(this.client, this.userID, guild.id)
                 const settings = this.client.cache.settings.get(guild.id)
                 if (this.minutes === Infinity && settings.customRolePrice.length) {
                     for (let item of settings.customRolePrice) {
                         if (item.type === RewardType.Item) {
-                            await profile.addItem(item.id, item.amount)
+                            await profile.addItem({ itemID: item.id, amount: item.amount })
                         }
                         if (item.type === RewardType.Currency) {
-                            profile.currency = item.amount
+                            profile.currency += item.amount
                         }
                         if (item.type === RewardType.Role) {
-                            await profile.addRole(item.id, item.amount)
+                            await profile.addRole({ id: item.id, amount: item.amount })
                         }
                         if (item.type === RewardType.Reputation) {
-                            await profile.addRp(item.amount)
+                            await profile.addRp({ amount: item.amount })
                         }
                     }
                     await profile.save()    
@@ -56,16 +56,16 @@ class CustomRole {
                 if (this.minutes !== Infinity && settings.customRolePriceMinute.length) {
                     for (let item of settings.customRolePriceMinute) {
                         if (item.type === RewardType.Item) {
-                            await profile.addItem(item.id, item.amount * this.minutes)
+                            await profile.addItem({ itemID: item.id, amount: item.amount * this.minutes })
                         }
                         if (item.type === RewardType.Currency) {
-                            profile.currency = item.amount * this.minutes
+                            profile.currency += item.amount * this.minutes
                         }
                         if (item.type === RewardType.Role) {
-                            await profile.addRole(item.id, item.amount * this.minutes)
+                            await profile.addRole({ id: item.id, amount: item.amount * this.minutes })
                         }
                         if (item.type === RewardType.Reputation) {
-                            await profile.addRp(item.amount * this.minutes)
+                            await profile.addRp({ amount: item.amount * this.minutes })
                         }
                     }
                     await profile.save()    
@@ -74,7 +74,7 @@ class CustomRole {
             }
             const channel = guild.channels.cache.get(this.channelId)
             if (channel) {
-                const message = await channel.messages.fetch(this.messageId).catch(e => null)
+                const message = await channel.messages.fetch(this.messageId).catch(() => null)
                 if (message) message.edit({ components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("0").setDisabled(true).setLabel(`${this.client.language({ textId: `НЕ РАЗРЕШЕНО`, guildId: guild.id })}`).setStyle(ButtonStyle.Danger))] })
             }
             this.delete()

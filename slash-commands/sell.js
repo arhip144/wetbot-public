@@ -73,7 +73,7 @@ module.exports = {
         }
         let amount = !args.amount || args.amount < 1 ? 1 : args.amount
         const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
-        if (profile.rp > 1000) profile.rp = 1000 - profile.rp
+        if (profile.rp > 1000) profile.rp = 1000
         const settings = client.cache.settings.get(interaction.guildId)
         if (args.item.length < 2) {
             return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Запрос содержит менее двух символов`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })  
@@ -131,9 +131,9 @@ module.exports = {
         else price = price * amount
         if (!price) return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Ошибка получения цены`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
         if (serverItem.shop.sellingPriceType !== "currency") {
-            await profile.addItem(serverItem.shop.sellingPriceType, price)
-        } else await profile.addCurrency(price)
-        await profile.addQuestProgression("itemsSold", amount, userItem.itemID)
+            await profile.addItem({ itemID: serverItem.shop.sellingPriceType, amount: price })
+        } else await profile.addCurrency({ amount: price })
+        await profile.addQuestProgression({ type: "itemsSold", amount, object: userItem.itemID })
         profile.itemsSold = +`${new Decimal(profile.itemsSold).plus(amount)}`
         if (serverItem.cooldown_sell) {
             if (!profile.itemsCooldowns) profile.itemsCooldowns = new Map()
@@ -145,7 +145,7 @@ module.exports = {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.itemsSold >= achievement.amount && !client.tempAchievements[interaction.user.id]?.includes(achievement.id)) { 
                 if (!client.tempAchievements[interaction.user.id]) client.tempAchievements[interaction.user.id] = []
                 client.tempAchievements[interaction.user.id].push(achievement.id)
-                await profile.addAchievement(achievement)
+                await profile.addAchievement({ achievement })
             }
         }))
         await profile.save()

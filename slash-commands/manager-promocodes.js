@@ -1,11 +1,11 @@
-const { ChannelType, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, Collection, ChannelSelectMenuBuilder, Webhook, StringSelectMenuOptionBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType, ApplicationCommandOptionType, RoleSelectMenuBuilder, LabelBuilder } = require("discord.js")
+const { ChannelType, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, Collection, ChannelSelectMenuBuilder, Webhook, StringSelectMenuOptionBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType, ApplicationCommandOptionType, RoleSelectMenuBuilder, LabelBuilder } = require("discord.js");
 const CodeRegexp = /id{(.*?)}/
 const limRegexp = /lim{(.*?)}/
-const Cron = require("croner")
-const { RewardType } = require("../enums/RewardType.js")
-const Promocode = require("../classes/promocode.js")
+const Cron = require("croner");
+const { RewardType } = require("../enums/RewardType.js");
+const Promocode = require("../classes/promocode.js");
 const { format } = require('date-format-parse')
-const { parse } = require('date-format-parse')
+const { parse } = require('date-format-parse');
 module.exports = {
     name: 'manager-promocodes',
     nameLocalizations: {
@@ -237,11 +237,6 @@ module.exports = {
         if (interaction.isChatInputCommand()) {
             await interaction.deferReply({ flags: ["Ephemeral"] })
             if (args.Subcommand === "create") {
-                const promocodes = client.cache.promocodes.filter(e => e.guildID === interaction.guildId)
-                if (promocodes.size >= settings.max_promocodes) return interaction.editReply({ content: `${client.language({ textId: `Достигнуто максимум промокодов:`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.max_promocodes}`, flags: ["Ephemeral"] })
-                if (promocodes.some(e => e.code === args.promocode && e.guildID === interaction.guildId)) {
-                    return interaction.editReply({ content: `${client.language({ textId: `Промокод`, guildId: interaction.guildId, locale: interaction.locale })} **${args.promocode}** ${client.language({ textId: `уже существует, выбери другой код`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                }
                 promocode = new client.promocodeSchema({
                     code: args.promocode,
                     guildID: interaction.guildId
@@ -252,7 +247,6 @@ module.exports = {
             } else
             if (args.Subcommand === "copy") {
                 const promocodes = client.cache.promocodes.filter(e => e.guildID === interaction.guildId)
-                if (promocodes.size >= settings.max_promocodes) return interaction.editReply({ content: `${client.language({ textId: `Достигнуто максимум промокодов:`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.max_promocodes}`, flags: ["Ephemeral"] })
                 const originalPromocode = promocodes.find(e => e.code === args.promocode && e.guildID === interaction.guildId)
                 if (!originalPromocode) return interaction.editReply({ content: `${client.language({ textId: `Промокод`, guildId: interaction.guildId, locale: interaction.locale })}: **${args.promocode}** ${client.language({ textId: `не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 if (promocodes.some(e => e.code === args.new_promocode && e.guildID === interaction.guildId)) {
@@ -293,7 +287,7 @@ module.exports = {
                 }
                 let index = 0
                 const embed = new EmbedBuilder()
-                    .setTitle(`${client.language({ textId: `Менеджер промокодов`, guildId: interaction.guildId, locale: interaction.locale })} (${promocodes.size}/${settings.max_promocodes})`)
+                    .setTitle(`${client.language({ textId: `Менеджер промокодов`, guildId: interaction.guildId, locale: interaction.locale })} (${promocodes.size})`)
                     .setColor(3093046)
                     .setDescription(promocodes.size ? promocodes.map((promocode) => { 
                         return `${index++}. ${promocode.enabled ? "🟢": "🔴"}${promocode.code}`
@@ -302,7 +296,7 @@ module.exports = {
                     embed,
                     new EmbedBuilder()
                         .setColor(3093046)
-                        .setDescription(`${client.config.emojis.plus}${client.language({ textId: `Создать промокод`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-promocodes create:1243977285900435466>\n${client.config.emojis.edit}${client.language({ textId: `Изменить промокод`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-promocodes edit:1243977285900435466>\n${client.config.emojis.copy}${client.language({ textId: `Скопировать промокод`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-promocodes copy:1243977285900435466>\n${client.config.emojis.trash}${client.language({ textId: `Удалить промокод`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-promocodes delete:1243977285900435466>`)
+                        .setDescription(`<:PLUS:1012990107143385159>${client.language({ textId: `Создать промокод`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-promocodes create:1243977285900435466>\n<:pen:1012990423171600404>${client.language({ textId: `Изменить промокод`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-promocodes edit:1243977285900435466>\n<:activities:1005856343141384264>${client.language({ textId: `Скопировать промокод`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-promocodes copy:1243977285900435466>\n<:block:1005859695619215370>${client.language({ textId: `Удалить промокод`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-promocodes delete:1243977285900435466>`)
                 ]
                 const components = [
                     new ActionRowBuilder()
@@ -386,13 +380,13 @@ module.exports = {
                             ),
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `manager-promocodes_resetCronPattern_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `manager-promocodes_resetCronPattern_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
                     interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
                     try {
-                        const job = Cron(modalArgs.pattern, { timezone: "Atlantic/Azores", interval: 60, paused: true }, () => {} )
+                        const job = Cron(modalArgs.pattern, { timezone: "UTC", interval: 60, paused: true }, () => {} )
                         job.stop()
                     } catch (err) {
                         await interaction.deferUpdate()
@@ -424,7 +418,7 @@ module.exports = {
                             ),
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `manager-promocodes_deleteDate_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `manager-promocodes_deleteDate_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
@@ -462,7 +456,7 @@ module.exports = {
                             ),
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `manager-promocodes_permissions_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `manager-promocodes_permissions_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
                 if (interaction && interaction.type === InteractionType.ModalSubmit) {
                     const modalArgs = {}
@@ -522,8 +516,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })
-                const filter = (i) => i.customId.includes(`manager-promocodes_add`) && i.user.id === interaction.user.id
-                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`manager-promocodes_add`) && i.user.id === interaction.user.id;
+                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                 if (interaction2) {
                     const rewardType = interaction2.customId.includes("item") ? RewardType.Item : interaction2.customId.includes("xp") ? RewardType.Experience : interaction2.customId.includes("currency") ? RewardType.Currency : interaction2.customId.includes("reputation") ? RewardType.Reputation : RewardType.Role
                     if (interaction2.customId.includes("item")) {
@@ -550,8 +544,8 @@ module.exports = {
                                     ),
                             ])
                         await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                        const filter = (i) => i.customId === `manager-promocodes_addItem_${interaction2.id}` && i.user.id === interaction2.user.id
-                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId === `manager-promocodes_addItem_${interaction2.id}` && i.user.id === interaction2.user.id;
+                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                         if (interaction2 && interaction2.isModalSubmit()) {
                             const modalArgs = {}
                             interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -593,8 +587,8 @@ module.exports = {
                                         .setCustomId(`manager-promocodes_addRole`)
                                 )
                         ] })
-                        const filter = (i) => i.customId.includes(`manager-promocodes_addRole`) && i.user.id === interaction2.user.id
-                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                        const filter = (i) => i.customId.includes(`manager-promocodes_addRole`) && i.user.id === interaction2.user.id;
+                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                         if (interaction2) {
                             const role = interaction2.roles.first()
                             if (!interaction.guild.members.me.permissions.has("ManageRoles") || role.position > interaction.guild.members.me.roles.highest.position) {
@@ -623,8 +617,8 @@ module.exports = {
                                         ),
                                 ])
                             await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                            const filter = (i) => i.customId === `manager-promocodes_addRole_${interaction2.id}` && i.user.id === interaction2.user.id
-                            interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                            const filter = (i) => i.customId === `manager-promocodes_addRole_${interaction2.id}` && i.user.id === interaction2.user.id;
+                            interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                             if (interaction2 && interaction2.isModalSubmit()) {
                                 const modalArgs = {}
                                 interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -683,8 +677,8 @@ module.exports = {
                                     ),
                             ])
                         await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                        const filter = (i) => i.customId === `manager-promocodes_add_${interaction2.id}` && i.user.id === interaction2.user.id
-                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId === `manager-promocodes_add_${interaction2.id}` && i.user.id === interaction2.user.id;
+                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                         if (interaction2 && interaction2.isModalSubmit()) {
                             const modalArgs = {}
                             interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -739,8 +733,8 @@ module.exports = {
                                 .setCustomId(`manager-promocodes_delItem`)
                         )
                 ] })
-                const filter = (i) => i.customId.includes(`manager-promocodes_delItem`) && i.user.id === interaction.user.id
-                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`manager-promocodes_delItem`) && i.user.id === interaction.user.id;
+                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                 if (interaction2) {
                     promocode.items.splice(Number(interaction2.values[0]), 1)
                     await promocode.save()
@@ -763,7 +757,7 @@ module.exports = {
                             ),
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `manager-promocodes_amountUses_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `manager-promocodes_amountUses_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
@@ -797,7 +791,7 @@ module.exports = {
                             ),
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `manager-promocodes_enabledUntil_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `manager-promocodes_enabledUntil_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
@@ -851,8 +845,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })    
-                const filter = (i) => i.customId.includes(`manager-promocodes_channels`) && i.user.id === interaction.user.id
-                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`manager-promocodes_channels`) && i.user.id === interaction.user.id;
+                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                 if (interaction2) {
                     if (interaction2.customId === "manager-promocodes_channels_select") {
                         promocode.channelId = interaction2.channels.first().id

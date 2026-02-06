@@ -47,9 +47,9 @@ class Promocode {
 			const guild = this.client.guilds.cache.get(this.guildID)
 			const channel = guild.channels.cache.get(this.channelId)
 			if (channel) {
-				const message = await channel.messages.fetch(this.messageId).catch(e => null)
+				const message = await channel.messages.fetch(this.messageId).catch(() => null)
 				if (message) {
-					await message.edit({ embeds: [ this.generateEmbed() ] }).catch(e => null)
+					await message.edit({ embeds: [ this.generateEmbed() ] }).catch(() => null)
 				} else {
 					this.channelId = undefined
 					this.messageId = undefined
@@ -64,27 +64,27 @@ class Promocode {
 		for (const element of this.items) {
 			if (element.type === RewardType.Currency) {
 				const settings = this.client.cache.settings.get(this.guildID)
-				await profile.addCurrency(element.amount)
+				await profile.addCurrency({ amount: element.amount })
 				array.push(`${settings.displayCurrencyEmoji}${settings.currencyName} (${element.amount})`)
 			} else
 			if (element.type === RewardType.Experience) {
-				await profile.addXp(element.amount)
+				await profile.addXp({ amount: element.amount })
 				array.push(`${this.client.config.emojis.XP}${this.client.language({ textId: `Опыт`, guildId: interaction.guildId, locale: interaction.locale })} (${element.amount})`)
 			} else
 			if (element.type === RewardType.Reputation) {
-				await profile.addRp(element.amount)
+				await profile.addRp({ amount: element.amount })
 				array.push(`${this.client.config.emojis.RP}${this.client.language({ textId: `Репутация`, guildId: interaction.guildId, locale: interaction.locale })} (${element.amount})`)
 			} else
 			if (element.type === RewardType.Item) {
 				const rewardItem = this.client.cache.items.find(item => item.itemID === element.id && !item.temp && item.enabled)
 				if (rewardItem) {
-					await profile.addItem(rewardItem.itemID, element.amount)
+					await profile.addItem({ itemID: rewardItem.itemID, amount: element.amount })
 					array.push(`${rewardItem.displayEmoji}${rewardItem.name} (${element.amount})`)
 				} else {
 					array.push(`${element.id} (${element.amount})`)
 				}
 			} else if (element.type === RewardType.Role) {
-				profile.addRole(element.id, element.amount, element.ms)
+				profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
 				array.push(`<@&${element.id}>${element.ms ? ` [${this.client.functions.transformSecs(this.client, element.ms, interaction.guildId, interaction.locale)}]` : ``} (${element.amount})`)
 			}
 		}
@@ -100,9 +100,9 @@ class Promocode {
 				const guild = this.client.guilds.cache.get(this.guildID)
 				const channel = guild.channels.cache.get(this.channelId)
 				if (channel) {
-					const message = await channel.messages.fetch(this.messageId).catch(e => null)
+					const message = await channel.messages.fetch(this.messageId).catch(() => null)
 					if (message) {
-						await message.edit({ embeds: [ this.generateEmbed() ] }).catch(e => null)
+						await message.edit({ embeds: [ this.generateEmbed() ] }).catch(() => null)
 					} else {
 						this.channelId = undefined
 						this.messageId = undefined
@@ -125,11 +125,11 @@ class Promocode {
 				if (guild) {
 					const channel = guild.channels.cache.get(this.channelId)
 					if (channel) {
-						const message = await channel.messages.fetch(this.messageId).catch(e => null)
+						const message = await channel.messages.fetch(this.messageId).catch(() => null)
 						if (message) {
 							const embed = EmbedBuilder.from(message.embeds[0])
 							embed.setDescription(`~~${embed.data.description}~~\n**${this.client.language({ textId: `ПРОМОКОД ИСТЁК`, guildId: this.guildID })}**`)
-							await message.edit({ embeds: [embed] }).catch(e => null)
+							await message.edit({ embeds: [embed] }).catch(() => null)
 						}	
 					}
 				}
@@ -161,7 +161,7 @@ class Promocode {
 				`**${this.client.config.emojis.activities}${this.client.language({ textId: `КОЛИЧЕСТВО АКТИВАЦИЙ`, guildId: this.guildID })} ${this.used.length}/${this.amountUses}**`,
 				this.enabledUntil || this.deleteDate ? `**${this.client.config.emojis.watch}${this.client.language({ textId: `ДО`, guildId: this.guildID })} <t:${Math.floor((this.enabledUntil || this.deleteDate) / 1000)}:f>**` : undefined,
 				`**${this.client.language({ textId: `Для активации используй команду </promocode:1243977361792172102> <КОД>`, guildId: this.guildID })}**`
-			].filter(e => e).join("\n"))
+			].filter(Boolean).join("\n"))
 			.setColor(Colors.White)
 	}
 }

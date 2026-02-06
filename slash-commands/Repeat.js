@@ -22,7 +22,7 @@ module.exports = {
     run: async (client, interaction) => {
         await interaction.deferReply({ flags: ["Ephemeral"] })
         const originalMessage = await interaction.channel.messages.fetch({ message: interaction.targetId, cache: false, force: true })
-        await originalMessage.channel.send({ content: originalMessage.content, embeds: originalMessage.embeds, files: originalMessage.attachments, components: originalMessage.components }).catch(e => null)
+        await originalMessage.channel.send({ content: originalMessage.content, embeds: originalMessage.embeds, files: originalMessage.attachments, components: originalMessage.components }).catch(() => null)
         interaction.editReply(`${client.language({ textId: `Сообщение отправлено`, guildId: interaction.guildId, locale: interaction.locale })}`)
     }  
 }

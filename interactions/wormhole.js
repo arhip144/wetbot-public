@@ -12,7 +12,7 @@ module.exports = {
         const wormhole = client.cache.wormholes.get(id)
         if (!wormhole) {
             await interaction.reply({ content: `${client.language({ textId: `Червоточины с ID`, guildId: interaction.guildId, locale: interaction.locale })} ${id} ${client.language({ textId: `не существует`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-            return interaction.message.delete().catch(e => null)
+            return interaction.message.delete().catch(() => null)
         }
         if (wormhole.permission) {
             const permission = client.cache.permissions.get(wormhole.permission)
@@ -26,7 +26,7 @@ module.exports = {
         }
         takenWormholes.add(interaction.message.id)
         const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
-        profile.wormholeTouched = 1
+        profile.wormholeTouched += 1
         const amount = client.functions.getRandomNumber(wormhole.amountFrom, wormhole.amountTo)
         let reward = ``
         let emoji 
@@ -37,22 +37,22 @@ module.exports = {
             const settings = client.cache.settings.get(interaction.guildId)
             emoji = settings.displayCurrencyEmoji
             name = settings.currencyName
-            await profile.addCurrency(amount)
+            await profile.addCurrency({ amount })
             reward += `${settings.displayCurrencyEmoji}${amount}`
         } else if (wormhole.itemID === `xp`) {
             emoji = client.config.emojis.XP
             name = "XP"
-            await profile.addXp(amount)
+            await profile.addXp({ amount })
             reward += `${client.config.emojis.XP}${amount}`
         } else if (wormhole.itemID === `rp`) {
             emoji = client.config.emojis.RP
             name = "RP"
-            await profile.addRp(amount)
+            await profile.addRp({ amount })
             reward += `${client.config.emojis.RP}${amount}`
         } else {
             const rewardItem = client.cache.items.find(i => i.itemID === wormhole.itemID && !i.temp && i.enabled)
             if (rewardItem) {
-                await profile.addItem(wormhole.itemID, amount)
+                await profile.addItem({ itemID: wormhole.itemID, amount })
                 emoji = rewardItem.displayEmoji
                 name = rewardItem.name
                 image = rewardItem.image
@@ -60,7 +60,7 @@ module.exports = {
                 reward += `${rewardItem.displayEmoji}${amount}`    
             } else {
                 await interaction.reply({ content: `ERROR: ${client.language({ textId: `Предмета с ID`, guildId: interaction.guildId, locale: interaction.locale })}: ${wormhole.itemID} ${client.language({ textId: `не существует`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
-                return interaction.message.delete().catch(e => null)
+                return interaction.message.delete().catch(() => null)
             }
         }
         try {
@@ -132,12 +132,12 @@ module.exports = {
                 takenWormholes.delete(interaction.message.id)
             } catch (err) {
                 if (err.message === "Unknown interaction") {
-                    return await interaction.message.edit({ content: " ", components: [], embeds: [embedWormhole] }).catch(e => null).then(msg => takenWormholes.delete(interaction.message.id))
+                    return await interaction.message.edit({ content: " ", components: [], embeds: [embedWormhole] }).catch(() => null).then(msg => takenWormholes.delete(interaction.message.id))
                 }
             }
             let webhook = client.cache.webhooks.get(wormhole.webhookId)
             if (!webhook) {
-                webhook = await client.fetchWebhook(wormhole.webhookId).catch(e => null)
+                webhook = await client.fetchWebhook(wormhole.webhookId).catch(() => null)
                 if (webhook instanceof Webhook) client.cache.webhooks.set(webhook.id, webhook)
             }
             if (webhook) {
@@ -170,13 +170,13 @@ module.exports = {
                 console.error(error)
             }
         }
-        await profile.addQuestProgression("wormhole", 1, wormhole.wormholeID)
+        await profile.addQuestProgression({ type: "wormhole", amount: 1, object: wormhole.wormholeID })
         const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.type === AchievementType.Wormhole && e.enabled)
         await Promise.all(achievements.map(async achievement => {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.wormholeTouched >= achievement.amount && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                 if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                 client.tempAchievements[profile.userID].push(achievement.id)
-                await profile.addAchievement(achievement)
+                await profile.addAchievement({ achievement })
             }
         }))
         await profile.save() 

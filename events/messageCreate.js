@@ -29,108 +29,46 @@ client.on(Events.MessageCreate, async (message) => {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.boosts >= achievement.amount && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                 if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                 client.tempAchievements[profile.userID].push(achievement.id)
-                await profile.addAchievement(achievement)
+                await profile.addAchievement({ achievement })
             }
         }))
         await profile.save()
     }
-    if (message.author.bot || message.channel.type === ChannelType.DM || message.channel.type == ChannelType.GroupDM || (message.type !== MessageType.Default && message.type !== MessageType.Reply)) return
-    const settings = await client.functions.fetchSettings(client, message.guildId)
-    if (!settings.channels.mutedChannels.includes(message.channelId)) {
-        //Выдача опыта за сообщение
-        const profile = await client.functions.fetchProfile(client, message.author.id, message.guildId)
-        profile.messages = 1
-        if (message.member) {
-            if (!message.member.roles.cache.hasAny(...settings.roles?.mutedRoles)) {
-                if (settings.curForMessage && !profile.blockActivities?.message?.CUR) {
-                    let cur_multiplier_for_channel = 0
-                    let channel = client.cache.channels.find(channel => channel.id === message.channelId && channel.isEnabled)
-                    if (!channel) channel = client.cache.channels.find(channel => channel.id === message.channel?.parentId && channel.isEnabled)
-                    if (channel) {
-                        cur_multiplier_for_channel = channel.cur_multiplier
-                    }
-                    const base_cur = 1 * settings.curForMessage
-                    const cur = base_cur + (base_cur * profile.getCurBoost(cur_multiplier_for_channel))
-                    if (cur) await profile.addCurrency(cur)
-                }
-                if (settings.xpForMessage && !profile.blockActivities?.message?.XP) {
-                    let xp_multiplier_for_channel = 0
-                    let channel = client.cache.channels.find(channel => channel.id === message.channelId && channel.isEnabled)
-                    if (!channel) channel = client.cache.channels.find(channel => channel.id === message.channel?.parentId && channel.isEnabled)
-                    if (channel) {
-                        xp_multiplier_for_channel = channel.xp_multiplier
-                    }
-                    const base_xp = 1 * settings.xpForMessage
-                    const xp = base_xp + (base_xp * profile.getXpBoost(xp_multiplier_for_channel))
-                    if (xp) await profile.addXp(xp)
-                }
-                if (settings.rpForMessage && !profile.blockActivities?.message?.RP) {
-                    let rp_multiplier_for_channel = 0
-                    let channel = client.cache.channels.find(channel => channel.id === message.channelId && channel.isEnabled)
-                    if (!channel) channel = client.cache.channels.find(channel => channel.id === message.channel?.parentId && channel.isEnabled)
-                    if (channel) {
-                        rp_multiplier_for_channel = channel.rp_multiplier
-                    }
-                    const base_rp = 1 * settings.rpForMessage
-                    const rp = base_rp + (base_rp * profile.getRpBoost(rp_multiplier_for_channel))
-                    if (rp) await profile.addRp(rp)
-                }
-                const guildQuests = client.cache.quests.filter(quest => quest.guildID === message.guildId && quest.isEnabled && quest.targets.some(target => target.type === "message"))
-                if (guildQuests.size) await profile.addQuestProgression("message", 1, message.channelId)
-                const achievements = client.cache.achievements.filter(e => e.guildID === message.guildId && e.type === AchievementType.Message && e.enabled)
-                await Promise.all(achievements.map(async achievement => {
-                    if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.messages >= achievement.amount && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
-                        if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
-                        client.tempAchievements[profile.userID].push(achievement.id)
-                        await profile.addAchievement(achievement)
-                    }
-                }))
-            }    
-        }
-        if (message.member && !message.member.roles.cache.hasAny(...settings.roles?.mutedRoles) && !profile.blockActivities?.message?.items) {
-            let items_for_message = client.cache.items.filter(item => item.guildID === message.guildId && !item.temp && item.enabled && item.activities?.message?.chance).sort((a, b) => a.activities.message.chance - b.activities.message.chance).map(e => { 
-                return { itemID: e.itemID, displayEmoji: e.displayEmoji, name: e.name, activities: { message: { chance: e.activities.message.chance, amountFrom: e.activities.message.amountFrom, amountTo: e.activities.message.amountTo } }, hex: e.hex, activities_message_permission: e.activities_message_permission }
-            })
-            if (items_for_message.length) {
-                let luck_multiplier_for_channel = 0
-                if (message.channel) {
-                    let channel = client.cache.channels.find(channel => channel.id === message.channelId && channel.isEnabled)
-                    if (!channel) channel = client.cache.channels.find(channel => channel.id === message.channel?.parentId && channel.isEnabled)
-                    if (channel) {
-                        luck_multiplier_for_channel = channel.luck_multiplier
-                    }    
-                }
-                const bonus = new Decimal(1).plus(profile.getLuckBoost(luck_multiplier_for_channel))
-                items_for_message = client.functions.adjustActivityChanceByLuck(items_for_message, bonus, "message")
-                let base_chance = Math.random()
-                if (base_chance === 0) base_chance = 1
-                const asyncFilter = async (arr, predicate) => {
-                    const results = await Promise.all(arr.map(predicate))
-                    return results.filter((_v, index) => results[index])
-                }
-                items_for_message = await asyncFilter(items_for_message, async (e) => {
-                    if (e.activities_message_permission) {
-                        const permission = client.cache.permissions.find(i => i.id === e.activities_message_permission)
-                        if (permission) {
-                            const isPassing = permission.for(profile, message.member, message.channel)
-                            if (isPassing.value === true) return e	
-                        } else return e
-                    } else return e
-                })
-                let item = drop(items_for_message, base_chance)
-                if (item) {
-                    const amount = client.functions.getRandomNumber(item.activities.message.amountFrom, item.activities.message.amountTo)
-                    await profile.addItem(item.itemID, amount)
-                    const embed = new EmbedBuilder()
-                        .setAuthor({ name: message.member.displayName, iconURL: message.author.displayAvatarURL() })
-                        .setDescription(`${client.language({ textId: "Нашел", guildId: message.guildId })}: ${item.displayEmoji}**${item.name}** (${amount})`)
-                        .setColor(item.hex || "#2F3236")
-                    if (settings.channels?.itemsNotificationChannelId) await message.member.guild.channels.fetch(settings.channels.itemsNotificationChannelId).then(channel => channel.send({ content: profile.itemMention ? `<@${message.member.user.id}>` : ` `, embeds: [embed] })).catch(e => null)
-                }    
-            }
-        }
-        await profile.save()
+    if (message.author.bot || message.channel.type === ChannelType.DM || message.channel.type == ChannelType.GroupDM || (message.type !== MessageType.Default && message.type !== MessageType.Reply)) return;
+    const settings = await client.functions.fetchSettings(client, message.guildId);
+    if (settings.channels.mutedChannels.includes(message.channelId)) return;
+
+    const profile = await client.functions.fetchProfile(client, message.author.id, message.guildId);
+    profile.messages += 1;
+
+    if (!message.member || message.member.roles.cache.hasAny(...settings.roles?.mutedRoles || [])) {
+        await profile.save();
+        return;
     }
+
+    // Получаем множители канала один раз
+    const channelMultipliers = _getChannelMultipliers(client, message);
+    const { curMultiplier, xpMultiplier, rpMultiplier, luckMultiplier } = channelMultipliers;
+
+    // Параллельная обработка валюты, опыта и репутации
+    await Promise.all([
+        _processCurrencyReward(settings, profile, curMultiplier),
+        _processXpReward(settings, profile, xpMultiplier),
+        _processRpReward(settings, profile, rpMultiplier)
+    ]);
+
+    // Обработка квестов и достижений
+    await Promise.all([
+        _processMessageQuests(client, message, profile),
+        _processMessageAchievements(client, message, profile)
+    ]);
+
+    // Обработка предметов
+    if (!profile.blockActivities?.message?.items) {
+        await _processItemDrops(client, message, settings, profile, luckMultiplier);
+    }
+
+    await profile.save();
 })
 const lerp = (min, max, roll) => ((1 - roll) * min + roll * max)
 const drop = (items, roll) => {
@@ -142,4 +80,170 @@ const drop = (items, roll) => {
         }
         current = current.plus(item.activities.message.chance)
     }
+};
+// Вспомогательные методы
+function _getChannelMultipliers(client, message) {
+    let channel = client.cache.channels.find(ch => ch.id === message.channelId && ch.isEnabled);
+    if (!channel) {
+        channel = client.cache.channels.find(ch => ch.id === message.channel?.parentId && ch.isEnabled);
+    }
+    
+    return {
+        curMultiplier: channel?.cur_multiplier || 0,
+        xpMultiplier: channel?.xp_multiplier || 0,
+        rpMultiplier: channel?.rp_multiplier || 0,
+        luckMultiplier: channel?.luck_multiplier || 0
+    };
+}
+
+async function _processCurrencyReward(settings, profile, multiplier) {
+    if (!settings.curForMessage || profile.blockActivities?.message?.CUR) return;
+    
+    const baseCur = settings.curForMessage;
+    const cur = baseCur + (baseCur * profile.getCurBoost(multiplier));
+    if (cur > 0) {
+        await profile.addCurrency({ amount: cur });
+    }
+}
+
+async function _processXpReward(settings, profile, multiplier) {
+    if (!settings.xpForMessage || profile.blockActivities?.message?.XP) return;
+    
+    const baseXp = settings.xpForMessage;
+    const xp = baseXp + (baseXp * profile.getXpBoost(multiplier));
+    if (xp > 0) {
+        await profile.addXp({ amount: xp });
+    }
+}
+
+async function _processRpReward(settings, profile, multiplier) {
+    if (!settings.rpForMessage || profile.blockActivities?.message?.RP) return;
+    
+    const baseRp = settings.rpForMessage;
+    const rp = baseRp + (baseRp * profile.getRpBoost(multiplier));
+    if (rp > 0) {
+        await profile.addRp({ amount: rp });
+    }
+}
+
+async function _processMessageQuests(client, message, profile) {
+    const hasMessageQuests = client.cache.quests.some(quest => 
+        quest.guildID === message.guildId && 
+        quest.isEnabled && 
+        quest.targets.some(target => target.type === "message")
+    );
+    
+    if (hasMessageQuests) {
+        await profile.addQuestProgression({ type: "message", amount: 1, object: message.channelId });
+    }
+}
+
+async function _processMessageAchievements(client, message, profile) {
+    const achievements = client.cache.achievements.filter(achievement => 
+        achievement.guildID === message.guildId && 
+        achievement.type === AchievementType.Message && 
+        achievement.enabled
+    );
+    
+    const achievementsToAdd = achievements.filter(achievement => 
+        !profile.achievements?.some(ach => ach.achievmentID === achievement.id) &&
+        profile.messages >= achievement.amount &&
+        !client.tempAchievements[profile.userID]?.includes(achievement.id)
+    );
+    
+    if (achievementsToAdd.length === 0) return;
+    
+    client.tempAchievements[profile.userID] = client.tempAchievements[profile.userID] || [];
+    
+    // Добавляем ID во временный список
+    achievementsToAdd.forEach(achievement => {
+        client.tempAchievements[profile.userID].push(achievement.id);
+    });
+    
+    // Добавляем достижения параллельно
+    await Promise.all(
+        achievementsToAdd.map(achievement => profile.addAchievement({ achievement }))
+    );
+}
+async function _filterItemsByPermission(client, items, profile, member, channel) {
+    const permissionChecks = await Promise.all(
+        items.map(async (item) => {
+            if (!item.activities_message_permission) return item;
+            
+            const permission = client.cache.permissions.find(p => p.id === item.activities_message_permission);
+            if (!permission) return item;
+            
+            const isPassing = await permission.for(profile, member, channel);
+            return isPassing.value === true ? item : null;
+        })
+    );
+    
+    return permissionChecks.filter(item => item !== null);
+}
+
+async function _sendItemNotification(client, message, settings, profile, item, amount) {
+    if (!settings.channels?.itemsNotificationChannelId) return;
+    
+    try {
+        const channel = await message.member.guild.channels.fetch(settings.channels.itemsNotificationChannelId);
+        if (!channel) return;
+        
+        const embed = new EmbedBuilder()
+            .setAuthor({ name: message.member.displayName, iconURL: message.author.displayAvatarURL() })
+            .setDescription(`${client.language({ textId: "Нашел", guildId: message.guildId })}: ${item.displayEmoji}**${item.name}** (${amount})`)
+            .setColor(item.hex || "#2F3236");
+            
+        const content = profile.itemMention ? `<@${message.member.user.id}>` : ' ';
+        await channel.send({ content, embeds: [embed] });
+    } catch (error) {
+        // Игнорируем ошибки отправки уведомлений
+    }
+}
+async function _processItemDrops(client, message, settings, profile, luckMultiplier) {
+    const items = client.cache.items.filter(item => 
+        item.guildID === message.guildId && 
+        !item.temp && 
+        item.enabled && 
+        item.activities?.message?.chance
+    );
+    
+    if (items.size === 0) return;
+    
+    // Сортируем и подготавливаем предметы
+    const availableItems = Array.from(items.values())
+        .sort((a, b) => a.activities.message.chance - b.activities.message.chance)
+        .map(item => ({
+            itemID: item.itemID,
+            displayEmoji: item.displayEmoji,
+            name: item.name,
+            activities: { 
+                message: { 
+                    chance: item.activities.message.chance,
+                    amountFrom: item.activities.message.amountFrom,
+                    amountTo: item.activities.message.amountTo
+                }
+            },
+            hex: item.hex,
+            activities_message_permission: item.activities_message_permission
+        }));
+    
+    // Применяем удачу
+    const bonus = new Decimal(1).plus(profile.getLuckBoost(luckMultiplier));
+    const adjustedItems = client.functions.adjustActivityChanceByLuck(availableItems, bonus, "message");
+    
+    // Фильтруем по разрешениям
+    const filteredItems = await _filterItemsByPermission(client, adjustedItems, profile, message.member, message.channel);
+    if (filteredItems.length === 0) return;
+    
+    // Выбираем предмет
+    const baseChance = Math.random() || 1; // Если 0, то 1
+    const item = drop(filteredItems, baseChance);
+    
+    if (!item) return;
+    
+    const amount = client.functions.getRandomNumber(item.activities.message.amountFrom, item.activities.message.amountTo);
+    await profile.addItem({ itemID: item.itemID, amount });
+    
+    // Отправляем уведомление
+    await _sendItemNotification(client, message, settings, profile, item, amount);
 }

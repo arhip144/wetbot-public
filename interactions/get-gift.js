@@ -51,18 +51,18 @@ module.exports = {
         const received_items = []
         for (let item of gift.items) {
             if (item.itemID === "xp") {
-				await profile.addXp(item.amount)
+				await profile.addXp({ amount: item.amount })
                 received_items.push(`${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${item.amount})`)
             } else if (item.itemID === "currency") {
-				await profile.addCurrency(item.amount)
+				await profile.addCurrency({ amount: item.amount })
                 received_items.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${item.amount})`)
             } else if (item.itemID === "rp") {
-				await profile.addRp(item.amount)
+				await profile.addRp({ amount: item.amount })
                 received_items.push(`${client.config.emojis.RP}**${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${item.amount})`)
             } else {
                 const serverItem = client.cache.items.find(i => i.itemID === item.itemID && !i.temp && i.enabled)
                 if (serverItem) {
-					await profile.addItem(serverItem.itemID, item.amount)
+					await profile.addItem({ itemID: serverItem.itemID, amount: item.amount })
                     received_items.push(`${serverItem.displayEmoji}**${serverItem.name}** (${item.amount})`)
                 }    
             }

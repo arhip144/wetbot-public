@@ -43,17 +43,17 @@ module.exports = {
      */
     run: async (client, interaction, args) => {
         if (interaction.isButton()) {
-            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
             const userID = OneRegexp.exec(interaction.customId)?.[1]
             const profileOne = await client.functions.fetchProfile(client, userID, interaction.guildId)
             const profileTwo = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
             if (profileTwo.marry) {
                 interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Ты уже находишься в браке`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
-                return interaction.message.delete().catch(e => null)
+                return interaction.message.delete().catch(() => null)
             }
             if (profileOne.marry) {
                 interaction.reply({ content: `${client.config.emojis.NO} <@${profileOne.userID}> уже в браке.`, flags: ["Ephemeral"] })
-                return interaction.message.delete().catch(e => null)
+                return interaction.message.delete().catch(() => null)
             }
             profileOne.marry = profileTwo.userID
             profileOne.marryDate = new Date()
@@ -70,7 +70,7 @@ module.exports = {
         let profileTwo 
         if (interaction.isChatInputCommand()) {
             profileTwo = await client.functions.fetchProfile(client, args.user, interaction.guildId)
-            const member = await interaction.guild.members.fetch(args.user).catch(e => null)
+            const member = await interaction.guild.members.fetch(args.user).catch(() => null)
             if (!member) {
                 return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
             }

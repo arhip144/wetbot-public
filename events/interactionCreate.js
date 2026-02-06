@@ -1,11 +1,12 @@
-const client = require("../index")
-const { glob } = require("glob")
-const { ApplicationCommandOptionType, InteractionType, Events, ButtonStyle } = require("discord.js")
+const client = require("../index");
+const { glob } = require("glob");
+const { ApplicationCommandOptionType, InteractionType, Events, ButtonStyle } = require("discord.js");
 const UserRegexp = /usr{(.*?)}/
 const argsRegexp = /args{(.*?)}/
 const CommandRegexp = /cmd{(.*?)}/
-const node_emoji = require("node-emoji")
-const { RewardType } = require("../enums")
+const node_emoji = require("node-emoji");
+const { RewardType } = require("../enums");
+const activeUsersSchema = require("../schemas/activeUsersSchema")
 client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.inGuild() && client.blacklist(interaction.guildId, "full_ban", "guilds") && !interaction.isAutocomplete()) return interaction.reply({ content: `Этот сервер находится в черном списке.`, flags: ["Ephemeral"] })
     if (interaction.inGuild() && client.blacklist(interaction.user.id, "full_ban", "users") && !interaction.isAutocomplete()) return interaction.reply({ content: `Вы находитесь в черном списке.`, flags: ["Ephemeral"] })
@@ -14,7 +15,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
 		if (interaction.commandName === "take") {
 			const userID = interaction.options.get("user")?.value
-			if (!userID) return interaction.respond([]).catch(e => null)
+			if (!userID) return interaction.respond([]).catch(() => null)
 			const focus = interaction.options.getFocused()
 			const profile = await client.functions.fetchProfile(client, userID, interaction.guildId)
 			const options = []
@@ -25,7 +26,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					value: ir.uniqId
 				})
 			})
-			return interaction.respond(options.filter(e => e.name.toLowerCase().includes(focus.toLowerCase())).slice(0, 24)).catch(e => null)
+			return interaction.respond(options.filter(e => e.name.toLowerCase().includes(focus.toLowerCase())).slice(0, 24)).catch(() => null)
 		}
 		if (interaction.commandName === "transfer-role") {
 			const focus = interaction.options.getFocused()
@@ -38,9 +39,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					value: `${index}`
 				})
 			})
-			return interaction.respond(options.filter(e => e.name.toLowerCase().includes(focus.toLowerCase())).slice(0, 24)).catch(e => null)
+			return interaction.respond(options.filter(e => e.name.toLowerCase().includes(focus.toLowerCase())).slice(0, 24)).catch(() => null)
 		}
     	if (interaction.commandName === "achievement-give-to-user") {
+			const userID = interaction.options.get("user")?.value
+			if (!userID) return interaction.respond([]).catch(() => null)
     		const focus = interaction.options.getFocused()
     		const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && (focus ? (e.name.toLowerCase() === focus.toLowerCase() || e.id.toLowerCase() === focus.toLowerCase()) : true)).sort((a, b) => a.name < b.name).first(25)
     		const options = []
@@ -54,11 +57,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					})	
 				}	
 			})
-			return interaction.respond(options).catch(e => null)	
+			return interaction.respond(options).catch(() => null)	
     	}
     	if (interaction.commandName === "achievement-take-from-user") {
 			const userID = interaction.options.get("user")?.value
-			if (!userID) return interaction.respond([]).catch(e => null)
+			if (!userID) return interaction.respond([]).catch(() => null)
     		const focus = interaction.options.getFocused()
     		const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && (focus ? (e.name.toLowerCase() === focus.toLowerCase() || e.id.toLowerCase() === focus.toLowerCase()) : true)).sort((a, b) => a.name < b.name).first(25)
     		const options = []
@@ -72,7 +75,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					})	
 				}	
 			})
-			return interaction.respond(options).catch(e => null)	
+			return interaction.respond(options).catch(() => null)	
     	}
     	if (interaction.commandName === "buy") {
     		const focus = interaction.options.getFocused().toLowerCase()
@@ -90,7 +93,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					})	
 				}
     		}
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "craft") {
     		const focus = interaction.options.getFocused()
@@ -103,7 +106,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: item.name
     			})	
     		})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "drop") {
     		const focus = interaction.options.getFocused()
@@ -121,7 +124,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 				const settings = client.cache.settings.get(interaction.guildId)
 				if (!settings.currency_no_drop) options.unshift({ value: settings.currencyName, name: settings.currencyName })
 			}
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
 		if (interaction.commandName === "transfer") {
     		const focus = interaction.options.getFocused()
@@ -141,7 +144,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					{ value: settings.currencyName, name: settings.currencyName }
 				)
 			}
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "fav") {
     		const focus = interaction.options.getFocused()
@@ -167,7 +170,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
                 	})
                 }
             }
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "give-item") {
     		const focus = interaction.options.getFocused()
@@ -180,7 +183,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: item.name
     			})	
     		})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
         if (interaction.commandName === "config") {
 			let subCommandGroup = interaction.options.getSubcommandGroup()
@@ -195,7 +198,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
                     value: item.name
                 })  
             })
-            return interaction.respond(options).catch(e => null)
+            return interaction.respond(options).catch(() => null)
         }
     	if (interaction.commandName === "items") {
     		const focus = interaction.options.getFocused()
@@ -208,7 +211,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: item.name
     			})	
     		})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "open") {
     		const focus = interaction.options.getFocused()
@@ -229,7 +232,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
                 const isDefaultEmoji = node_emoji.hasEmoji(serverItem.emoji || "")
 				if (serverItem) options.push({ name: !isDefaultEmoji ? serverItem.name : serverItem.displayEmoji + serverItem.name, value: serverItem.name })
             }
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "sell") {
     		const focus = interaction.options.getFocused()
@@ -256,7 +259,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					}
 				}
             }
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "shop-add-edit") {
     		const focus = interaction.options.getFocused()
@@ -266,7 +269,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 				const isDefaultEmoji = node_emoji.hasEmoji(item.emoji || "")
                 options.push({ name: !isDefaultEmoji ? item.name : item.displayEmoji + item.name, value: item.name })
             }
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "shop-decrease-amount") {
     		const focus = interaction.options.getFocused()
@@ -276,7 +279,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 				const isDefaultEmoji = node_emoji.hasEmoji(item.emoji || "")
                 options.push({ name: !isDefaultEmoji ? item.name : item.displayEmoji + item.name, value: item.name })
             }
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "shop-increase-amount") {
     		const focus = interaction.options.getFocused()
@@ -286,7 +289,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 				const isDefaultEmoji = node_emoji.hasEmoji(item.emoji || "")
                 options.push({ name: !isDefaultEmoji ? item.name : item.displayEmoji + item.name, value: item.name })
             }
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "shop-del") {
     		const focus = interaction.options.getFocused()
@@ -296,7 +299,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 				const isDefaultEmoji = node_emoji.hasEmoji(item.emoji || "")
                 options.push({ name: !isDefaultEmoji ? item.name : item.displayEmoji + item.name, value: item.name })
             }
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
     	if (interaction.commandName === "use") {
     		const focus = interaction.options.getFocused()
@@ -317,11 +320,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
                 const isDefaultEmoji = node_emoji.hasEmoji(serverItem?.emoji || "")
 				if (serverItem) options.push({ name: !isDefaultEmoji ? serverItem.name : serverItem.displayEmoji + serverItem.name, value: serverItem.name })
             }
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
         if (interaction.commandName === "take-item") {
 			const userID = interaction.options.get("user")?.value
-			if (!userID) return interaction.respond([]).catch(e => null)
+			if (!userID) return interaction.respond([]).catch(() => null)
 			const focus = interaction.options.getFocused()
 			const user = await client.functions.fetchProfile(client, userID, interaction.guildId)
 			const items = client.cache.items.filter(item => item.guildID === interaction.guildId && !item.temp && item.found && item.enabled && item.name.toLowerCase().includes(focus.toLowerCase())).sort((a, b) => b.name > a.name)
@@ -352,11 +355,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					value: item.name
 				})  
 			})
-			return interaction.respond(options).catch(e => null)	
+			return interaction.respond(options).catch(() => null)	
         }
 		if (interaction.commandName === "trophy") {
 			const userID = interaction.options.get("user")?.value
-			if (!userID) return interaction.respond([]).catch(e => null)
+			if (!userID) return interaction.respond([]).catch(() => null)
 			const focus = interaction.options.getFocused()
 			const profile = await client.functions.fetchProfile(client, userID, interaction.guildId)
 			const trophies = profile.trophies?.filter(e => e.includes(focus)) || []
@@ -367,7 +370,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					value: trophy
 				})  
 			}
-			return interaction.respond(options).catch(e => null)	
+			return interaction.respond(options).catch(() => null)	
         }
 		if (interaction.commandName === "reg") {
 			const slashCommands = glob.sync(`slash-commands/*.js`, {
@@ -377,9 +380,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
 			const options = []
 			const commands = []
 			await slashCommands.map(async (value) => {
-				const file = require(value)
-				let newMap = Object.assign({}, file)
-				commands.push(newMap)
+				const file = require(value);
+				let newMap = Object.assign({}, file);
+				commands.push(newMap);
 			})
 			for (const command of commands.filter(e => e.name.includes(focus)).slice(0,24)) {
 				options.push({
@@ -387,7 +390,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					value: command.name
 				})  
 			}	
-			return interaction.respond(options).catch(e => null)	
+			return interaction.respond(options).catch(() => null)	
         }
 		if (interaction.commandName === "unreg") {
 			const slashCommands = glob.sync(`slash-commands/*.js`, {
@@ -397,9 +400,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
 			const options = []
 			const commands = []
 			await slashCommands.map(async (value) => {
-				const file = require(value)
-				let newMap = Object.assign({}, file)
-				commands.push(newMap)
+				const file = require(value);
+				let newMap = Object.assign({}, file);
+				commands.push(newMap);
 			})
 			for (const command of commands.filter(e => e.name.includes(focus)).slice(0,24)) {
 				options.push({
@@ -407,7 +410,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					value: command.name
 				})  
 			}	
-			return interaction.respond(options).catch(e => null)	
+			return interaction.respond(options).catch(() => null)	
         }
         if (interaction.commandName === "wormhole-spawn") {
             const focus = interaction.options.getFocused()
@@ -419,11 +422,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					value: wormhole.name
 				})
 			})
-            return interaction.respond(options).catch(e => null)    
+            return interaction.respond(options).catch(() => null)    
         }
         if (interaction.commandName === "quest-give-to-user") {
 			const userID = interaction.options.get("user")?.value
-			if (!userID) return interaction.respond([]).catch(e => null)
+			if (!userID) return interaction.respond([]).catch(() => null)
             const focus = interaction.options.getFocused()
             const quests = client.cache.quests.filter(quest => quest.isEnabled && quest.guildID === interaction.guildId && (quest.name.toLowerCase().includes(focus.toLowerCase()) || quest.questID.toLowerCase().includes(focus.toLowerCase()))).sort(function(a, b) { return 2 * (a.name > b.name) - 1 }).first(25)
             const options = []
@@ -437,11 +440,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					})  
 				}	
 			})
-			return interaction.respond(options).catch(e => null)    
+			return interaction.respond(options).catch(() => null)    
         }
         if (interaction.commandName === "quest-take-from-user") {
 			const userID = interaction.options.get("user")?.value
-			if (!userID) return interaction.respond([]).catch(e => null)
+			if (!userID) return interaction.respond([]).catch(() => null)
             const focus = interaction.options.getFocused()
             const quests = client.cache.quests.filter(quest => quest.isEnabled && quest.guildID === interaction.guildId && (quest.name.toLowerCase().includes(focus.toLowerCase()) || quest.questID.toLowerCase().includes(focus.toLowerCase()))).sort(function(a, b) { return 2 * (a.name > b.name) - 1 }).first(25)
             const options = []
@@ -455,13 +458,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					})  
 				}	
 			})
-			return interaction.respond(options).catch(e => null)    
+			return interaction.respond(options).catch(() => null)    
         }
         if (interaction.commandName === "reset-limits") {
 			const userID = interaction.options.get("user")?.value
-			if (!userID) return interaction.respond([]).catch(e => null)
+			if (!userID) return interaction.respond([]).catch(() => null)
             const subCommand = interaction.options.getSubcommand()
-            if (!subCommand) return interaction.respond([]).catch(e => null)
+            if (!subCommand) return interaction.respond([]).catch(() => null)
             const time = subCommand === "daily" ? "dailyLimits" : subCommand === "weekly" ? "weeklyLimits" : "monthlyLimits"
             const profile = await client.functions.fetchProfile(client, userID, interaction.guildId)
             const options = []
@@ -476,7 +479,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
                 }
                 
             }
-            return interaction.respond(options).catch(e => null)
+            return interaction.respond(options).catch(() => null)
         }
         if (interaction.commandName === "cooldowns") {
             const slashCommands = glob.sync(`slash-commands/*.js`, {
@@ -486,9 +489,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
             const options = []
             const commands = []
             await slashCommands.map(async (value) => {
-                const file = require(value)
-                let newMap = Object.assign({}, file)
-                commands.push(newMap)
+                const file = require(value);
+                let newMap = Object.assign({}, file);
+                commands.push(newMap);
             })
             for (const command of commands.filter(e => !e.owner && e.name.includes(focus)).slice(0,24)) {
                 options.push({
@@ -496,7 +499,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
                     value: command.name
                 })  
             }   
-            return interaction.respond(options).catch(e => null)
+            return interaction.respond(options).catch(() => null)
         }
 		if (interaction.commandName === "manager-items") {
     		const focus = interaction.options.getFocused()
@@ -509,7 +512,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: item.name
     			})	
     		})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
 		if (interaction.commandName === "manager-permissions") {
     		const focus = interaction.options.getFocused()
@@ -521,7 +524,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: permission.name
     			})	
     		}
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
         if (interaction.commandName === "manager-jobs") {
             const focus = interaction.options.getFocused()
@@ -533,7 +536,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
                     value: job.name
                 })  
             }
-            return interaction.respond(options).catch(e => null)
+            return interaction.respond(options).catch(() => null)
         }
 		if (interaction.commandName === "manager-achievements") {
     		const focus = interaction.options.getFocused()
@@ -546,7 +549,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: achievement.name
     			})	
 			})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
 		if (interaction.commandName === "manager-quests") {
     		const focus = interaction.options.getFocused()
@@ -559,7 +562,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: quest.name
     			})	
 			})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
 		if (interaction.commandName === "manager-promocodes") {
     		const focus = interaction.options.getFocused()
@@ -571,7 +574,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: promocode.code
     			})	
 			})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
 		if (interaction.commandName === "manager-channels") {
     		const focus = interaction.options.getFocused()
@@ -584,7 +587,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: multipliersChannel.id
     			})	
 			})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
 		if (interaction.commandName === "channels") {
     		const focus = interaction.options.getFocused()
@@ -597,7 +600,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: multipliersChannel.id
     			})	
 			})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
 		if (interaction.commandName === "manager-wormholes") {
     		const focus = interaction.options.getFocused()
@@ -609,7 +612,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: wormhole.name
     			})
 			})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
 		if (interaction.commandName === "promocode-autogenerators") {
     		const focus = interaction.options.getFocused()
@@ -621,7 +624,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: promocode.name
     			})
 			})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
     	}
 		if (interaction.commandName === "work") {
 			const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
@@ -661,7 +664,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					})	
 				}
             })
-            return interaction.respond(options.slice(0, 25)).catch(e => null)
+            return interaction.respond(options.slice(0, 25)).catch(() => null)
         }
 		if (interaction.commandName === "top") {
 			if (interaction.options.getSubcommand() === "statistics") {
@@ -957,9 +960,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
 				const messageId = message_url.split("/")[6]
 				if (row !== undefined && column !== undefined && channelId && messageId) {
 					const focus = interaction.options.getFocused(true)
-					const channel = await interaction.guild.channels.fetch(channelId).catch(e => null)
+					const channel = await interaction.guild.channels.fetch(channelId).catch(() => null)
 					if (!channel || !channel.guild) return interaction.respond([])
-					const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(e => null)
+					const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(() => null)
 					if (!message) return interaction.respond([])
 					if (!message.components[row]?.components[column]) return interaction.respond([])
 					if (focus.name === "id_or_url") {
@@ -1010,7 +1013,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 							value: lot.lotID
 						}	
 					}
-				}).filter(e => e).slice(0, 25))
+				}).filter(Boolean).slice(0, 25))
 			}
 			if (interaction.options.getSubcommand() === "buy") {
 				const focus = interaction.options.getFocused()
@@ -1036,7 +1039,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 							value: lot.lotID
 						}
 					}
-				}).filter(e => e).slice(0, 25))
+				}).filter(Boolean).slice(0, 25))
 			}
 			if (interaction.options.getSubcommand() === "create") {
 				const focus = interaction.options.getFocused(true)
@@ -1058,7 +1061,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 						const isDefaultEmoji = serverItem?.emoji ? node_emoji.hasEmoji(serverItem?.emoji) : false
 						if (serverItem) options.push({ name: (!isDefaultEmoji ? serverItem.name : serverItem.displayEmoji + serverItem.name) + ` (${item.amount})`, value: serverItem.name })
 					}
-					return interaction.respond(options).catch(e => null)	
+					return interaction.respond(options).catch(() => null)	
 				}
 				if (focus.name === "role") {
 					const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
@@ -1070,7 +1073,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 							value: ir.uniqId
 						})
 					})
-					return interaction.respond(options.filter(e => e.name.toLowerCase().includes(focus.value.toLowerCase())).slice(0, 24)).catch(e => null)
+					return interaction.respond(options.filter(e => e.name.toLowerCase().includes(focus.value.toLowerCase())).slice(0, 24)).catch(() => null)
 				}
 			}
 		}
@@ -1084,12 +1087,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
     				value: wormhole.name
     			})
 			})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
 		}
 		if (interaction.commandName === "quests") {
 			const focus = interaction.options.getFocused()
 			const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
-    		const quests = client.cache.quests.filter(e => e.guildID === interaction.guildId && e.name.toLowerCase().includes(focus.toLowerCase()) && e.isEnabled && ((e.active || profile.quests?.some(e1 => e1.questID === e.questID)))).first(25)
+    		const quests = client.cache.quests.filter(e => e.guildID === interaction.guildId && e.name.toLowerCase().includes(focus.toLowerCase()) && e.isEnabled && (e.active || profile.quests?.some(e1 => e1.questID === e.questID))).first(25)
     		const options = []
 			quests.forEach(quest => {
 				const isDefaultEmoji = node_emoji.hasEmoji(quest.emoji || "")
@@ -1098,7 +1101,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					value: quest.questID
 				})
 			})
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
 		}
 		if (interaction.commandName === "crash") {
 			const focus = interaction.options.getFocused()
@@ -1116,7 +1119,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 			options.unshift(
 				{ value: "currency", name: settings.currencyName },
 			)
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
 		}
 		if (interaction.commandName === "blackjack") {
 			const focus = interaction.options.getFocused()
@@ -1134,7 +1137,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 			options.unshift(
 				{ value: "currency", name: settings.currencyName },
 			)
-    		return interaction.respond(options).catch(e => null)
+    		return interaction.respond(options).catch(() => null)
 		}
     }
     // Context Menu Handling
@@ -1173,25 +1176,25 @@ client.on(Events.InteractionCreate, async (interaction) => {
 							if (z.value !== undefined) {
 								const { name, value } = z
 								args[name] = value
-							}
-						})
+							};
+						});
 					} else if (x.value !== undefined) {
 						const { name, value } = x
 						args[name] = value
-					}
-				})
+					};
+				});
 			} else if (option.type === ApplicationCommandOptionType.Subcommand) {
 				if (option.name) args["Subcommand"] = option.name
 				option.options?.forEach((x) => {
 					if (x.value !== undefined) {
 						const { name, value } = x
 						args[name] = value
-					}
-				})
+					};
+				});
 			} else if (option.value !== undefined) {
 				const { name, value } = option
 				args[name] = value
-			}
+			};
 		}
 		await runCommand(command, client, interaction, args)
         return await client.commandsUsesSchema.updateOne({ commandName: command.name }, { $inc: {
@@ -1204,7 +1207,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 	}
 	// "CLOSE" Button
 	if (interaction.customId?.includes("close")) {
-		if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null) 
+		if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null) 
 		else return interaction.message.delete().catch(e => {
 			if (e.message === "Unknown Message") {
 				return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Закрытие не работает с эфемерным сообщением`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
@@ -1263,6 +1266,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
             }
 			return runCommand(command, client, interaction, args)
         }
+		// interaction.message.components.forEach(row => row.components.forEach(component => {
+		// 	component.data.disabled = true
+		// }))
+		// await interaction.update({ components: interaction.message.components })
+		// return interaction.followUp({ content: `${client.config.emojis.NO}${client.language({ textId: "ID компонента не принадлежит ни к одной из известных команд", guildId: interaction.guildId })}`, components: [], embeds: [], flags: ["Ephemeral"] })
 	}
 	async function runCommand(command, client, interaction, args) {
 		if (client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`] > Date.now()) {
@@ -1287,6 +1295,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 			}).join(` `)}` : `${client.language({ textId: "Отсутствуют", guildId: interaction.guildId })}`}`)
 		}
 		await command.run(client, interaction, args)
-		return delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
+		delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
+		return await activeUsersSchema.updateOne({ id: interaction.user.id }, { $set: { timestamp: Date.now() } }, { upsert: true })
 	}
 })

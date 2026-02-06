@@ -192,7 +192,7 @@ module.exports = {
                             else style.appearance.description = null
                             if (modalArgs.title.length) style.appearance.title = modalArgs.title
                             else style.appearance.title = null
-                            await interaction.deferUpdate().catch(e => null)
+                            await interaction.deferUpdate().catch(() => null)
                             if (modalArgs.thumbnail.length) {
                                 if (modalArgs.thumbnail === "{item_image}") style.appearance.thumbnailURL = modalArgs.thumbnail
                                 else {
@@ -289,7 +289,7 @@ module.exports = {
                             return interaction.reply({ content: `${client.language({ textId: `Одно из полей должно быть заполнено: Описание, заглавие, верхний колонтитул, нижний колонтитул`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                         }
                         else {
-                            await interaction.deferUpdate().catch(e => null)
+                            await interaction.deferUpdate().catch(() => null)
                             if (modalArgs.author_name.length) {
                                 style.appearance.author.name = modalArgs.author_name
                                 if (modalArgs.author_icon.length) {
@@ -365,7 +365,7 @@ module.exports = {
                         const modalArgs = {}
                         interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
                         style.appearance.button.label = modalArgs.label
-                        await interaction.deferUpdate().catch(e => null)
+                        await interaction.deferUpdate().catch(() => null)
                         if (modalArgs.emoji.length) {
                             if (modalArgs.emoji === `{item_emoji}`) {
                                 style.appearance.button.emoji = `{item_emoji}`
@@ -559,7 +559,7 @@ module.exports = {
                             await interaction.reply({ content: `${client.language({ textId: `Одно из полей должно быть заполнено: Описание, заглавие, верхний колонтитул, нижний колонтитул`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                         }
                         else {
-                            await interaction.deferUpdate().catch(e => null)
+                            await interaction.deferUpdate().catch(() => null)
                             if (modalArgs.author_name.length) {
                                 style.collect.author.name = modalArgs.author_name
                                 if (modalArgs.author_icon.length) {

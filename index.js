@@ -1,10 +1,12 @@
 require('dotenv').config()
-const { Client, Collection, Partials, GatewayIntentBits, EmbedBuilder, Options, Events } = require("discord.js")
+const fs = require('fs');
+const path = require('path');
+const { Client, Collection, Partials, GatewayIntentBits, EmbedBuilder, Options, Events } = require("discord.js");
 const client = new Client({
     intents: [
         GatewayIntentBits.GuildInvites,
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildExpressions,
+        GatewayIntentBits.GuildExpressions, 
         GatewayIntentBits.GuildMembers, 
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildVoiceStates,
@@ -22,7 +24,19 @@ const client = new Client({
     },
     makeCache: Options.cacheWithLimits({ ...Options.DefaultMakeCacheSettings, MessageManager: 100 })
 })
-client.functions = require("./handler/functions.js")
+client.functions = {}
+const functionsPath = path.join(__dirname, './functions');
+const functionFiles = fs.readdirSync(functionsPath).filter(file => file.endsWith('.js'));
+for (const file of functionFiles) {
+    try {
+        const filePath = path.join(functionsPath, file);
+        const functionModule = require(filePath);
+        const functionName = path.basename(file, '.js');
+        client.functions[functionName] = functionModule;
+    } catch (error) {
+        console.error(`❌ Loading error ${file}:`, error.message);
+    }
+}
 client.temp = []
 client.dropDownTemp = new Collection()
 client.wipe = {}
@@ -62,6 +76,7 @@ client.cooldowns = require(`./handler/cooldowns`)
 client.blacklist = require(`./handler/blacklist`)
 client.marketFilters = new Collection()
 client.fetchedMembers = new Set()
+client.ProfileMemoryAnalyzer = require("./classes/ProfileMemoryAnalyzer.js")
 const { cache } = require(`./handler/cacheLoader`)
 client.cache = cache
 module.exports = client
@@ -69,15 +84,15 @@ client.on(Events.Warn, console.log)
 require("./handler")(client)
 const request = require('request')
 client.rest.on("rateLimited", error => {
-    console.error(`Рейт-лимит ${new Date()}:`, error)
+    console.error(`Rate-limit ${new Date()}:`, error)
 })
 process.on(`unhandledRejection`, error => {
-    console.error(`Ошибка ${new Date()}:`, error)
+    console.error(`Error ${new Date()}:`, error)
     if (error.stack.includes(`Missing Permissions`) || error.stack.includes(`Missing Access`) || error.stack.includes(`Unknown interaction`) || error.stack.includes(`Regular expression is invalid`) || error.stack.includes(`Unknown Channel`) || error.stack.includes(`Unknown Message`) || error.stack.includes("Target user is not connected to voice") || error.stack.includes("Unknown Member") || error.stack.includes(`ECONNRESET`)) return
     else {
         const embed = new EmbedBuilder()
             .setColor(3093046)
-            .setAuthor({ name: `Ошибка ${error.message.slice(0, 245)}` })
+            .setAuthor({ name: `Error ${error.message.slice(0, 245)}` })
             .setDescription(`\`\`\`ml\n${error.stack}\`\`\``)
             .setTimestamp()
         request({
@@ -94,12 +109,12 @@ process.on(`unhandledRejection`, error => {
     }
 })
 process.on("uncaughtException", (error) => {
-    console.error(`Ошибка ${new Date()}:`, error)
+    console.error(`Error ${new Date()}:`, error)
     if (error.stack.includes(`Missing Permissions`) || error.stack.includes(`Missing Access`) || error.stack.includes(`Unknown interaction`) || error.stack.includes(`Regular expression is invalid`) || error.stack.includes(`Unknown Channel`) || error.stack.includes(`Unknown Message`) || error.stack.includes("Target user is not connected to voice") || error.stack.includes("Unknown Member") || error.stack.includes(`ECONNRESET`)) return
     else {
         const embed = new EmbedBuilder()
             .setColor(3093046)
-            .setAuthor({ name: `Ошибка ${error.message.slice(0, 245)}` })
+            .setAuthor({ name: `Error ${error.message.slice(0, 245)}` })
             .setDescription(`\`\`\`ml\n${error.stack}\`\`\``)
             .setTimestamp()
         request({
@@ -116,12 +131,12 @@ process.on("uncaughtException", (error) => {
     }
 })
 client.on(Events.Error, (error) => {
-    console.error(`Ошибка ${new Date()}:`, error)
+    console.error(`Error ${new Date()}:`, error)
     if (error.stack.includes(`Missing Permissions`) || error.stack.includes(`Missing Access`) || error.stack.includes(`Unknown interaction`) || error.stack.includes(`Regular expression is invalid`) || error.stack.includes(`Unknown Channel`) || error.stack.includes(`Unknown Message`) || error.stack.includes("Target user is not connected to voice") || error.stack.includes("Unknown Member") || error.stack.includes(`ECONNRESET`)) return
     else {
         const embed = new EmbedBuilder()
             .setColor(3093046)
-            .setAuthor({ name: `Ошибка ${error.message.slice(0, 245)}` })
+            .setAuthor({ name: `Error ${error.message.slice(0, 245)}` })
             .setDescription(`\`\`\`ml\n${error.stack}\`\`\``)
             .setTimestamp()
         request({

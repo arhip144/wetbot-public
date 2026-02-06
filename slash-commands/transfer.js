@@ -74,7 +74,7 @@ module.exports = {
      * @param {String[]} args
      */
     run: async (client, interaction, args) => {
-        const mentionMember = await interaction.guild.members.fetch(args.user).catch(e => null)
+        const mentionMember = await interaction.guild.members.fetch(args.user).catch(() => null)
         if (!mentionMember) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Пользователь с ID`, guildId: interaction.guildId, locale: interaction.locale })} **${args.user}** ${client.language({ textId: `не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
         if (mentionMember.user.bot || mentionMember.user.id === interaction.user.id) {
             return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Ты не можешь использовать эту команду на себя или бота`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
@@ -100,10 +100,10 @@ module.exports = {
                     return interaction.reply({ embeds: [new EmbedBuilder().setColor(3093046).setTitle(`${client.language({ textId: `Для этого взаимодействия требуется:`, guildId: interaction.guildId, locale: interaction.locale })}`).setDescription(isPassing.reasons.join("\n"))], flags: ["Ephemeral"] })
                 }
             }
-            profile1.currency = amount
-            profile.currency = amount*-1
+            profile1.currency += amount
+            profile.currency -= amount
             const guildQuests = client.cache.quests.filter(quest => quest.guildID === interaction.guildId && quest.isEnabled && quest.targets.some(target => target.type === "transfer"))
-            if (guildQuests.size) await profile.addQuestProgression("transfer", amount)
+            if (guildQuests.size) await profile.addQuestProgression({ type: "transfer", amount })
             await profile.save()
             await profile1.save()
             client.emit("economyLogCreate", interaction.guildId, `<@${interaction.user.id}> (${interaction.user.username}) ${client.language({ textId: "передал", guildId: interaction.guildId })} ${settings.displayCurrencyEmoji}${settings.currencyName} (${amount}) ${client.language({ textId: `пользователю`, guildId: interaction.guildId, locale: interaction.locale })} <@${mentionMember.user.id}>`)
@@ -148,10 +148,10 @@ module.exports = {
                     return interaction.reply({ embeds: [new EmbedBuilder().setColor(3093046).setTitle(`${client.language({ textId: `Для этого взаимодействия требуется:`, guildId: interaction.guildId, locale: interaction.locale })}`).setDescription(isPassing.reasons.join("\n"))], flags: ["Ephemeral"] })
                 }
             }
-            await profile1.addItem(guildItem.itemID, amount)
-            await profile.subtractItem(guildItem.itemID, amount)
+            await profile1.addItem({ itemID: guildItem.itemID, amount })
+            await profile.subtractItem({ itemID: guildItem.itemID, amount })
             const guildQuests = client.cache.quests.filter(quest => quest.guildID === interaction.guildId && quest.isEnabled && quest.targets.some(target => target.type === "transfer"))
-            if (guildQuests.size) await profile.addQuestProgression("transfer", amount, guildItem.itemID)
+            if (guildQuests.size) await profile.addQuestProgression({ type: "transfer", amount, object: guildItem.itemID })
             if (guildItem.cooldown_transfer) {
                 if (!profile.itemsCooldowns) profile.itemsCooldowns = new Map()
                 if (profile.itemsCooldowns.get(guildItem.itemID)) profile.itemsCooldowns.set(guildItem.itemID, {...profile.itemsCooldowns.get(guildItem.itemID), transfer: new Date(Date.now() + guildItem.cooldown_transfer * 1000) })

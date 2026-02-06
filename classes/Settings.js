@@ -98,20 +98,29 @@ class Settings {
         this.usedPlayerCardsNoLimitsChannelId = settings.usedPlayerCardsNoLimitsChannelId
         this.customRoleMinimumMinutes = settings.customRoleMinimumMinutes
         this.customRoleCreationLimit = settings.customRoleCreationLimit
+        this.timeouts = {
+            resetSeason: null,
+            deleteFromDb: null
+        }
         if (this.seasonLevelsEnabled) {
             this.setTimeoutResetSeason()
         }
+        if (this.deleteFromDB) {
+            this.setDeleteFromDbTimeout()
+        }
 	}
 	async save() {
-		await this.client.settingsSchema.replaceOne({ guildID: this.guildID }, Object.assign({}, { ...this, client: undefined, resetSeasonTimeoutId: undefined }), { upsert: true })
+        const { timeouts, client, ...clone } = this
+		await this.client.settingsSchema.replaceOne({ guildID: clone.guildID }, clone, { upsert: true })
 	}
 	async delete() {
-        if (this.resetSeasonTimeoutId) this.clearResetSeasonTimeout()
+        if (this.timeouts.resetSeason) this.clearResetSeasonTimeout()
+        if (this.timeouts.deleteFromDb) this.clearDeleteFromDbTimeout()
 		await this.client.settingsSchema.deleteOne({ guildID: this.guildID })	
 		this.client.cache.settings.delete(this.guildID)	
 	}
     setTimeoutResetSeason() {
-        this.resetSeasonTimeoutId = lt.setTimeout(async () => {
+        this.timeouts.resetSeason = lt.setTimeout(async () => {
             this.client.cache.profiles.filter(profile => profile.guildID === this.guildID).forEach(profile => {
 				profile.seasonLevel = 1
 				profile.seasonXp = 0
@@ -124,7 +133,24 @@ class Settings {
         }, (this.lastSeasonReset.getTime() + this.daysSeason * 24 * 60 * 60 * 1000) - Date.now())
     }
     clearResetSeasonTimeout() {
-        lt.clearTimeout(this.resetSeasonTimeoutId)
+        lt.clearTimeout(this.timeouts.resetSeason)
+    }
+    setDeleteFromDbTimeout() {
+        this.timeouts.deleteFromDb = lt.setTimeout(async () => {
+            const guild = this.client.guilds.cache.get(this.guildID)
+            if (!guild) return this.delete()
+            this.deleteFromDB = undefined
+            this.clearDeleteFromDbTimeout()
+            this.save()   
+        }, this.deleteFromDB.getTime() - Date.now())
+    }
+    clearDeleteFromDbTimeout() {
+        lt.clearTimeout(this.timeouts.deleteFromDb)
+        delete this.timeouts.deleteFromDb
+    }
+    resetDeleteFromDbTimeout() {
+        if (this.timeouts.deleteFromDb) lt.clearTimeout(this.timeouts.deleteFromDb)
+        this.setDeleteFromDbTimeout()
     }
 }
 module.exports = Settings

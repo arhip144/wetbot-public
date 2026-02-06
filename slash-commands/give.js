@@ -69,8 +69,8 @@ module.exports = {
             ],
             flags: ["Ephemeral"]
         })    
-        let filter = (i) => i.customId.includes(`give`) && i.user.id === interaction.user.id
-        interaction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+        let filter = (i) => i.customId.includes(`give`) && i.user.id === interaction.user.id;
+        interaction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
         if (interaction) {
             args.Subcommand = interaction.values[0]
         } else return
@@ -86,8 +86,8 @@ module.exports = {
                 ],
                 flags: ["Ephemeral"]
             })    
-            filter = (i) => i.customId.includes(`give-role`) && i.user.id === interaction.user.id
-            interaction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+            filter = (i) => i.customId.includes(`give-role`) && i.user.id === interaction.user.id;
+            interaction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
             if (interaction) {
                 args.role = interaction.values[0]
             } else return
@@ -114,10 +114,10 @@ module.exports = {
                             .setStyle(TextInputStyle.Short)
                     ) :
                 undefined
-            ].filter(e => e))
+            ].filter(Boolean))
         await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-        filter = (i) => i.customId === `give_amount_${interaction.id}` && i.user.id === interaction.user.id
-        interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
+        filter = (i) => i.customId === `give_amount_${interaction.id}` && i.user.id === interaction.user.id;
+        interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
         if (interaction && interaction.isModalSubmit()) {
             const modalArgs = {}
             interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -175,8 +175,8 @@ module.exports = {
             ],
             flags: ["Ephemeral"]
         })    
-        filter = (i) => i.customId.includes(`give-to`) && i.user.id === interaction.user.id
-        interaction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+        filter = (i) => i.customId.includes(`give-to`) && i.user.id === interaction.user.id;
+        interaction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
         if (interaction) {
             values = interaction.values
             if (interaction.customId === "give-to-user") args.SubcommandGroup = "to-user"
@@ -215,7 +215,7 @@ module.exports = {
         if (args.SubcommandGroup === "to-user") {
             response = [`${reward} (${args.amount.toLocaleString()}) ${client.language({ textId: "добавлен пользователям", guildId: interaction.guildId, locale: interaction.locale })}:`]
             await Promise.all(values.map(async id => {
-                const member = await interaction.guild.members.fetch(id).catch(e => null)
+                const member = await interaction.guild.members.fetch(id).catch(() => null)
                 if (!member) response.push(`${client.config.emojis.NO} ${client.language({ textId: "Пользователь с ID", guildId: interaction.guildId, locale: interaction.locale })} **${id}** ${client.language({ textId: "не найден на сервере", guildId: interaction.guildId, locale: interaction.locale })}`)
                 else if (member.user.bot) response.push(`${client.config.emojis.NO} <@${member.user.id}>: ${client.language({ textId: "бот", guildId: interaction.guildId, locale: interaction.locale })}`)
                 else {
@@ -267,35 +267,35 @@ module.exports = {
 }
 async function give(profile, subcommand, amount, roleId, time) {
     if (subcommand === "level") {
-        return await profile.addLevel(amount, true, true)
+        return await profile.addLevel({ amount, save: true, noNotification: true })
     }
     if (subcommand === "season_level") {
-        return await profile.addSeasonLevel(amount, true, true)
+        return await profile.addSeasonLevel({ amount, save: true, noNotification: true })
     }
     if (subcommand === "experience") {
-        return await profile.addXp(amount, true, false, true, true)
+        return await profile.addXp({ amount, save: true, noLogs: true, noNotification: true })
     }
     if (subcommand === "reputation") {
-        return await profile.addRp(amount, true, false, true, true)
+        return await profile.addRp({ amount, save: true, noLogs: true, noNotification: true })
     }
     if (subcommand === "currency") {
-        return await profile.addCurrency(amount, true, false, true, true)
+        return await profile.addCurrency({ amount, save: true, noLogs: true, noNotification: true })
     }
     if (subcommand === "likes") {
         const client = profile.client
         const achievements = client.cache.achievements.filter(e => e.guildID === profile.guildID && e.enabled && e.type === AchievementType.Like)
-        profile.likes = amount
+        profile.likes += amount
         await Promise.all(achievements.map(async achievement => {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.likes >= achievement.amount && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                 if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                 client.tempAchievements[profile.userID].push(achievement.id)
-                await profile.addAchievement(achievement, false, true, true)
+                await profile.addAchievement({ achievement, noLogs: true, noNotification: true })
             }    
         }))
         return await profile.save()
     }
     if (subcommand === "role") {
-        profile.addRole(roleId, amount, time ? time * 60 * 1000 : undefined)
+        profile.addRole({ id: roleId, amount, ms: time ? time * 60 * 1000 : undefined })
         return await profile.save()
     }
 }

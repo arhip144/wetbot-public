@@ -73,7 +73,7 @@ module.exports = {
      * @param {String[]} args
      */
     run: async (client, interaction, args) => {
-        const mentionMember = await interaction.guild.members.fetch(args.user).catch(e => null)
+        const mentionMember = await interaction.guild.members.fetch(args.user).catch(() => null)
         if (!mentionMember) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Пользователь с ID`, guildId: interaction.guildId, locale: interaction.locale })} **${args.user}** ${client.language({ textId: `не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         if (mentionMember.user.bot || mentionMember.user.id === interaction.user.id) {
             return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Ты не можешь использовать эту команду на себя или бота`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
@@ -100,8 +100,8 @@ module.exports = {
         if (!roleInventory || roleInventory.amount < amount) {
             return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: "В инвентаре", guildId: interaction.guildId, locale: interaction.locale })} <@&${role.id}> (${roleInventory?.amount || 0})**`, flags: ["Ephemeral"] })
         }
-        profile.subtractRole(role.id, amount, roleInventory.ms)
-        profile1.addRole(role.id, amount, roleInventory.ms)
+        profile.subtractRole({ id: role.id, amount, ms: roleInventory.ms })
+        profile1.addRole({ id: role.id, amount, ms: roleInventory.ms })
         await profile.save()
         await profile1.save()
         return interaction.reply({ content: `<@${interaction.user.id}> ${client.language({ textId: "передал", guildId: interaction.guildId, locale: interaction.locale })} <@&${role.id}>${roleInventory.ms ? ` [${client.functions.transformSecs(client, roleInventory.ms, interaction.guildId, interaction.locale)}]` : ``} (${amount}) ${client.language({ textId: "к", guildId: interaction.guildId, locale: interaction.locale })} <@${mentionMember.user.id}>`, allowedMentions: { users: [interaction.user.id, mentionMember.user.id] } })

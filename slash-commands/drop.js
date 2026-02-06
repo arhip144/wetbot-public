@@ -1,9 +1,9 @@
-const { ChannelType, ApplicationCommandOptionType, ButtonBuilder, ButtonStyle, ActionRowBuilder, Collection, EmbedBuilder } = require("discord.js")
-const DropRegexp = /dr{(.*?)}/
-const UserRegexp = /usr{(.*?)}/
-const AmountRegexp = /am{(.*?)}/
-const ItemRegexp = /it{(.*?)}/
+const { ChannelType, ApplicationCommandOptionType, ButtonBuilder, ButtonStyle, ActionRowBuilder, Collection, EmbedBuilder } = require("discord.js");
+const Drop = require("../classes/Drop");
+const { RewardType } = require("../enums");
+const DropRegexp = /dropId{(.*?)}/
 const drops = new Collection()
+const uniqid = require('uniqid')
 module.exports = {
     name: 'drop',
     nameLocalizations: {
@@ -81,33 +81,31 @@ module.exports = {
      */
     run: async (client, interaction, args) => {
         if (interaction.isButton()) {
-            const dropID = DropRegexp.exec(interaction.customId)[1]
-            if (!drops.has(dropID)) drops.set(dropID, new Collection())
-            const drop = drops.get(dropID)
-            if (drop.first() && drop.first() !== interaction.user.id) {
-                return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Этот дроп уже забрали`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
-            }
-            let userDrop = UserRegexp.exec(interaction.customId)[1]
-            if (interaction.user.id === userDrop) {
+            if (!DropRegexp.exec(interaction.customId)) return interaction.deferUpdate()
+            const drop = drops.get(DropRegexp.exec(interaction.customId)[1])
+            if (!drop) return interaction.deferUpdate()
+            if (interaction.user.id === drop.userId) {
                 return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Ты не можешь взять свой дроп", guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
             }
-            drop.set(interaction.user.id, new Date())
-            const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
-            const amount = +AmountRegexp.exec(interaction.customId)?.[1]
-            const itemID = ItemRegexp.exec(interaction.customId)?.[1]
-            if (itemID === `currency`) {
+            if (!drop.users.has(interaction.user.id)) drop.users.add(interaction.user.id)
+            if ([...drop.users][0] !== interaction.user.id) {
+                return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Этот дроп уже забрали`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
+            }
+            const userId = [...drop.users][0]
+            const profile = await client.functions.fetchProfile(client, userId, interaction.guildId)
+            if (drop.type === RewardType.Currency) {
                 const settings = client.cache.settings.get(interaction.guildId)
-                await profile.addCurrency(amount, true)
-                client.emit("economyLogCreate", interaction.guildId, `<@${interaction.user.id}> (${interaction.user.username}) ${client.language({ textId: "подобрал", guildId: interaction.guildId })} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${amount})`)
-                await interaction.update({ content: `${client.config.emojis.DONE} <@${interaction.user.id}> ${profile.sex === `male` ? `${client.language({ textId: "забрал", guildId: interaction.guildId, locale: interaction.locale })}` : profile.sex === `female` ? `${client.language({ textId: "забрала", guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: "забрал(-а)", guildId: interaction.guildId, locale: interaction.locale })}`} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${amount.toLocaleString()}) ${client.language({ textId: "из дропа от", guildId: interaction.guildId, locale: interaction.locale })} <@${userDrop}>.`, components: [] })
-                return drops.delete(dropID)
+                await profile.addCurrency({ amount: drop.amount, save: true })
+                client.emit("economyLogCreate", interaction.guildId, `<@${userId}> ${client.language({ textId: "подобрал", guildId: interaction.guildId })} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${drop.amount})`)
+                await interaction.update({ content: `${client.config.emojis.DONE} <@${userId}> ${profile.sex === `male` ? `${client.language({ textId: "забрал", guildId: interaction.guildId, locale: interaction.locale })}` : profile.sex === `female` ? `${client.language({ textId: "забрала", guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: "забрал(-а)", guildId: interaction.guildId, locale: interaction.locale })}`} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${drop.amount.toLocaleString()}) ${client.language({ textId: "из дропа от", guildId: interaction.guildId, locale: interaction.locale })} <@${drop.userId}>.`, components: [] })
+                return drops.delete(drop.id)
             } else {
-                const item = client.cache.items.find(item => item.guildID === interaction.guildId && !item.temp && item.enabled && item.itemID === itemID)
+                const item = client.cache.items.find(item => item.guildID === interaction.guildId && !item.temp && item.enabled && item.itemID === drop.item.itemID)
                 if (item) {
-                    await profile.addItem(itemID, amount, false, true)
-                    client.emit("economyLogCreate", interaction.guildId, `<@${interaction.user.id}> (${interaction.user.username}) ${client.language({ textId: "подобрал", guildId: interaction.guildId })} ${item.displayEmoji}**${item.name}** (${amount})`)
-                    await interaction.update({ content: `${client.config.emojis.DONE} <@${interaction.user.id}> ${profile.sex === `male` ? `${client.language({ textId: "забрал", guildId: interaction.guildId, locale: interaction.locale })}` : profile.sex === `female` ? `${client.language({ textId: "забрала", guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: "забрал(-а)", guildId: interaction.guildId, locale: interaction.locale })}`} ${item.displayEmoji}**${item.name}** (${amount.toLocaleString()}) ${client.language({ textId: "из дропа от", guildId: interaction.guildId, locale: interaction.locale })} <@${userDrop}>.`, components: [] })
-                    return drops.delete(dropID)
+                    await profile.addItem({ itemID: drop.item.itemID, amount: drop.amount, save: true })
+                    client.emit("economyLogCreate", interaction.guildId, `<@${userId}> ${client.language({ textId: "подобрал", guildId: interaction.guildId })} ${item.displayEmoji}**${item.name}** (${drop.amount})`)
+                    await interaction.update({ content: `${client.config.emojis.DONE} <@${userId}> ${profile.sex === `male` ? `${client.language({ textId: "забрал", guildId: interaction.guildId, locale: interaction.locale })}` : profile.sex === `female` ? `${client.language({ textId: "забрала", guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: "забрал(-а)", guildId: interaction.guildId, locale: interaction.locale })}`} ${item.displayEmoji}**${item.name}** (${drop.amount.toLocaleString()}) ${client.language({ textId: "из дропа от", guildId: interaction.guildId, locale: interaction.locale })} <@${drop.userId}>.`, components: [] })
+                    return drops.delete(drop.id)
                 } else return
             }
         }
@@ -131,7 +129,7 @@ module.exports = {
                     return interaction.reply({ embeds: [new EmbedBuilder().setColor(3093046).setTitle(`${client.language({ textId: `Для этого взаимодействия требуется:`, guildId: interaction.guildId, locale: interaction.locale })}`).setDescription(isPassing.reasons.join("\n"))], flags: ["Ephemeral"] })
                 }
             }
-            const channel = await interaction.guild.channels.fetch(args.channel).catch(e => null)
+            const channel = await interaction.guild.channels.fetch(args.channel).catch(() => null)
             if (!channel) {
                 return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Введен неизвестный канал", guildId: interaction.guildId, locale: interaction.locale })}.` })  
             }
@@ -147,16 +145,17 @@ module.exports = {
             if (!channel.permissionsFor(interaction.member).has("SendMessages")) {
                 return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "У тебя нет прав для отправки сообщений в этот канал", guildId: interaction.guildId, locale: interaction.locale })}.` })  
             }
-            const uniqid = require('uniqid')
+            const drop = new Drop(client, uniqid.time(), interaction.user.id, RewardType.Currency, amount)
+            drops.set(drop.id, drop)
             const dropBTN = new ButtonBuilder()
                 .setLabel(`${client.language({ textId: "Взять дроп", guildId: interaction.guildId, locale: interaction.locale })}`)
                 .setStyle(ButtonStyle.Primary)
-                .setCustomId(`dr{${uniqid.time()}}cmd{drop}it{currency}am{${amount}}usr{${interaction.user.id}}`)
+                .setCustomId(`cmd{drop}dropId{${drop.id}}`)
                 .setEmoji('🤏')
-            channel.send({ content: `${client.language({ textId: "Дроп", guildId: interaction.guildId, locale: interaction.locale })} ➜ ||${settings.displayCurrencyEmoji}**${settings.currencyName} (${amount.toLocaleString()})**|| ${client.language({ textId: "от", guildId: interaction.guildId, locale: interaction.locale })} <@${interaction.user.id}>`, components: [new ActionRowBuilder().addComponents([dropBTN])]}).catch(e => null)
-            profile.currency = amount*-1
+            channel.send({ content: `${client.language({ textId: "Дроп", guildId: interaction.guildId, locale: interaction.locale })} ➜ ||${settings.displayCurrencyEmoji}**${settings.currencyName} (${amount.toLocaleString()})**|| ${client.language({ textId: "от", guildId: interaction.guildId, locale: interaction.locale })} <@${interaction.user.id}>`, components: [new ActionRowBuilder().addComponents([dropBTN])]}).catch(() => null)
+            profile.currency -= amount
             const guildQuests = client.cache.quests.filter(quest => quest.guildID === interaction.guildId && quest.isEnabled && quest.targets.some(target => target.type === "drop"))
-            if (guildQuests.size) await profile.addQuestProgression("drop", amount, args.item)
+            if (guildQuests.size) await profile.addQuestProgression({ type: "drop", amount, object: args.item })
             await profile.save()
             client.emit("economyLogCreate", interaction.guildId, `<@${interaction.user.id}> (${interaction.user.username}) ${client.language({ textId: "выбросил", guildId: interaction.guildId })} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${amount}) (<#${args.channel}>)`)
             return interaction.reply({ content: `${client.config.emojis.DONE} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${amount.toLocaleString()}) ${client.language({ textId: "был выброшен в", guildId: interaction.guildId, locale: interaction.locale })} <#${args.channel}>`, flags: ["Ephemeral"] })
@@ -183,7 +182,7 @@ module.exports = {
             if (!userItem) {
                 return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "В инвентаре не такого предмета", guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })  
             }
-            const channel = await interaction.guild.channels.fetch(args.channel).catch(e => null)
+            const channel = await interaction.guild.channels.fetch(args.channel).catch(() => null)
             if (!channel) {
                 return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Введен неизвестный канал", guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })  
             }
@@ -197,7 +196,7 @@ module.exports = {
                 return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Диапазон количества дропа этого предмета`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.language({ textId: `от`, guildId: interaction.guildId, locale: interaction.locale })} ${guildItem.min_drop}${guildItem.max_drop ? ` ${client.language({ textId: `до`, guildId: interaction.guildId, locale: interaction.locale })} ${guildItem.max_drop}` : ""}`, flags: ["Ephemeral"] })  
             }
             if (profile.itemsCooldowns && profile.itemsCooldowns.get(guildItem.itemID)?.drop > new Date()) {
-                return interaction.reply({ content: `⏳${client.language({ textId: "Ждите кулдаун для этого предмета", guildId: interaction.guildId, locale: interaction.locale })}: ${client.functions.transformSecs(client, profile.itemsCooldowns.get(guildItem.itemID).drop - new Date(), interaction.guildId, interaction.locale)}`, flags: ["Ephemeral"] })
+                return interaction.reply({ content: `<a:8716loading:991344303253241897>${client.language({ textId: "Ждите кулдаун для этого предмета", guildId: interaction.guildId, locale: interaction.locale })}: ${client.functions.transformSecs(client, profile.itemsCooldowns.get(guildItem.itemID).drop - new Date(), interaction.guildId, interaction.locale)}`, flags: ["Ephemeral"] })
             }
             if (guildItem.notDropable && !interaction.member.permissions.has("Administrator")) return interaction.reply({ content: `${client.config.emojis.NO} ${guildItem.displayEmoji}**${guildItem.name}** ${client.language({ textId: "нельзя бросать", guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })  
             if (userItem.amount < amount) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "В инвентаре", guildId: interaction.guildId, locale: interaction.locale })} ${guildItem.displayEmoji}${guildItem.name} (${userItem.amount})`, flags: ["Ephemeral"] })
@@ -208,14 +207,15 @@ module.exports = {
                     return interaction.reply({ embeds: [new EmbedBuilder().setColor(3093046).setTitle(`${client.language({ textId: `Для этого взаимодействия требуется:`, guildId: interaction.guildId, locale: interaction.locale })}`).setDescription(isPassing.reasons.join("\n"))], flags: ["Ephemeral"] })
                 }
             }
-            const uniqid = require('uniqid')
+            await profile.subtractItem({ itemID: guildItem.itemID, amount })
+            const drop = new Drop(client, uniqid.time(), interaction.user.id, RewardType.Item, amount, guildItem)
             const dropBTN = new ButtonBuilder()
                 .setLabel(client.language({ textId: "Взять дроп", guildId: interaction.guildId, locale: interaction.locale }))
                 .setStyle(ButtonStyle.Primary)
-                .setCustomId(`dr{${uniqid.time()}}cmd{drop}it{${guildItem.itemID}}am{${amount}}usr{${interaction.user.id}}`)
+                .setCustomId(`cmd{drop}dropId{${drop.id}}`)
                 .setEmoji('🤏')
-            await profile.subtractItem(guildItem.itemID, amount)
-            channel.send({ content: `${client.language({ textId: "Дроп", guildId: interaction.guildId, locale: interaction.locale })} --> ||${guildItem.displayEmoji}**${guildItem.name} (${amount.toLocaleString()})**|| ${client.language({ textId: "от", guildId: interaction.guildId, locale: interaction.locale })} <@${interaction.user.id}>`, components: [new ActionRowBuilder().addComponents([dropBTN])]}).catch(e => null)
+            drops.set(drop.id, drop)
+            channel.send({ content: `${client.language({ textId: "Дроп", guildId: interaction.guildId, locale: interaction.locale })} --> ||${guildItem.displayEmoji}**${guildItem.name} (${amount.toLocaleString()})**|| ${client.language({ textId: "от", guildId: interaction.guildId, locale: interaction.locale })} <@${interaction.user.id}>`, components: [new ActionRowBuilder().addComponents([dropBTN])]}).catch(() => null)
             if (guildItem.cooldown_drop) {
                 if (!profile.itemsCooldowns) profile.itemsCooldowns = new Map()
                 if (profile.itemsCooldowns.get(guildItem.itemID)) profile.itemsCooldowns.set(guildItem.itemID, {...profile.itemsCooldowns.get(guildItem.itemID), drop: new Date(Date.now() + guildItem.cooldown_drop * 1000) })

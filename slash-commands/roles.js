@@ -37,7 +37,7 @@ module.exports = {
                 index = +IndexRegexp.exec(interaction.customId)?.[1]
             }
             const role = roles[index]
-            const guildRole = await interaction.guild.roles.fetch(role.id).catch(e => null)
+            const guildRole = await interaction.guild.roles.fetch(role.id).catch(() => null)
             embed.setTitle(guildRole?.name || "Deleted Role")
             if (guildRole) embed.setThumbnail(guildRole.iconURL())
             const description = [
@@ -46,7 +46,7 @@ module.exports = {
                 `${client.config.emojis.XP}${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}: ${role.xp}${role.type === "static" ? `` : `%`}`,
                 `${settings.displayCurrencyEmoji}${settings.currencyName}: ${role.cur}${role.type === "static" ? `` : `%`}`,
                 `${client.config.emojis.RP}${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}: ${role.rp}${role.type === "static" ? `` : `%`}`,
-            ].filter(e => e)
+            ].filter(Boolean)
             if (role.items.length) {
                 description.push(`${client.config.emojis.box}${client.language({ textId: "Предметы", guildId: interaction.guildId, locale: interaction.locale })}:\n• ${role.items.map(a => {
                     const item = client.cache.items.find(e => e.itemID === a.itemID && e.enabled && !e.temp)

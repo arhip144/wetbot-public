@@ -184,20 +184,20 @@ class BlackjackGame {
         } else if (this.dealerScore > 21) {
             const multiplier = this.playerHand.length === 2 && this.playerHand.some(e => e.value === "10") && this.playerHand.some(e => e.value === "A") ? 2.5 : 2
             if (this.betType === RewardType.Currency) {
-                await profile.addCurrency(this.currentBet * multiplier)
+                await profile.addCurrency({ amount: this.currentBet * multiplier })
             }
             if (this.betType === RewardType.Item) {
-                await profile.addItem(this.betId, this.currentBet * multiplier) 
+                await profile.addItem({ itemID: this.betId, amount: this.currentBet * multiplier }) 
             }
             await profile.save()
             return `🎉 ${this.client.language({ textId: `Дилер перебрал! Ты выиграл`, guildId: interaction.guildId, locale: interaction.locale })} ${this.emojiBet}${this.nameBet} (${(this.currentBet * multiplier).toLocaleString()})`;
         } else if (this.playerScore > this.dealerScore) {
             const multiplier = this.playerHand.length === 2 && this.playerHand.some(e => e.value === "10") && this.playerHand.some(e => e.value === "A") ? 2.5 : 2
             if (this.betType === RewardType.Currency) {
-                await profile.addCurrency(this.currentBet * multiplier)
+                await profile.addCurrency({ amount: this.currentBet * multiplier })
             }
             if (this.betType === RewardType.Item) {
-                await profile.addItem(this.betId, this.currentBet * multiplier) 
+                await profile.addItem({ itemID: this.betId, amount: this.currentBet * multiplier }) 
             }
             await profile.save()
             return `🎉 ${this.client.language({ textId: `Вы выиграли`, guildId: interaction.guildId, locale: interaction.locale })} ${this.emojiBet}${this.nameBet} (${(this.currentBet * multiplier).toLocaleString()})`;
@@ -205,10 +205,10 @@ class BlackjackGame {
             return `💸 ${this.client.language({ textId: `Дилер выиграл. Ты проиграл`, guildId: interaction.guildId, locale: interaction.locale })} ${this.emojiBet}${this.nameBet} (${this.currentBet.toLocaleString()})`;
         } else {
             if (this.betType === RewardType.Currency) {
-                await profile.addCurrency(this.currentBet)
+                await profile.addCurrency({ amount: this.currentBet })
             }
             if (this.betType === RewardType.Item) {
-                await profile.addItem(this.betId, this.currentBet) 
+                await profile.addItem({ itemID: this.betId, amount: this.currentBet }) 
             }
             await profile.save()
             return `🤝 ${this.client.language({ textId: `Ничья!`, guildId: interaction.guildId, locale: interaction.locale })}`;

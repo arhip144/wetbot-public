@@ -186,24 +186,24 @@ class Quest {
         for (const reward of rewardsRaw) {
             if (reward.type === RewardType.Currency) {
                 rewards.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${reward.amount})`)
-                await profile.addCurrency(reward.amount)
+                await profile.addCurrency({ amount: reward.amount })
             } else if (reward.type === RewardType.Experience) {
                 rewards.push(`${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${reward.amount})`)
-                await profile.addXp(reward.amount)
+                await profile.addXp({ amount: reward.amount })
             } else if (reward.type === RewardType.Reputation) {
                 rewards.push(`${this.client.config.emojis.RP}**${this.client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${reward.amount})`)
-                await profile.addRp(reward.amount)
+                await profile.addRp({ amount: reward.amount })
             } else if (reward.type === RewardType.Item) {
                 const rewardItem = this.client.cache.items.get(reward.id)
                 rewards.push(`${rewardItem.displayEmoji}**${rewardItem.name}** (${reward.amount})`)
-                await profile.addItem(reward.id, reward.amount)
+                await profile.addItem({ itemID: reward.id, amount: reward.amount })
             } else if (reward.type === RewardType.Role) {
                 rewards.push(`<@&${reward.id}>${reward.ms ? ` [${this.client.functions.transformSecs(this.client, reward.ms, interaction.guildId, interaction.locale)}]` : ``} (${reward.amount})`)
-                profile.addRole(reward.id, reward.amount, reward.ms)
+                profile.addRole({ id: reward.id, amount: reward.amount, ms: reward.ms })
             } else if (reward.type === RewardType.Achievement) {
                 const achievement = this.client.cache.achievements.get(reward.id)
                 rewards.push(`${achievement.displayEmoji}${achievement.name}`)
-                await profile.addAchievement(achievement)
+                await profile.addAchievement({ achievement })
             }
         }
         if (this.nextQuests.length) {

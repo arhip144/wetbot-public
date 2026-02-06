@@ -43,37 +43,35 @@ module.exports = {
              else await interaction.deferReply({ flags })
         } else await interaction.deferReply({ flags })
         let member
-        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(e => null)
-        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(() => null)
+        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         else if (interaction.isStringSelectMenu() && (MemberRegexp.exec(interaction.customId) || MemberRegexp.exec(interaction.values[0]))) {
-            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(e => null)
-            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(() => null)
+            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         }
         else member = interaction.member
         if (!member) {
             return interaction.editReply({ content: `${client.config.emojis.NO}${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
         const profile = await client.functions.fetchProfile(client, member.user.id, interaction.guildId)
-        let globalUser = await client.globalProfileSchema.findOne({ userID: member.user.id }).lean()
         const settings = client.cache.settings.get(interaction.guildId)
         const 
             fontColor = `rgba(${profile.rank_card?.font_color?.r !== undefined ? profile.rank_card.font_color.r : settings.rank_card.font_color.r}, ${profile.rank_card?.font_color?.g !== undefined ? profile.rank_card.font_color.g : settings.rank_card.font_color.g}, ${profile.rank_card?.font_color?.b !== undefined ? profile.rank_card.font_color.b : settings.rank_card.font_color.b}, ${profile.rank_card?.font_color?.a !== undefined ? profile.rank_card.font_color.a : settings.rank_card.font_color.a})`,
             backgroundColor = `rgba(${profile.rank_card?.xp_background_color?.r !== undefined ? profile.rank_card.xp_background_color.r : settings.rank_card.xp_background_color.r}, ${profile.rank_card?.xp_background_color?.g !== undefined ? profile.rank_card.xp_background_color.g : settings.rank_card.xp_background_color.g}, ${profile.rank_card?.xp_background_color?.b !== undefined ? profile.rank_card.xp_background_color.b : settings.rank_card.xp_background_color.b}, ${profile.rank_card?.xp_background_color?.a !== undefined ? profile.rank_card.xp_background_color.a : settings.rank_card.xp_background_color.a})`,
             xpColor = `rgba(${profile.rank_card?.xp_color?.r !== undefined ? profile.rank_card.xp_color.r : settings.rank_card.xp_color.r}, ${profile.rank_card?.xp_color?.g !== undefined ? profile.rank_card.xp_color.g : settings.rank_card.xp_color.g}, ${profile.rank_card?.xp_color?.b !== undefined ? profile.rank_card.xp_color.b : settings.rank_card.xp_color.b}, ${profile.rank_card?.xp_color?.a !== undefined ? profile.rank_card.xp_color.a : settings.rank_card.xp_color.a})`
-        const default_fontColor = "rgba(255, 255, 255, 1)"
         FontLibrary.use("All fonts", [
             "./GamestationCondensed.otf",
           ])
-        const fillMixedText = (ctx, args, x, y, maxWidth) => {
+        const fillMixedText = (ctx, arguments, x, y, maxWidth) => {
             ctx.save()
-            args.forEach(({ text, fillStyle, font, fontSize, align }) => {
+            arguments.forEach(({ text, fillStyle, font, fontSize, align }) => {
                 let i = 0
                 do {
                     fontSize--
                     ctx.font = `${fontSize}px ${font}`
                     i++
-                    if (i > 100000) throw new Error(`Бесконечный цикл: rank:67, maxWidth: ${maxWidth}, args.map(e => e.text).join(""): ${args.map(e => e.text).join("")}`)
-                } while (context.measureText(args.map(e => e.text).join("")).width > maxWidth)
+                    if (i > 100000) throw new Error(`Бесконечный цикл: rank:67, maxWidth: ${maxWidth}, arguments.map(e => e.text).join(""): ${arguments.map(e => e.text).join("")}`)
+                } while (context.measureText(arguments.map(e => e.text).join("")).width > maxWidth)
                 ctx.textAlign = align
                 ctx.fillStyle = fillStyle
                 ctx.fillText(text, x, y)
@@ -85,9 +83,9 @@ module.exports = {
         function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
 
             if (arguments.length === 2) {
-                x = y = 0
-                w = ctx.canvas.width
-                h = ctx.canvas.height
+                x = y = 0;
+                w = ctx.canvas.width;
+                h = ctx.canvas.height;
             }
         
             // default offset is center
@@ -182,15 +180,15 @@ module.exports = {
             { text: `#${profiles.findIndex(e => e.userID === profile.userID)+1}`, fillStyle: fontColor, font: "All fonts", fontSize: 80, align: "left" },
             { text: ` ${client.language({ textId: `УР`, guildId: interaction.guildId, locale: interaction.locale })}. `, fillStyle: fontColor, font: "All fonts", fontSize: 20, align: "left" },
             { text: profile.level, fillStyle: fontColor, font: "All fonts", fontSize: 80, align: "left" },
-        ]
-        fillMixedText(context, arguments, 246.84, 190, 300)
+        ];
+        fillMixedText(context, arguments, 246.84, 190, 300);
         //USERNAME
         arguments = [
             { text: member.displayName, fillStyle: fontColor, font: "All fonts", fontSize: 50, align: "left" },
-        ]
-        fillMixedText(context, arguments, 246.84, 80, 516)
+        ];
+        fillMixedText(context, arguments, 246.84, 80, 516);
         //STATS
-        arguments = [
+        _args = [
             { text: Math.floor(profile.currency), fillStyle: fontColor, font: "All fonts", fontSize: 30, align: "right" },
             { text: `🪙`, fillStyle: fontColor, font: "All fonts", fontSize: 30, align: "right" },
             { text: profile.likes, fillStyle: fontColor, font: "All fonts", fontSize: 30, align: "right" },
@@ -199,8 +197,8 @@ module.exports = {
             { text: `✉️`, fillStyle: fontColor, font: "All fonts", fontSize: 30, align: "right" },
             { text: Math.ceil(profile.hours), fillStyle: fontColor, font: "All fonts", fontSize: 30, align: "right" },
             { text: `🎙️`, fillStyle: fontColor, font: "All fonts", fontSize: 30, align: "right" },
-        ]
-        fillMixedText(context, arguments, 834.75, 190, 350)
+        ];
+        fillMixedText(context, arguments, 834.75, 190, 350);
         const buffer = await canvas.toBuffer(`png`)
         if (interaction.replied || interaction.deferred) {
             return interaction.editReply({ 

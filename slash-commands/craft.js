@@ -159,13 +159,13 @@ module.exports = {
             }
             for (const e of serverItem.crafts[index].items) {
                 if (e.itemID == "currency") {
-                    await profile.subtractCurrency(e.amount * amount1)
+                    await profile.subtractCurrency({ amount: e.amount * amount1 })
                 } else {
-                    await profile.subtractItem(e.itemID, e.amount * amount1)
+                    await profile.subtractItem({ itemID: e.itemID, amount: e.amount * amount1 })
                 }
             }
             const amount = client.functions.getRandomNumber(serverItem.crafts[index].amountFrom * amount1, serverItem.crafts[index].amountTo * amount1)
-            await profile.addItem(serverItem.itemID, amount)
+            await profile.addItem({ itemID: serverItem.itemID, amount })
             client.emit("economyLogCreate", interaction.guildId, `<@${interaction.user.id}> (${interaction.user.username}) ${client.language({ textId: "скрафтил предмет", guildId: interaction.guildId })} ${serverItem.displayEmoji}${serverItem.name} (${serverItem.itemID}) (${amount})`)
             await interaction.deferUpdate()
             interaction.followUp({ content: `<@${interaction.user.id}>, ${client.language({ textId: "Ты скрафтил", guildId: interaction.guildId, locale: interaction.locale })}: ${serverItem.displayEmoji}**${serverItem.name}** (${amount})` })
@@ -174,10 +174,10 @@ module.exports = {
                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && achievement.items?.includes(serverItem.itemID) && !client.tempAchievements[profile.userID]?.includes(achievement.id)) { 
                     if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                     client.tempAchievements[profile.userID].push(achievement.id)
-                    await profile.addAchievement(achievement)
+                    await profile.addAchievement({ achievement })
                 }    
             }))
-            await profile.addQuestProgression("itemsCrafted", amount, serverItem.itemID)
+            await profile.addQuestProgression({ type: "itemsCrafted", amount, object: serverItem.itemID })
             profile.itemsCrafted += amount
             if (serverItem.crafts[index].cooldown_craft) {
                 const key = `craft${index}`
@@ -190,7 +190,7 @@ module.exports = {
                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.itemsCrafted >= achievement.amount && !client.tempAchievements[interaction.user.id]?.includes(achievement.id)) { 
                     if (!client.tempAchievements[interaction.user.id]) client.tempAchievements[interaction.user.id] = []
                     client.tempAchievements[interaction.user.id].push(achievement.id)
-                    await profile.addAchievement(achievement)
+                    await profile.addAchievement({ achievement })
                 }    
             }))
             await profile.save()

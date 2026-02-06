@@ -136,222 +136,382 @@ class Permission {
 		this.client.cache.permissions.delete(this.id)
 	}
 	for(profile, member, channel, interaction) {
-		const isPassing = { value: true, reasons: [] }
-		if (this.enable === true) {
-			for (const req of this.requirements) {
-				let amount = []
-				if (interaction) {
-					if (req.minAmount !== undefined && req.maxAmount !== undefined && req.minAmount === req.maxAmount) amount.push(req.id === "MemberSince" ? `\`${this.client.functions.transformSecs(this.client, req.maxAmount * 60 * 1000, interaction.guildId, interaction.locale)}\`` : req.id.includes("multiply") ? `${req.maxAmount * 100}%` : req.maxAmount)
-					else if (req.minAmount !== undefined || req.maxAmount !== undefined) {
-						if (req.minAmount !== undefined) amount.push(`${this.client.language({ textId: `от`, guildId: interaction.guildId, locale: interaction.locale })} ${req.id === "MemberSince" ? `\`${this.client.functions.transformSecs(this.client, req.minAmount * 60 * 1000, interaction.guildId, interaction.locale)}\`` : req.id.includes("multiply") ? `${req.minAmount * 100}%` : req.minAmount }`)
-						if (req.maxAmount !== undefined) amount.push(`${this.client.language({ textId: `до`, guildId: interaction.guildId, locale: interaction.locale })} ${req.id === "MemberSince" ? `\`${this.client.functions.transformSecs(this.client, req.maxAmount * 60 * 1000, interaction.guildId, interaction.locale)}\`` : req.id.includes("multiply") ? `${req.maxAmount * 100}%` : req.maxAmount }`)
-					}	
-				}
-				switch (req.id) {
-					case "item":
-						let item
-						if (interaction) item = this.client.cache.items.get(req.itemID)
-						const userItemAmount = profile.inventory.find(e => e.itemID === req.itemID)?.amount || 0
-						if (userItemAmount < req.minAmount || userItemAmount > req.maxAmount) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${item?.displayEmoji || ""} ${item?.name || req.itemID} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${item?.displayEmoji || ""} ${item?.name || req.itemID} (${userItemAmount})`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${item?.displayEmoji || ""} ${item?.name || req.itemID} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${item?.displayEmoji || ""} ${item?.name || req.itemID} (${userItemAmount})`)
-						}
-						break
-					case "achievement": {
-						let achievement
-						if (interaction) achievement = this.client.cache.achievements.get(req.achievementID)
-						if (!profile.achievements?.some(e => e.achievmentID === req.achievementID)) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${achievement?.displayEmoji || ""} ${achievement?.name || req.achievementID}`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${achievement?.displayEmoji || ""} ${achievement?.name || req.achievementID}`)
-						}
-						break
-					}
-					case "achievement-":
-						let achievement
-						if (interaction) achievement = this.client.cache.achievements.get(req.achievementID)
-						if (profile.achievements?.some(e => e.achievmentID === req.achievementID)) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${achievement?.displayEmoji || ""} ${achievement?.name || req.achievementID}`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${achievement?.displayEmoji || ""} ${achievement?.name || req.achievementID}`)
-						}
-						break
-					case "quest":
-						let quest
-						if (interaction) quest = this.client.cache.quests.get(req.questID)
-						if (!profile.quests?.some(e => e.questID === req.questID && e.finished)) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${quest?.displayEmoji || ""} ${quest?.name || req.questID}`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${quest?.displayEmoji || ""} ${quest?.name || req.questID}`)
-						}
-						break
-					case "roles":
-						switch (req.filter) {
-							case "hasAll":
-								if (!member.roles.cache.hasAll(...req.roles)) {
-									isPassing.value = false
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: `Пользователь должен иметь следующие роли`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.roles.map(e => `<@&${e}>`).join(", ")}`)
-								} else {
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: `Пользователь должен иметь следующие роли`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.roles.map(e => `<@&${e}>`).join(", ")}`)
-								}
-								break
-							case "hasAny":
-								if (!member.roles.cache.hasAny(...req.roles)) {
-									isPassing.value = false
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: `Пользователь должен иметь одну из следующих ролей`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.roles.map(e => `<@&${e}>`).join(", ")}`)
-								} else {
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: `Пользователь должен иметь одну из следующих ролей`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.roles.map(e => `<@&${e}>`).join(", ")}`)
-								}
-								break
-							case "except":
-								if (member.roles.cache.hasAny(...req.roles)) {
-									isPassing.value = false
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: `Пользователь не должен иметь одну из следующих ролей`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.roles.map(e => `<@&${e}>`).join(", ")}`)
-								} else {
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: `Пользователь не должен иметь одну из следующих ролей`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.roles.map(e => `<@&${e}>`).join(", ")}`)
-								}
-								break
-						}
-						break
-					case "channels":
-						switch (req.filter) {
-							case "includes":
-								if (!channel || !req.channels.includes(channel.id)) {
-									isPassing.value = false
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: `Канал должен быть одним из`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.channels.map(e => `<#${e}>`).join(", ")}`)
-								} else {
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: `Канал должен быть одним из`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.channels.map(e => `<#${e}>`).join(", ")}`)
-								}
-								break
-							case "notIncludes":
-								if (!channel || req.channels.includes(channel.id)) {
-									isPassing.value = false
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: `Канал не должен быть одним из`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.channels.map(e => `<#${e}>`).join(", ")}`)
-								} else {
-									if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: `Канал не должен быть одним из`, guildId: interaction.guildId, locale: interaction.locale })}: ${req.channels.map(e => `<#${e}>`).join(", ")}`)
-								}
-								break
-						}
-						break
-					case "time":
-						const startTime = parse(req.startTime + " +00:00", 'HH:mm ZZ')
-						let endTime = parse(req.endTime + " +00:00", 'HH:mm ZZ')
-						endTime = parse(req.endTime + " +00:00", 'HH:mm ZZ', endTime < startTime ? { backupDate: new Date(new Date().setDate(new Date().getDate()+1)) } : undefined)
-						const startHours = startTime.getUTCHours() + startTime.getUTCMinutes()/60
-						let endHours = endTime.getUTCHours() + endTime.getUTCMinutes()/60
-						const nowHours = new Date().getUTCHours() + new Date().getUTCMinutes()/60
-						if (startHours > endHours) {
-							if (nowHours >= startHours || nowHours <= endHours) {
-								if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${req.startTime}-${req.endTime} (UTC). ${this.client.language({ textId: `Сейчас`, guildId: interaction.guildId, locale: interaction.locale })} ${new Date().getUTCHours() < 10 ? `0${new Date().getUTCHours()}` : new Date().getUTCHours()}:${new Date().getUTCMinutes() < 10 ? `0${new Date().getUTCMinutes()}` : new Date().getUTCMinutes()} (UTC)`)
-							} else {
-								isPassing.value = false
-								if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${req.startTime}-${req.endTime} (UTC). ${this.client.language({ textId: `Сейчас`, guildId: interaction.guildId, locale: interaction.locale })} ${new Date().getUTCHours() < 10 ? `0${new Date().getUTCHours()}` : new Date().getUTCHours()}:${new Date().getUTCMinutes() < 10 ? `0${new Date().getUTCMinutes()}` : new Date().getUTCMinutes()} (UTC)`)
-							}
-						} else {
-							if (startHours > nowHours || endHours < nowHours) {
-								isPassing.value = false
-								if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${req.startTime}-${req.endTime} (UTC). ${this.client.language({ textId: `Сейчас`, guildId: interaction.guildId, locale: interaction.locale })} ${new Date().getUTCHours() < 10 ? `0${new Date().getUTCHours()}` : new Date().getUTCHours()}:${new Date().getUTCMinutes() < 10 ? `0${new Date().getUTCMinutes()}` : new Date().getUTCMinutes()} (UTC)`)
-							} else {
-								if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${req.startTime}-${req.endTime} (UTC). ${this.client.language({ textId: `Сейчас`, guildId: interaction.guildId, locale: interaction.locale })} ${new Date().getUTCHours() < 10 ? `0${new Date().getUTCHours()}` : new Date().getUTCHours()}:${new Date().getUTCMinutes() < 10 ? `0${new Date().getUTCMinutes()}` : new Date().getUTCMinutes()} (UTC)`)
-							}	
-						}
-						break
-					case "day":
-						if (!req.days.includes(new Date().getDay())) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })}: ${req.days.join(", ").replace("1", this.client.language({ textId: `Понедельник`, guildId: interaction.guildId, locale: interaction.locale })).replace("2", this.client.language({ textId: `Вторник`, guildId: interaction.guildId, locale: interaction.locale })).replace("3", this.client.language({ textId: `Среда`, guildId: interaction.guildId, locale: interaction.locale })).replace("4", this.client.language({ textId: `Четверг`, guildId: interaction.guildId, locale: interaction.locale })).replace("5", this.client.language({ textId: `Пятница`, guildId: interaction.guildId, locale: interaction.locale })).replace("6", this.client.language({ textId: `Суббота`, guildId: interaction.guildId, locale: interaction.locale })).replace("0", this.client.language({ textId: `Воскресенье`, guildId: interaction.guildId, locale: interaction.locale }))}. ${this.client.language({ textId: `Сегодня`, guildId: interaction.guildId, locale: interaction.locale })}: ${new Date().getDay() === 0 ? this.client.language({ textId: `Воскресенье`, guildId: interaction.guildId, locale: interaction.locale }) : new Date().getDay() === 1 ? this.client.language({ textId: `Понедельник`, guildId: interaction.guildId, locale: interaction.locale })  : new Date().getDay() === 2 ? this.client.language({ textId: `Вторник`, guildId: interaction.guildId, locale: interaction.locale })  : new Date().getDay() === 3 ? this.client.language({ textId: `Среда`, guildId: interaction.guildId, locale: interaction.locale })  : new Date().getDay() === 4 ? this.client.language({ textId: `Четверг`, guildId: interaction.guildId, locale: interaction.locale })  : new Date().getDay() === 5 ? this.client.language({ textId: `Пятница`, guildId: interaction.guildId, locale: interaction.locale }) : this.client.language({ textId: `Суббота`, guildId: interaction.guildId, locale: interaction.locale }) }`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })}: ${req.days.join(", ").replace("1", this.client.language({ textId: `Понедельник`, guildId: interaction.guildId, locale: interaction.locale })).replace("2", this.client.language({ textId: `Вторник`, guildId: interaction.guildId, locale: interaction.locale })).replace("3", this.client.language({ textId: `Среда`, guildId: interaction.guildId, locale: interaction.locale })).replace("4", this.client.language({ textId: `Четверг`, guildId: interaction.guildId, locale: interaction.locale })).replace("5", this.client.language({ textId: `Пятница`, guildId: interaction.guildId, locale: interaction.locale })).replace("6", this.client.language({ textId: `Суббота`, guildId: interaction.guildId, locale: interaction.locale })).replace("0", this.client.language({ textId: `Воскресенье`, guildId: interaction.guildId, locale: interaction.locale }))}. ${this.client.language({ textId: `Сегодня`, guildId: interaction.guildId, locale: interaction.locale })}: ${new Date().getDay() === 0 ? this.client.language({ textId: `Воскресенье`, guildId: interaction.guildId, locale: interaction.locale }) : new Date().getDay() === 1 ? this.client.language({ textId: `Понедельник`, guildId: interaction.guildId, locale: interaction.locale })  : new Date().getDay() === 2 ? this.client.language({ textId: `Вторник`, guildId: interaction.guildId, locale: interaction.locale })  : new Date().getDay() === 3 ? this.client.language({ textId: `Среда`, guildId: interaction.guildId, locale: interaction.locale })  : new Date().getDay() === 4 ? this.client.language({ textId: `Четверг`, guildId: interaction.guildId, locale: interaction.locale })  : new Date().getDay() === 5 ? this.client.language({ textId: `Пятница`, guildId: interaction.guildId, locale: interaction.locale }) : this.client.language({ textId: `Суббота`, guildId: interaction.guildId, locale: interaction.locale }) }`)
-						}
-						break
-					case "MemberSince":
-						if (((Date.now() - member.joinedTimestamp) / 1000 / 60) < req.minAmount || ((Date.now() - member.joinedTimestamp) / 1000 / 60) > req.maxAmount) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `Ты на сервере`, guildId: interaction.guildId, locale: interaction.locale })}: \`${this.client.functions.transformSecs(this.client, Date.now() - member.joinedTimestamp, interaction.guildId, interaction.locale)}\``)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `Ты на сервере`, guildId: interaction.guildId, locale: interaction.locale })}: \`${this.client.functions.transformSecs(this.client, Date.now() - member.joinedTimestamp, interaction.guildId, interaction.locale)}\``)
-						}
-						break
-					case "multiplyXP": {
-						let luck_multiplier_for_channel = 0
-						let ch = this.client.cache.channels.find(ch => ch.id === channel.id && ch.isEnabled)
-						if (!ch) ch = this.client.cache.channels.find(ch => ch.id === channel.parentId && ch.isEnabled)
-						if (ch) {
-							luck_multiplier_for_channel = ch.luck_multiplier
-						}
-						if (profile.getXpBoost(luck_multiplier_for_channel) < req.minAmount || profile.getXpBoost(luck_multiplier_for_channel) > req.maxAmount) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${profile.getXpBoost()}`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${profile.getXpBoost()}`)
-						}
-						break
-					}
-					case "multiplyRP": {
-						let luck_multiplier_for_channel = 0
-						let ch = this.client.cache.channels.find(ch => ch.id === channel.id && ch.isEnabled)
-						if (!ch) ch = this.client.cache.channels.find(ch => ch.id === channel.parentId && ch.isEnabled)
-						if (ch) {
-							luck_multiplier_for_channel = ch.luck_multiplier
-						}
-						if (profile.getRpBoost(luck_multiplier_for_channel) < req.minAmount || profile.getRpBoost(luck_multiplier_for_channel) > req.maxAmount) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${profile.getRpBoost() * 100}%`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${profile.getRpBoost() * 100}%`)
-						}
-						break
-					}
-					case "multiplyCUR": {
-						let luck_multiplier_for_channel = 0
-						let ch = this.client.cache.channels.find(ch => ch.id === channel.id && ch.isEnabled)
-						if (!ch) ch = this.client.cache.channels.find(ch => ch.id === channel.parentId && ch.isEnabled)
-						if (ch) {
-							luck_multiplier_for_channel = ch.luck_multiplier
-						}
-						if (profile.getCurBoost(luck_multiplier_for_channel) < req.minAmount || profile.getCurBoost(luck_multiplier_for_channel) > req.maxAmount) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${profile.getCurBoost() * 100}%`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${profile.getCurBoost() * 100}%`)
-						}
-						break
-					}
-					case "multiplyLuck": {
-						let luck_multiplier_for_channel = 0
-						let ch = this.client.cache.channels.find(ch => ch.id === channel.id && ch.isEnabled)
-						if (!ch) ch = this.client.cache.channels.find(ch => ch.id === channel.parentId && ch.isEnabled)
-						if (ch) {
-							luck_multiplier_for_channel = ch.luck_multiplier
-						}
-						if (profile.getLuckBoost(luck_multiplier_for_channel) < req.minAmount || profile.getLuckBoost(luck_multiplier_for_channel) > req.maxAmount) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${profile.getLuckBoost() * 100}%`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${profile.getLuckBoost() * 100}%`)
-						}
-						break
-					}
-					default:
-						if ((eval(`profile.${req.id}`) || 0) < req.minAmount || (eval(`profile.${req.id}`) || 0) > req.maxAmount) {
-							isPassing.value = false
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${(eval(`profile.${req.id}`)) || 0}`)
-						} else {
-							if (interaction) isPassing.reasons.push(`${this.client.config.emojis.YES} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${(eval(`profile.${req.id}`)) || 0}`)
-						}
-						break
-				}
-			}
-		} else {
-			isPassing.value = false
-			if (interaction) isPassing.reasons.push(`${this.client.config.emojis.NO} ${this.client.language({ textId: `Это взаимодействие выключено правом`, guildId: interaction.guildId, locale: interaction.locale })}`)
+		if (!this.enable) {
+			return this._getDisabledResult(interaction);
 		}
-		return isPassing
+
+		const isPassing = { value: true, reasons: [] };
+		const now = new Date();
+		
+		for (const req of this.requirements) {
+			const amount = interaction ? this._formatAmount(req, interaction) : [];
+			const result = this._checkRequirement(req, profile, member, channel, interaction, amount, now);
+			if (!result.passed) {
+				isPassing.value = false;
+			}
+			
+			if (interaction && result.reason) {
+				isPassing.reasons.push(result.reason);
+			}
+		}
+		return isPassing;
+	}
+
+	// Вспомогательные методы
+	_formatAmount(req, interaction) {
+		const amount = [];
+		
+		if (req.minAmount !== undefined && req.maxAmount !== undefined && req.minAmount === req.maxAmount) {
+			const value = req.id === "MemberSince" 
+				? `\`${this.client.functions.transformSecs(this.client, req.maxAmount * 60 * 1000, interaction.guildId, interaction.locale)}\``
+				: req.id.includes("multiply") ? `${req.maxAmount * 100}%` : req.maxAmount;
+			amount.push(value);
+		} else {
+			if (req.minAmount !== undefined) {
+				const value = req.id === "MemberSince"
+					? `\`${this.client.functions.transformSecs(this.client, req.minAmount * 60 * 1000, interaction.guildId, interaction.locale)}\``
+					: req.id.includes("multiply") ? `${req.minAmount * 100}%` : req.minAmount;
+				amount.push(`${this.client.language({ textId: `от`, guildId: interaction.guildId, locale: interaction.locale })} ${value}`);
+			}
+			if (req.maxAmount !== undefined) {
+				const value = req.id === "MemberSince"
+					? `\`${this.client.functions.transformSecs(this.client, req.maxAmount * 60 * 1000, interaction.guildId, interaction.locale)}\``
+					: req.id.includes("multiply") ? `${req.maxAmount * 100}%` : req.maxAmount;
+				amount.push(`${this.client.language({ textId: `до`, guildId: interaction.guildId, locale: interaction.locale })} ${value}`);
+			}
+		}
+		
+		return amount;
+	}
+
+	_checkRequirement(req, profile, member, channel, interaction, amount, now) {
+		let result = { passed: true, reason: null };
+		
+		switch (req.id) {
+			case "item":
+				result = this._checkItemRequirement(req, profile, interaction, amount);
+				break;
+			case "achievement":
+				result = this._checkAchievementRequirement(req, profile, interaction, false);
+				break;
+			case "achievement-":
+				result = this._checkAchievementRequirement(req, profile, interaction, true);
+				break;
+			case "quest":
+				result = this._checkQuestRequirement(req, profile, interaction);
+				break;
+			case "roles":
+				result = this._checkRolesRequirement(req, member, interaction);
+				break;
+			case "channels":
+				result = this._checkChannelsRequirement(req, channel, interaction);
+				break;
+			case "time":
+				result = this._checkTimeRequirement(req, now, interaction);
+				break;
+			case "day":
+				result = this._checkDayRequirement(req, now, interaction);
+				break;
+			case "MemberSince":
+				result = this._checkMemberSinceRequirement(req, member, interaction, amount);
+				break;
+			case "multiplyXP":
+				result = this._checkBoostRequirement(req, profile, channel, interaction, amount);
+				break;
+			case "multiplyRP":
+				result = this._checkBoostRequirement(req, profile, channel, interaction, amount);
+				break;
+			case "multiplyCUR":
+				result = this._checkBoostRequirement(req, profile, channel, interaction, amount);
+				break;
+			case "multiplyLuck":
+				result = this._checkBoostRequirement(req, profile, channel, interaction, amount);
+				break;
+			default:
+				result = this._checkProfilePropertyRequirement(req, profile, interaction, amount);
+				break;
+		}
+		
+		return result;
+	}
+
+	// Конкретные проверки требований (все синхронные)
+	_checkItemRequirement(req, profile, interaction, amount) {
+		const userItemAmount = profile.inventory?.find(e => e.itemID === req.itemID)?.amount || 0;
+		const passed = userItemAmount >= (req.minAmount ?? -Infinity) && userItemAmount <= (req.maxAmount ?? Infinity);
+		let reason = null;
+		
+		if (interaction) {
+			const item = this.client.cache.items.get(req.itemID);
+			const emoji = this.client.config.emojis[passed ? 'YES' : 'NO'];
+			const itemName = item ? `${item.displayEmoji} ${item.name}` : req.itemID;
+			reason = `${emoji} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${itemName} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${itemName} (${userItemAmount})`;
+		}
+		
+		return { passed, reason };
+	}
+
+	_checkAchievementRequirement(req, profile, interaction, negated) {
+		const hasAchievement = profile.achievements?.some(e => e.achievmentID === req.achievementID) || false;
+		const passed = negated ? !hasAchievement : hasAchievement;
+		let reason = null;
+		
+		if (interaction) {
+			const achievement = this.client.cache.achievements.get(req.achievementID);
+			const emoji = this.client.config.emojis[passed ? 'YES' : 'NO'];
+			const achievementName = achievement ? `${achievement.displayEmoji} ${achievement.name}` : req.achievementID;
+			reason = `${emoji} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${achievementName}`;
+		}
+		
+		return { passed, reason };
+	}
+
+	_checkQuestRequirement(req, profile, interaction) {
+		const questFinished = profile.quests?.some(e => e.questID === req.questID && e.finished) || false;
+		const passed = questFinished
+		let reason = null;
+
+		if (interaction) {
+			const quest = this.client.cache.quests.get(req.questID);
+			const emoji = this.client.config.emojis[questFinished ? 'YES' : 'NO'];
+			const questName = quest ? `${quest.displayEmoji} ${quest.name}` : req.questID;
+			reason = `${emoji} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${questName}`;
+		}
+		
+		return { passed, reason };
+	}
+
+	_checkRolesRequirement(req, member, interaction) {
+		let passed = false;
+		let reason = null;
+		
+		switch (req.filter) {
+			case "hasAll":
+				passed = member.roles.cache.hasAll(...req.roles);
+				break;
+			case "hasAny":
+				passed = member.roles.cache.hasAny(...req.roles);
+				break;
+			case "except":
+				passed = !member.roles.cache.hasAny(...req.roles);
+				break;
+		}
+		
+		if (interaction) {
+			const roleMentions = req.roles.map(e => `<@&${e}>`).join(", ");
+			const emoji = this.client.config.emojis[passed ? 'YES' : 'NO'];
+			const textId = req.filter === "hasAll" ? "Пользователь должен иметь следующие роли" :
+						req.filter === "hasAny" ? "Пользователь должен иметь одну из следующих ролей" :
+						"Пользователь не должен иметь одну из следующих ролей";
+			
+			reason = `${emoji} ${this.client.language({ textId, guildId: interaction.guildId, locale: interaction.locale })}: ${roleMentions}`;
+		}
+		
+		return { passed, reason };
+	}
+
+	_checkChannelsRequirement(req, channel, interaction) {
+		if (!channel) return false;
+		
+		const channelInList = req.channels.includes(channel.id);
+		const passed = req.filter === "includes" ? channelInList : !channelInList;
+		let reason = null;
+		
+		if (interaction) {
+			const channelMentions = req.channels.map(e => `<#${e}>`).join(", ");
+			const emoji = this.client.config.emojis[passed ? 'YES' : 'NO'];
+			const textId = req.filter === "includes" ? "Канал должен быть одним из" : "Канал не должен быть одним из";
+			
+			reason = `${emoji} ${this.client.language({ textId, guildId: interaction.guildId, locale: interaction.locale })}: ${channelMentions}`;
+		}
+		
+		return { passed, reason };
+	}
+
+	_checkTimeRequirement(req, now, interaction) {
+		const startTime = this._parseTime(req.startTime);
+		let reason = null;
+		let endTime = this._parseTime(req.endTime);
+		
+		if (endTime < startTime) {
+			endTime = this._parseTime(req.endTime, true);
+		}
+		
+		const nowTime = now.getUTCHours() + now.getUTCMinutes() / 60;
+		const startHours = startTime.getUTCHours() + startTime.getUTCMinutes() / 60;
+		const endHours = endTime.getUTCHours() + endTime.getUTCMinutes() / 60;
+		
+		let passed;
+		if (startHours > endHours) {
+			passed = nowTime >= startHours || nowTime <= endHours;
+		} else {
+			passed = nowTime >= startHours && nowTime <= endHours;
+		}
+		
+		if (interaction) {
+			const currentTime = `${now.getUTCHours().toString().padStart(2, '0')}:${now.getUTCMinutes().toString().padStart(2, '0')}`;
+			const emoji = this.client.config.emojis[passed ? 'YES' : 'NO'];
+			reason = `${emoji} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} ${req.startTime}-${req.endTime} (UTC). ${this.client.language({ textId: `Сейчас`, guildId: interaction.guildId, locale: interaction.locale })} ${currentTime} (UTC)`;
+		}
+		
+		return { passed, reason };
+	}
+
+	_checkDayRequirement(req, now, interaction) {
+		const currentDay = now.getDay();
+		const passed = req.days.includes(currentDay);
+		let reason = null;
+		
+		if (interaction) {
+			const dayNames = this._getDayNames(req.days, interaction);
+			const currentDayName = this._getDayName(currentDay, interaction);
+			const emoji = this.client.config.emojis[passed ? 'YES' : 'NO'];
+			reason = `${emoji} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })}: ${dayNames}. ${this.client.language({ textId: `Сегодня`, guildId: interaction.guildId, locale: interaction.locale })}: ${currentDayName}`;
+		}
+		
+		return { passed, reason };
+	}
+
+	_checkMemberSinceRequirement(req, member, interaction, amount) {
+		const minutesOnServer = (Date.now() - member.joinedTimestamp) / 1000 / 60;
+		const passed = minutesOnServer >= (req.minAmount || 0) && minutesOnServer <= (req.maxAmount || Infinity);
+		let reason = null;
+		
+		if (interaction) {
+			const timeOnServer = this.client.functions.transformSecs(this.client, Date.now() - member.joinedTimestamp, interaction.guildId, interaction.locale);
+			const emoji = this.client.config.emojis[passed ? 'YES' : 'NO'];
+			reason = `${emoji} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `Ты на сервере`, guildId: interaction.guildId, locale: interaction.locale })}: \`${timeOnServer}\``;
+		}
+		
+		return { passed, reason };
+	}
+
+	_checkBoostRequirement(req, profile, channel, interaction, amount) {
+		const channelMultiplier = this._getChannelMultiplier(channel);
+		
+		// Получаем значение буста
+		let boostValue;
+		try {
+			let methodName;
+			switch (req.id) {
+				case "multiplyXP":
+					methodName = "getXpBoost";
+					break;
+				case "multiplyRP":
+					methodName = "getRpBoost";
+					break;
+				case "multiplyCUR":
+					methodName = "getCurBoost";
+					break;
+				case "multiplyLuck":
+					methodName = "getLuckBoost";
+					break;
+				default:
+					methodName = null;
+			}
+			if (typeof profile[methodName] === 'function') {
+				boostValue = profile[methodName](channelMultiplier);
+			} else {
+				console.error(`Method ${methodName} not found on profile`);
+				boostValue = 0;
+			}
+		} catch (error) {
+			console.error(`Error getting boost for ${req.id}:`, error);
+			boostValue = 0;
+		}
+		
+		const passed = boostValue >= (req.minAmount || 0) && boostValue <= (req.maxAmount || Infinity);
+		let reason = null;
+		
+		if (interaction) {
+			const currentValue = req.id === "multiplyXP" ? boostValue : boostValue * 100;
+			const emoji = this.client.config.emojis[passed ? 'YES' : 'NO'];
+			reason = `${emoji} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${currentValue}${req.id !== "multiplyXP" ? '%' : ''}`;
+		}
+		return { passed, reason };
+	}
+
+	_checkProfilePropertyRequirement(req, profile, interaction, amount) {
+		const value = this.getValue(profile, req.id.replace(/\?\./g, '.'), 0);
+		const passed = value >= (req.minAmount ?? -Infinity) && value <= (req.maxAmount ?? Infinity);
+		let reason = null;
+		
+		if (interaction) {
+			const emoji = this.client.config.emojis[passed ? 'YES' : 'NO'];
+			reason = `${emoji} ${this.client.language({ textId: req.id, guildId: interaction.guildId, locale: interaction.locale })} (${amount.join(" ")}). ${this.client.language({ textId: `У тебя`, guildId: interaction.guildId, locale: interaction.locale })}: ${value}`;
+		}
+		
+		return { passed, reason };
+	}
+	
+	// Вспомогательные методы (все синхронные)
+	getValue(obj, path, defaultValue = undefined) {
+		const keys = path.split('.');
+		let current = obj;
+		
+		for (const key of keys) {
+			if (current == null || current[key] === undefined) {
+				return defaultValue;
+			}
+			current = current[key];
+		}
+		
+		return current;
+	}
+	_parseTime(timeString, addDay = false) {
+		const date = parse(timeString + " +00:00", 'HH:mm ZZ');
+		if (addDay) {
+			date.setDate(date.getDate() + 1);
+		}
+		return date;
+	}
+
+	_getDayNames(days, interaction) {
+		const dayMap = {
+			'0': this.client.language({ textId: `Воскресенье`, guildId: interaction.guildId, locale: interaction.locale }),
+			'1': this.client.language({ textId: `Понедельник`, guildId: interaction.guildId, locale: interaction.locale }),
+			'2': this.client.language({ textId: `Вторник`, guildId: interaction.guildId, locale: interaction.locale }),
+			'3': this.client.language({ textId: `Среда`, guildId: interaction.guildId, locale: interaction.locale }),
+			'4': this.client.language({ textId: `Четверг`, guildId: interaction.guildId, locale: interaction.locale }),
+			'5': this.client.language({ textId: `Пятница`, guildId: interaction.guildId, locale: interaction.locale }),
+			'6': this.client.language({ textId: `Суббота`, guildId: interaction.guildId, locale: interaction.locale })
+		};
+		
+		return days.map(day => dayMap[day]).join(", ");
+	}
+
+	_getDayName(day, interaction) {
+		const dayMap = {
+			0: this.client.language({ textId: `Воскресенье`, guildId: interaction.guildId, locale: interaction.locale }),
+			1: this.client.language({ textId: `Понедельник`, guildId: interaction.guildId, locale: interaction.locale }),
+			2: this.client.language({ textId: `Вторник`, guildId: interaction.guildId, locale: interaction.locale }),
+			3: this.client.language({ textId: `Среда`, guildId: interaction.guildId, locale: interaction.locale }),
+			4: this.client.language({ textId: `Четверг`, guildId: interaction.guildId, locale: interaction.locale }),
+			5: this.client.language({ textId: `Пятница`, guildId: interaction.guildId, locale: interaction.locale }),
+			6: this.client.language({ textId: `Суббота`, guildId: interaction.guildId, locale: interaction.locale })
+		};
+		
+		return dayMap[day];
+	}
+
+	_getChannelMultiplier(channel) {
+		if (!channel) return 0;
+		
+		let ch = this.client.cache.channels.find(ch => ch.id === channel.id && ch.isEnabled);
+		if (!ch) {
+			ch = this.client.cache.channels.find(ch => ch.id === channel.parentId && ch.isEnabled);
+		}
+		
+		return ch ? ch.luck_multiplier : 0;
+	}
+
+	_getDisabledResult(interaction) {
+		if (!interaction) return { value: false, reasons: [] };
+		
+		return {
+			value: false,
+			reasons: [`${this.client.config.emojis.NO} ${this.client.language({ textId: `Это взаимодействие выключено правом`, guildId: interaction.guildId, locale: interaction.locale })}`]
+		};
 	}
 }
 module.exports = Permission

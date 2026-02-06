@@ -41,7 +41,7 @@ module.exports = {
     run: async (client, interaction, args) => {
         
         if (!interaction.isChatInputCommand()) {
-            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
         }
         const flags = []
         if (interaction.customId?.includes("eph") || interaction.values?.[0].includes("eph") || args?.ephemeral) flags.push("Ephemeral")
@@ -65,7 +65,7 @@ module.exports = {
                 const filter = m => m.author.id == interaction.user.id && !m.content.includes(`\u200B`) && m.content.length > 0 && m.channel.id == interaction.channel.id
                 const message = await interaction.followUp({ content: `${client.language({ textId: `Напиши в чат страницу`, guildId: interaction.guildId, locale: interaction.locale })}. ${client.language({ textId: `Для отмены напиши`, guildId: interaction.guildId, locale: interaction.locale })}: cancel` })
                 const collected = await waitingForPage(client, interaction, filter, shopItems.length)
-                message.delete().catch(e => null)
+                message.delete().catch(() => null)
                 if (!collected) return interaction.editReply({ components: components })
                 limit = +collected.content * 10
                 min = limit - 10    
@@ -91,8 +91,8 @@ module.exports = {
         let discount = ``
         let discount1 = ``
         if (profile.rp !== 0) {
-            if (profile.rp > 1000) profile.rp = 1000 - profile.rp
-            if (profile.rp < -1000) profile.rp = Math.abs(profile.rp - -1000)
+            if (profile.rp > 1000) profile.rp = 1000
+            if (profile.rp < -1000) profile.rp = -1000
             let discount = profile.rp / 20
             discount = `(${profile.rp < 0 ? "+" : "-"}${Math.abs(+discount.toFixed())}% ${client.language({ textId: `к цене`, guildId: interaction.guildId, locale: interaction.locale })})`
             discount1 = `\n${client.config.emojis.RP}${client.language({ textId: `Репутация`, guildId: interaction.guildId, locale: interaction.locale })}: ${profile.rp.toFixed()} ${discount}`
@@ -189,18 +189,18 @@ async function waitingForPage(client, interaction, filter, length) {
         if (!collected.size) return false
         if (!isNaN(collected.first().content) && Number.isInteger(+collected.first().content)) {
             if (collected.first().content <= 0 || collected.first().content > (length + (length % 10 == 0 ? 0 : 10 - (length % 10)))/10 ) {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Такой страницы не существует`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             } else {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return collected.first()
             }
         } else {
             if (collected.first().content.toLowerCase() == `cancel`) {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${collected.first().content}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     } 

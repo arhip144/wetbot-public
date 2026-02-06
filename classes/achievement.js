@@ -18,7 +18,12 @@ class Achievement {
         return this.enable
     }
     async save() {
-		await achievementSchema.replaceOne({ id: this.id }, Object.assign({}, { ...this, client: undefined, displayEmoji: undefined }), { upsert: true })
+		const { client, displayEmoji, ...data } = this
+        await achievementSchema.replaceOne(
+            { id: this.id }, 
+            data,
+            { upsert: true }
+        )
 	}
     async delete() {
         await Promise.all(this.client.cache.items.filter(e => e.guildID === this.guildID && e.onUse.addAchievement === this.id).map(async item => {

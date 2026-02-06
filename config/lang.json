@@ -235,12 +235,6 @@
       "es-ES": "Error",
       "ru": "Ошибка"
     },
-    "Роли CS2 сервера": {
-      "en-US": "CS2 roles of server",
-      "uk": "Ролі CS2 сервера",
-      "es-ES": "Roles CS2 del servidor",
-      "ru": "Роли CS2 сервера"
-    },
     "Роль": {
       "en-US": "Role",
       "uk": "Роль",
@@ -906,12 +900,6 @@
       "uk": "Отримання валюти, досвіду, репутації",
       "es-ES": "Ganar dinero, EXP, reputación",
       "ru": "Получения валюты, опыта, репутации"
-    },
-    "Роли CS2": {
-      "en-US": "CS2 roles",
-      "uk": "Ролі CS2",
-      "es-ES": "Roles CS2",
-      "ru": "Роли CS2"
     },
     "Логи": {
       "en-US": "Logs",
@@ -5971,173 +5959,17 @@
       "es-ES": "no",
       "ru": "нет"
     },
-    "Эта команда доступна в премиуме. Купить премиум можно по команде": {
-      "en-US": "This command only available in premium. You can buy premium via command",
-      "uk": "Ця команда доступна в преміумі. Придбати преміум можна за командою",
-      "es-ES": "Este comando solo está disponible en premium. Puedes comprar premium a través del comando",
-      "ru": "Эта команда доступна в премиуме. Купить премиум можно по команде"
-    },
-    "Эта функция доступна в премиуме. Купить премиум можно по команде": {
-      "en-US": "This feature only available in premium. You can buy premium via command",
-      "uk": "Ця функція доступна в преміумі. Придбати преміум можна за командою",
-      "es-ES": "Esta característica solo está disponible en premium. Puedes comprar premium a través del comando",
-      "ru": "Эта функция доступна в премиуме. Купить премиум можно по команде"
-    },
-    "Установка кастомных эмодзи доступна в премиуме. Купить премиум можно по команде": {
-      "en-US": "Setting custom emoji only available in premium. You can buy premium via command",
-      "uk": "Налаштування кастомних емодзі доступне в преміумі. Придбати преміум можна за командою",
-      "es-ES": "Establecer emoji personalizado solo disponible en premium. Puedes comprar premium a traves del comando",
-      "ru": "Установка кастомных эмодзи доступна в премиуме. Купить премиум можно по команде"
-    },
     "У тебя нет прав для использования этой команды": {
       "en-US": "You don't have permission to use this command",
       "uk": "У тебе немає прав для використання цієї команди",
       "es-ES": "No tienes permisos para usar este comando",
       "ru": "У тебя нет прав для использования этой команды"
     },
-    "Премиум": {
-      "en-US": "Premium",
-      "uk": "Преміум",
-      "es-ES": "Premium",
-      "ru": "Премиум"
-    },
-    "БЕССРОЧНО": {
-      "en-US": "UNLIMITED",
-      "uk": "БЕЗСТРОКОВО",
-      "es-ES": "ILIMITADO",
-      "ru": "БЕССРОЧНО"
-    },
-    "премиум отсутствует": {
-      "en-US": "no premium",
-      "uk": "преміум відсутній",
-      "es-ES": "sin premium",
-      "ru": "премиум отсутствует"
-    },
     "Команды": {
       "en-US": "Commands",
       "uk": "Команди",
       "es-ES": "Comandos",
       "ru": "Команды"
-    },
-    "Печеньки": {
-      "en-US": "Cookies",
-      "uk": "Печиво",
-      "es-ES": "Cookies",
-      "ru": "Печеньки"
-    },
-    "Максимум предметов": {
-      "en-US": "Maximum items",
-      "uk": "Максимум предметів",
-      "es-ES": "Objetos disponibles",
-      "ru": "Максимум предметов"
-    },
-    "Максимум достижений": {
-      "en-US": "Maximum achievements",
-      "uk": "Максимум досягнень",
-      "es-ES": "Logros disponibles",
-      "ru": "Максимум достижений"
-    },
-    "Максимум червоточин": {
-      "en-US": "Maximum wormholes",
-      "uk": "Максимум червоточин",
-      "es-ES": "Agujeros de gusano disponibles",
-      "ru": "Максимум червоточин"
-    },
-    "Кулдаун команды /fishing: 30 сек.": {
-      "en-US": "Cooldown for command /fishing: 30 secs.",
-      "uk": "Кулдаун команди /fishing: 30 сек.",
-      "es-ES": "Recarga para comando /pesca: 30 segs.",
-      "ru": "Кулдаун команды /fishing: 30 сек."
-    },
-    "Кулдаун команды /open: 30 сек.": {
-      "en-US": "Cooldown for command /open: 30 secs.",
-      "uk": "Кулдаун команди /open: 30 сек.",
-      "es-ES": "Recarga para el comando /abrir: 30 segs.",
-      "ru": "Кулдаун команды /open: 30 сек."
-    },
-    "Кулдаун команды /fishing: 0 сек.": {
-      "en-US": "Cooldown for command /fishing: 0 secs.",
-      "uk": "Кулдаун команди /fishing: 0 сек.",
-      "es-ES": "Recarga para el comando /pesca: 0 segs.",
-      "ru": "Кулдаун команды /fishing: 0 сек."
-    },
-    "Кулдаун команды /open: 0 сек.": {
-      "en-US": "Cooldown for command /open: 0 secs.",
-      "uk": "Кулдаун команди /open: 0 сек.",
-      "es-ES": "Recarga para el comando /abrir. 0 segs.",
-      "ru": "Кулдаун команды /open: 0 сек."
-    },
-    "Возможность включить логи сервера": {
-      "en-US": "Ability to enable server logs",
-      "uk": "Можливість увімкнути логи сервера",
-      "es-ES": "Posibilidad de activar registros de servidor",
-      "ru": "Возможность включить логи сервера"
-    },
-    "Выдача наград за бампы сервера": {
-      "en-US": "Claim rewards for server bumps",
-      "uk": "Видача нагород за бампи сервера",
-      "es-ES": "Reclamar recompensas por bumps de servidor",
-      "ru": "Выдача наград за бампы сервера"
-    },
-    "Доступ к ежедневным, еженедельным, ежемесячным и ежегодным отчетам о топ участников": {
-      "en-US": "Access to daily, weekly, monthly and yearly top members reports",
-      "uk": "Доступ до щоденних, щотижневих, щомісячних та щорічних звітів про топ учасників",
-      "es-ES": "Acceso a informes diarios, semanales, mensuales y anuales de clasificaciones de usuarios",
-      "ru": "Доступ к ежедневным, еженедельным, ежемесячным и ежегодным отчетам о топ участников"
-    },
-    "Возможность поставить и использовать кастомные эмодзи для предметов, достижений и валюты": {
-      "en-US": "Ability to set and use custom emoji for items, achievements and currency",
-      "uk": "Можливість встановити та використовувати кастомні емодзі для предметів, досягнень та валюти",
-      "es-ES": "Posibilidad de estabecer emojis personalizados para objetos, logros y divisa",
-      "ru": "Возможность поставить и использовать кастомные эмодзи для предметов, достижений и валюты"
-    },
-    "Курс": {
-      "en-US": "Rate",
-      "uk": "Курс",
-      "es-ES": "Tasa",
-      "ru": "Курс"
-    },
-    "печенек": {
-      "en-US": "cookies",
-      "uk": "печива",
-      "es-ES": "cookies",
-      "ru": "печенек"
-    },
-    "Купить печеньки": {
-      "en-US": "Buy cookies",
-      "uk": "Купити печиво",
-      "es-ES": "Comprar cookies",
-      "ru": "Купить печеньки"
-    },
-    "Месяц премиума": {
-      "en-US": "Premium Month",
-      "uk": "Місяць преміуму",
-      "es-ES": "Mes Premium",
-      "ru": "Месяц премиума"
-    },
-    "Пожизненный премиум": {
-      "en-US": "Lifetime Premium",
-      "uk": "Пожиттєвий преміум",
-      "es-ES": "Premium de por vida",
-      "ru": "Пожизненный премиум"
-    },
-    "Базовые возможности": {
-      "en-US": "Basic features",
-      "uk": "Базові можливості",
-      "es-ES": "Características básicas",
-      "ru": "Базовые возможности"
-    },
-    "Премиальные возможности": {
-      "en-US": "Premium features",
-      "uk": "Преміальні можливості",
-      "es-ES": "Características Premium",
-      "ru": "Премиальные возможности"
-    },
-    "ПРЕМИАЛЬНЫЕ ФУНКЦИИ": {
-      "en-US": "PREMIUM FEATURES",
-      "uk": "ПРЕМІАЛЬНІ ФУНКЦІЇ",
-      "es-ES": "CARACTERÍSTICAS PREMIUM",
-      "ru": "ПРЕМИАЛЬНЫЕ ФУНКЦИИ"
     },
     "Достижения скрыты": {
       "en-US": "Achievements hidden",
@@ -7111,18 +6943,6 @@
       "es-ES": "Por tiempo transcurrido en el canal de voz tú",
       "ru": "За общение в голосовом канале ты"
     },
-    "Использование этой команды возможно только на премиум серверах": {
-      "en-US": "This command can use only on premium servers",
-      "uk": "Використання цієї команди можливе лише на преміум серверах",
-      "es-ES": "Este comando puede usarse solamente en servidores Premium",
-      "ru": "Использование этой команды возможно только на премиум серверах"
-    },
-    "Возможность установить свой фон и цвета для команды /rank": {
-      "en-US": "The ability to set your own background and colors for the command /rank",
-      "uk": "Можливість встановити свій фон та кольори для команди /rank",
-      "es-ES": "La capacidad de establecer tu propio fondo y colores para el comando /rango",
-      "ru": "Возможность установить свой фон и цвета для команды /rank"
-    },
     "Скопировать предмет": {
       "en-US": "Copy item",
       "uk": "Скопіювати предмет",
@@ -7393,83 +7213,11 @@
       "es-ES": "fue añadido al servidor",
       "ru": "было зачислено на сервер"
     },
-    "У тебя недостаточно печенек на счету": {
-      "en-US": "You don't have enough cookies",
-      "uk": "У тебе недостатньо печива на рахунку",
-      "es-ES": "No tienes suficientes cookies",
-      "ru": "У тебя недостаточно печенек на счету"
-    },
     "количество": {
       "en-US": "amount",
       "uk": "кількість",
       "es-ES": "cantidad",
       "ru": "количество"
-    },
-    "Голосов за бота": {
-      "en-US": "Upvotes for bot",
-      "uk": "Голосів за бота",
-      "es-ES": "Votos por el bot",
-      "ru": "Голосов за бота"
-    },
-    "Голосуй на boticord.top и получай печеньки!": {
-      "en-US": "Vote on boticord.top and get cookies!",
-      "uk": "Голосуй на boticord.top та отримуй печиво!",
-      "es-ES": "Vota en boticord.top y obten cookies!",
-      "ru": "Голосуй на boticord.top и получай печеньки!"
-    },
-    "Голосуя за WETBOT на [boticord.top](https://boticord.top/bot/801814636168740914) (https://boticord.top/bot/801814636168740914) каждые 6 часов, ты поддерживаешь развитие бота и будешь получать бесплатные печеньки за каждый голос.": {
-      "en-US": "By voting for WETBOT on [boticord.top](https://boticord.top/bot/801814636168740914) (https://boticord.top/bot/801814636168740914) every 6 hours, you support the development of the bot and you will receive free cookies for each voice.",
-      "uk": "Голосуючи за WETBOT на [boticord.top](https://boticord.top/bot/801814636168740914) (https://boticord.top/bot/801814636168740914) кожні 6 годин, ви підтримуєте розвиток бота та отримуватимете безкоштовні печива за кожен голос.",
-      "es-ES": "Votando por WETBOT en [boticord.top](https://boticord.top/bot/801814636168740914) (https://boticord.top/bot/801814636168740914) cada 6 horas, apoyas el desarrollo del bot y obtienes cookies gratis.",
-      "ru": "Голосуя за WETBOT на [boticord.top](https://boticord.top/bot/801814636168740914) (https://boticord.top/bot/801814636168740914) каждые 6 часов, ты поддерживаешь развитие бота и будешь получать бесплатные печеньки за каждый голос."
-    },
-    "1 голос = 1 печенька": {
-      "en-US": "1 vote = 1 cookie",
-      "uk": "1 голос = 1 печиво",
-      "es-ES": "1 voto = 1 cookie",
-      "ru": "1 голос = 1 печенька"
-    },
-    "Голосуй на top.gg и получай печеньки!": {
-      "en-US": "Vote on top.gg and get cookies!",
-      "uk": "Голосуй на top.gg та отримуй печива!",
-      "es-ES": "Vota en top.gg y obtén cookies!",
-      "ru": "Голосуй на top.gg и получай печеньки!"
-    },
-    "Голосуя за WETBOT на [top.gg](https://top.gg/bot/801814636168740914) (https://top.gg/bot/801814636168740914) каждые 12 часов, ты поддерживаешь развитие бота и будешь получать бесплатные печеньки за каждый голос.": {
-      "en-US": "By voting for WETBOT on [top.gg](https://top.gg/bot/801814636168740914) (https://top.gg/bot/801814636168740914) every 12 hours, you support the development of the bot and you will receive free cookies for each upvote.",
-      "uk": "Голосуючи за WETBOT на [top.gg](https://top.gg/bot/801814636168740914) (https://top.gg/bot/801814636168740914) кожні 12 годин, ви підтримуєте розвиток бота та отримуватимете безкоштовні печива за кожен голос.",
-      "es-ES": "Votando por WETBOT en [top.gg](https://top.gg/bot/801814636168740914) (https://top.gg/bot/801814636168740914) cada 12 horas, apoyas el desarrollo del bot y obtienes cookies gratis.",
-      "ru": "Голосуя за WETBOT на [top.gg](https://top.gg/bot/801814636168740914) (https://top.gg/bot/801814636168740914) каждые 12 часов, ты поддерживаешь развитие бота и будешь получать бесплатные печеньки за каждый голос."
-    },
-    "Голосуй на bots.server-discord.com!": {
-      "en-US": "Vote on bots.server-discord.com!",
-      "uk": "Голосуй на bots.server-discord.com!",
-      "es-ES": "Vota en bots.server-discord.com",
-      "ru": "Голосуй на bots.server-discord.com!"
-    },
-    "Голосуя за WETBOT на [bots.server-discord.com](https://bots.server-discord.com/801814636168740914) (https://bots.server-discord.com/801814636168740914) каждые 4 часа, ты поддерживаешь развитие бота. Предоставив скриншот об апе бота на форуме сервера поддержки - вы получите печеньку.": {
-      "en-US": "By voting for WETBOT on [bots.server-discord.com](https://bots.server-discord.com/801814636168740914) (https://bots.server-discord.com/801814636168740914) every 4 hours, you support development bot. By providing a screenshot of the up on the support server forum, you will receive a cookie.",
-      "uk": "Голосуючи за WETBOT на [bots.server-discord.com](https://bots.server-discord.com/801814636168740914) (https://bots.server-discord.com/801814636168740914) кожні 4 години, ви підтримуєте розвиток бота. Надавши скріншот про апеляцію бота на форумі сервера підтримки - ви отримаєте печиво.",
-      "es-ES": "Votando por WETBOT en [bots.server-discord.com](https://bots.server-discord.com/801814636168740914) (https://bots.server-discord.com/801814636168740914) cada 4 horas, apoyas el desarrollo del bot y obtienes cookies gratis.",
-      "ru": "Голосуя за WETBOT на [bots.server-discord.com](https://bots.server-discord.com/801814636168740914) (https://bots.server-discord.com/801814636168740914) каждые 4 часа, ты поддерживаешь развитие бота. Предоставив скриншот об апе бота на форуме сервера поддержки - вы получите печеньку."
-    },
-    "Количество печенек можно посмотреть в профиле": {
-      "en-US": "The number of cookies can be seen in the profile",
-      "uk": "Кількість печива можна переглянути в профілі",
-      "es-ES": "Las cookies pueden verse en el perfil",
-      "ru": "Количество печенек можно посмотреть в профиле"
-    },
-    "Для выдачи печенек серверу используй команду": {
-      "en-US": "To give cookies to the server, use the command",
-      "uk": "Для видачі печива серверу використовуй команду",
-      "es-ES": "Para dar cookies al servidor, usa el comando",
-      "ru": "Для выдачи печенек серверу используй команду"
-    },
-    "Бесплатные печеньки": {
-      "en-US": "Free cookies",
-      "uk": "Безкоштовні печива",
-      "es-ES": "Cookies gratis",
-      "ru": "Бесплатные печеньки"
     },
     "Ты не найден в таблице лидеров.": {
       "en-US": "You are not found on the leaderboard.",
@@ -8887,18 +8635,6 @@
       "es-ES": "Mercado",
       "ru": "Маркет"
     },
-    "Акция до": {
-      "en-US": "Promotion up to",
-      "uk": "Акція до",
-      "es-ES": "Promoción válida hasta",
-      "ru": "Акция до"
-    },
-    "Скидка 40% на пожизненный премиум": {
-      "en-US": "40% Off Unlimited Premium",
-      "uk": "Знижка 40% на пожиттєвий преміум",
-      "es-ES": "40% de descuento en Premium De Por Vida",
-      "ru": "Скидка 40% на пожизненный премиум"
-    },
     "ID роли": {
       "en-US": "Role ID",
       "uk": "ID ролі",
@@ -10045,66 +9781,6 @@
       "es-ES": "MB",
       "ru": "МБ"
     },
-    "У вас есть неоплаченный чек на сумму": {
-      "en-US": "You have an unpaid check for the amount",
-      "uk": "У вас є неоплачений чек на суму",
-      "es-ES": "Tienes un cheque pendietne por la cantidad de",
-      "ru": "У вас есть неоплаченный чек на сумму"
-    },
-    "Продолжить оплату или отменить платёж?": {
-      "en-US": "Continue the payment or cancel payment?",
-      "uk": "Продовжити оплату чи скасувати платіж?",
-      "es-ES": "¿Continuar con el pago o cancelar?",
-      "ru": "Продолжить оплату или отменить платёж?"
-    },
-    "Ваша ссылка для оплаты на сумму": {
-      "en-US": "Your link to pay for the amount",
-      "uk": "Ваше посилання для оплати на суму",
-      "es-ES": "Tu enlace para el pago del importe",
-      "ru": "Ваша ссылка для оплаты на сумму"
-    },
-    "Для получения уникальной роли донатера на сервере поддержки - перед оплатой зайдите на сервер": {
-      "en-US": "To get a unique donator role on the support server - before paying, join in to the server",
-      "uk": "Для отримання унікальної ролі донатера на сервері підтримки - перед оплатою зайдіть на сервер",
-      "es-ES": "Para lograr el rol exclusivo de donante en el servidor de soporte, únete a él antes de pagar",
-      "ru": "Для получения уникальной роли донатера на сервере поддержки - перед оплатой зайдите на сервер"
-    },
-    "После получения печенек введи команду": {
-      "en-US": "After receiving the cookies, enter the command",
-      "uk": "Після отримання печива введіть команду",
-      "es-ES": "Tras recibir las cookies, introduce el comando",
-      "ru": "После получения печенек введи команду"
-    },
-    "для передачи печенек серверу": {
-      "en-US": "to transfer cookies to the server",
-      "uk": "для передачі печива серверу",
-      "es-ES": "para transferir cookies al servidor",
-      "ru": "для передачи печенек серверу"
-    },
-    "Ссылка истечет через": {
-      "en-US": "The link expires after",
-      "uk": "Посилання закінчиться через",
-      "es-ES": "El enlace expirará después de",
-      "ru": "Ссылка истечет через"
-    },
-    "КУПИТЬ": {
-      "en-US": "BUY",
-      "uk": "КУПИТИ",
-      "es-ES": "COMPRAR",
-      "ru": "КУПИТЬ"
-    },
-    "Ваша транзакция на сумму": {
-      "en-US": "Your payment for the amount of",
-      "uk": "Ваша транзакція на суму",
-      "es-ES": "Tu pago por la cantidad de",
-      "ru": "Ваша транзакция на сумму"
-    },
-    "в процессе обработки": {
-      "en-US": "in the process of processing",
-      "uk": "в процесі обробки",
-      "es-ES": "durante el proceso",
-      "ru": "в процессе обработки"
-    },
     "Включен": {
       "en-US": "Enabled",
       "uk": "Увімкнено",
@@ -10122,12 +9798,6 @@
       "uk": "Налаштування згадувань",
       "es-ES": "Configuración de menciones",
       "ru": "Настройка упоминаний"
-    },
-    "Сервер должен иметь премиум, для работы функционала подарков": {
-      "en-US": "The server must be premium for the gifts functionality to work",
-      "uk": "Сервер повинен мати преміум для роботи функціоналу подарунків",
-      "es-ES": "El servidor debe ser premium para que las funciones de regalo estén diponibles.",
-      "ru": "Сервер должен иметь премиум, для работы функционала подарков"
     },
     "НОВЫЙ ПОДАРОК: НАЗВАНИЕ": {
       "en-US": "NEW GIFT: NAME",
@@ -12709,12 +12379,6 @@
       "es-ES": "EXP de Temporada",
       "ru": "Сезонный опыт"
     },
-    "Сервер должен иметь премиум, для работы функционала прав": {
-      "en-US": "The server must be premium for the permissions functionality to work.",
-      "uk": "Сервер має мати преміум для роботи функціоналу прав",
-      "es-ES": "El servidor debe ser premium para que las opciones de permisos estén disponibles",
-      "ru": "Сервер должен иметь премиум, для работы функционала прав"
-    },
     "Право с названием": {
       "en-US": "Permission with name",
       "uk": "Право з назвою",
@@ -13189,12 +12853,6 @@
       "es-ES": "El sistema de permisos permite restringir ciertas acciones de los usuarios según sus estadísticas. Permite restringir diversas acciones con objetos, la participación en sorteos, la obtención de objetos y mucho más, según las estadísticas del usuario, sus roles, su inventario y el canal en el que se realizó la acción.",
       "ru": "Система прав позволяет ограничивать те или иные действия пользователей на основе их статистики. Система прав дает возможность ограничить различные действия с предметами, участие в раздачах, получение предметов и многое другое на основе статистики пользователя, его ролей, его инвентаря, а так же в каком канале было запущено действие."
     },
-    "Премиальные команды": {
-      "en-US": "Premium commands",
-      "uk": "Преміальні команди",
-      "es-ES": "Comandos Premium",
-      "ru": "Премиальные команды"
-    },
     "Удалит все права": {
       "en-US": "Will delete all permissions",
       "uk": "Видалити всі права",
@@ -13530,12 +13188,6 @@
       "uk": "Ця робота тимчасово недоступна",
       "es-ES": "Tabajo no disponible temporalmente",
       "ru": "Эта работа временно недоступна"
-    },
-    "Это действие требует премиума на сервере": {
-      "en-US": "This action requires premium on the server",
-      "uk": "Ця дія вимагає преміуму на сервері",
-      "es-ES": "Esta acción requiere Premium en el servidor",
-      "ru": "Это действие требует премиума на сервере"
     },
     "УСПЕХ": {
       "en-US": "SUCCESS",
@@ -14341,24 +13993,7 @@
       "es-ES": "El autor del mensaeje no deberías ser tú",
       "ru": "Автором сообщения не должен быть ты"
     },
-    "У тебя нет печенек": {
-      "en-US": "You don't have cookies",
-      "uk": "У тебе немає печива",
-      "es-ES": "No tienes cookies",
-      "ru": "У тебя нет печенек"
-    },
-    "Печенька выдана пользователю": {
-      "en-US": "The cookie was issued to the user",
-      "uk": "Печиво видано користувачеві",
-      "es-ES": "La cookie ha sido otorgada al usuario",
-      "ru": "Печенька выдана пользователю"
-    },
-    "выдал тебе печеньку [за это сообщение]": {
-      "en-US": "gave you a cookie [for this message]",
-      "uk": "видав тобі печиво [за це повідомлення]",
-      "es-ES": "te ha dado una cookie [por este mensaje]",
-      "ru": "выдал тебе печеньку [за это сообщение]"
-    },
+  
     "Сумма шансов всех предметов выдаваемых за голосовую активность не должна превышать 100": {
       "en-US": "The sum of the chances of all items issued for voice activity should not exceed 100",
       "uk": "Сума шансів усіх предметів, що видаються за голосову активність, не повинна перевищувати 100",
@@ -15139,12 +14774,6 @@
       "es-ES": "Fabricar objeto",
       "ru": "Скрафтить предмет"
     },
-    "Возможность получения роли от ранга в CS2 (/cs2rank)": {
-      "en-US": "The ability to get a role from a rank in CS2 (/cs2rank)",
-      "uk": "Можливість отримання ролі від рангу в CS2 (/cs2rank)",
-      "es-ES": "La capacidad de obtejer un rol a partir de un rango en CS2 (/rango_cs2)",
-      "ru": "Возможность получения роли от ранга в CS2 (/cs2rank)"
-    },
     "Для использования этой команды мне нужны следующие права": {
       "en-US": "For using this command I need follow permissions",
       "uk": "Для використання цієї команди мені потрібні наступні права",
@@ -15408,18 +15037,6 @@
       "uk": "Чорвоточини були увімкнені",
       "es-ES": "Los agujeros de gusano han sido activados",
       "ru": "Червоточины были включены"
-    },
-    "Продажа предметов за печеньки": {
-      "en-US": "Selling items for cookies",
-      "uk": "Продаж предметів за печиво",
-      "es-ES": "Vender objetos por cookies",
-      "ru": "Продажа предметов за печеньки"
-    },
-    "Вы можете выставить любой предмет в магазин, предварительно установив цену в качестве печенек. При покупке предмета, потраченные печеньки пользователем переводятся на счет сервера": {
-      "en-US": "You can put any item in the shop by pre-setting the price as cookies. When purchasing an item, the cookies spent by the user are transferred to the server",
-      "uk": "Ви можете виставити будь-який предмет у магазин, попередньо встановивши ціну у вигляді печива. При покупці предмета, витрачені печиво користувача переводяться на рахунок сервера",
-      "es-ES": "Puedes añadir cualquier objeto a la tienda preestableciendo el precio como cookies. Al comprar el objeto, las cookies gastadas por el usuario serán transferidas al servidor",
-      "ru": "Вы можете выставить любой предмет в магазин, предварительно установив цену в качестве печенек. При покупке предмета, потраченные печеньки пользователем переводятся на счет сервера"
     },
     "Червоточина заспавнилась": {
       "en-US": "The wormhole has spawned",
@@ -16399,12 +16016,6 @@
       "es-ES": "Alcanzado el número máximo de canales: 100",
       "ru": "Достигнуто максимум каналов: 100"
     },
-    "Для создания больше множителей для каналов - требуется премиум": {
-      "en-US": "To create more multipliers for channels, premium is required",
-      "uk": "Для створення більше множників для каналів - потрібен преміум",
-      "es-ES": "Se requiere Premium para crear más multiplicador de canales",
-      "ru": "Для создания больше множителей для каналов - требуется премиум"
-    },
     "Канал с названием": {
       "en-US": "The channel with the name",
       "uk": "Канал з назвою",
@@ -16422,12 +16033,6 @@
       "uk": "Канал не знайдено і був видалений",
       "es-ES": "El canal no fue encontraado y fue eliminado",
       "ru": "Канал не найден и был удален"
-    },
-    "Канал заморожен, в связи с отсутствием премиума на сервере": {
-      "en-US": "The channel is frozen due to the lack of a premium on the server",
-      "uk": "Канал заморожено через відсутність преміуму на сервері",
-      "es-ES": "El canal está congelado por falta de premium en el servidor",
-      "ru": "Канал заморожен, в связи с отсутствием премиума на сервере"
     },
     "Множители": {
       "en-US": "Multipliers",
@@ -16471,95 +16076,11 @@
       "es-ES": "No existe tal canal con multiplicadores",
       "ru": "Такого канала с множителями не существует"
     },
-    "Достигнуто максимум достижений: 1000": {
-      "en-US": "Maximum achievements reached: 1000",
-      "uk": "Досягнуто максимум досягнень: 1000",
-      "es-ES": "Alcanzado el número máximo de logros: 1000",
-      "ru": "Достигнуто максимум достижений: 1000"
-    },
-    "Для создания больше достижений - требуется премиум": {
-      "en-US": "To create more achievements, a premium is required",
-      "uk": "Для створення більше досягнень - потрібен преміум",
-      "es-ES": "Se requiere Premium para crear más logros",
-      "ru": "Для создания больше достижений - требуется премиум"
-    },
-    "Достижение заморожено, в связи с отсутствием премиума на сервере": {
-      "en-US": "The achievement has been frozen due to the lack of a premium on the server",
-      "uk": "Досягнення заморожено через відсутність преміуму на сервері",
-      "es-ES": "El logroo ha sido congelado por falta de Premium en el servidor",
-      "ru": "Достижение заморожено, в связи с отсутствием премиума на сервере"
-    },
-    "Достигнуто максимум предметов: 1000": {
-      "en-US": "Maximum items reached: 1000",
-      "uk": "Досягнуто максимум предметів: 1000",
-      "es-ES": "Alcanzado el número máximo de objetos: 1000",
-      "ru": "Достигнуто максимум предметов: 1000"
-    },
-    "Для создания больше предметов - требуется премиум": {
-      "en-US": "To create more items, a premium is required",
-      "uk": "Для створення більше предметів - потрібен преміум",
-      "es-ES": "Se requiere Premium para crear más objetos",
-      "ru": "Для создания больше предметов - требуется премиум"
-    },
-    "Предмет заморожен, в связи с отсутствием премиума на сервере": {
-      "en-US": "The item is frozen due to the lack of a premium on the server",
-      "uk": "Предмет заморожено через відсутність преміуму на сервері",
-      "es-ES": "El objeto está congelado por falta de Premium en el servidor",
-      "ru": "Предмет заморожен, в связи с отсутствием премиума на сервере"
-    },
-    "Достигнуто максимум доходных ролей: 100": {
-      "en-US": "The maximum number of income roles has been reached: 100",
-      "uk": "Досягнуто максимум дохідних ролей: 100",
-      "es-ES": "Alcanzado el número máximo de roles con ingresos: 100",
-      "ru": "Достигнуто максимум доходных ролей: 100"
-    },
-    "Для создания больше доходных ролей - требуется премиум": {
-      "en-US": "To create more income roles, a premium is required",
-      "uk": "Для створення більше дохідних ролей - потрібен преміум",
-      "es-ES": "Se requiere Premium para crear más roles con ingresos",
-      "ru": "Для создания больше доходных ролей - требуется премиум"
-    },
-    "Роль заморожена, в связи с отсутствием премиума на сервере": {
-      "en-US": "The role is frozen due to the lack of a premium on the server",
-      "uk": "Роль заморожено через відсутність преміуму на сервері",
-      "es-ES": "El rol está congelado por falta de Premium en el servidor",
-      "ru": "Роль заморожена, в связи с отсутствием премиума на сервере"
-    },
-    "Достигнуто максимум червоточин: 100": {
-      "en-US": "Maximum wormholes reached: 100",
-      "uk": "Досягнуто максимум червоточин: 100",
-      "es-ES": "Alcanzado máximo de agujeros de gusano: 100",
-      "ru": "Достигнуто максимум червоточин: 100"
-    },
-    "Для создания больше червоточин - требуется премиум": {
-      "en-US": "To create more wormholes, a premium is required",
-      "uk": "Для створення більше червоточин - потрібен преміум",
-      "es-ES": "Se requiere Premium para crear más agujeros de gusano",
-      "ru": "Для создания больше червоточин - требуется премиум"
-    },
-    "Червоточина заморожена, в связи с отсутствием премиума на сервере": {
-      "en-US": "The wormhole is frozen due to the lack of a premium on the server",
-      "uk": "Червоточина заморожена через відсутність преміуму на сервері",
-      "es-ES": "El agujero de gusano está congelado por falta de Premium en el servidor",
-      "ru": "Червоточина заморожена, в связи с отсутствием премиума на сервере"
-    },
-    "Максимум доходных ролей": {
-      "en-US": "Maximum income roles",
-      "uk": "Максимум дохідних ролей",
-      "es-ES": "Máximo de roles con ingresos",
-      "ru": "Максимум доходных ролей"
-    },
     "Множители канала": {
       "en-US": "Channel multipliers",
       "uk": "Множники каналу",
       "es-ES": "Multiplicadores de canal",
       "ru": "Множители канала"
-    },
-    "Стиль заморожен, в связи с отсутствием премиума на сервере": {
-      "en-US": "The style is frozen due to the lack of premium on the server",
-      "uk": "Стиль заморожено через відсутність преміуму на сервері",
-      "es-ES": "El estilo está congelado por falta de Premium en el servidor",
-      "ru": "Стиль заморожен, в связи с отсутствием премиума на сервере"
     },
     "Достигнуто максимум стилей: 25": {
       "en-US": "Maximum of styles reached: 25",
@@ -16567,47 +16088,11 @@
       "es-ES": "Alcanzado máximo de estilos: 25",
       "ru": "Достигнуто максимум стилей: 25"
     },
-    "Для создания больше стилей - требуется премиум": {
-      "en-US": "To create more styles, premium is required",
-      "uk": "Для створення більше стилів - потрібен преміум",
-      "es-ES": "Se requiere Premium para crear más estilos",
-      "ru": "Для создания больше стилей - требуется премиум"
-    },
     "Достигнуто максимум категорий: 25": {
       "en-US": "Maximum of categories reached: 25",
       "uk": "Досягнуто максимум категорій: 25",
       "es-ES": "Alcanzado máximo de categorías: 25",
       "ru": "Достигнуто максимум категорий: 25"
-    },
-    "Для создания больше категорий - требуется премиум": {
-      "en-US": "To create more categories, premium is required",
-      "uk": "Для створення більше категорій - потрібен преміум",
-      "es-ES": "Se requiere Premium para crear más categorías",
-      "ru": "Для создания больше категорий - требуется премиум"
-    },
-    "Категория заморожена, в связи с отсутствием премиума на сервере": {
-      "en-US": "The category is frozen due to the lack of a premium on the server",
-      "uk": "Категорія заморожена через відсутність преміуму на сервері",
-      "es-ES": "La categoría está congelada por falta de Premium en el servidor",
-      "ru": "Категория заморожена, в связи с отсутствием премиума на сервере"
-    },
-    "Достигнуто максимум квестов: 1000": {
-      "en-US": "Maximum quests achieved: 1000",
-      "uk": "Досягнуто максимум квестів: 1000",
-      "es-ES": "Alcanzado máximo de misiones: 1000",
-      "ru": "Достигнуто максимум квестов: 1000"
-    },
-    "Для создания больше квестов - требуется премиум": {
-      "en-US": "To create more quests, a premium is required",
-      "uk": "Для створення більше квестів - потрібен преміум",
-      "es-ES": "Se requiere Premium para crear más misiones",
-      "ru": "Для создания больше квестов - требуется премиум"
-    },
-    "Квест заморожен, в связи с отсутствием премиума на сервере": {
-      "en-US": "The quest is frozen due to the lack of a premium on the server",
-      "uk": "Квест заморожено через відсутність преміуму на сервері",
-      "es-ES": "La misión está congelada por falta de Premium en el servidor",
-      "ru": "Квест заморожен, в связи с отсутствием премиума на сервере"
     },
     "Личный профиль": {
       "en-US": "Personal profile",
@@ -16632,12 +16117,6 @@
       "uk": "Автогенератори промокодів",
       "es-ES": "Autogeneradores de códigos promocionales",
       "ru": "Автогенераторы промокодов"
-    },
-    "Сервер должен иметь премиум": {
-      "en-US": "Guild must have a premium",
-      "uk": "Сервер повинен мати преміум",
-      "es-ES": "El servidor debe tener premium",
-      "ru": "Сервер должен иметь премиум"
     },
     "Отправить сообщение": {
       "en-US": "Send a message",
@@ -16710,12 +16189,6 @@
       "uk": "Видалить усі автогенератори промокодів",
       "es-ES": "Eliminará todos los autogeneradores códigos",
       "ru": "Удалит все автогенераторы промокодов"
-    },
-    "Сервер должен иметь премиум, для работы функционала автогенераторов промокодов": {
-      "en-US": "The server must have a premium for the functionality of promocode autogenerators to work",
-      "uk": "Сервер повинен мати преміум для роботи функціоналу автогенераторів промокодів",
-      "es-ES": "El servidor necesita Premium para activar la funcionalidad de autogeneradores de códigos promocionales",
-      "ru": "Сервер должен иметь премиум, для работы функционала автогенераторов промокодов"
     },
     "Достигнуто максимум автогенераторов: 25": {
       "en-US": "The maximum number of autogenerators has been reached: 25",
@@ -17047,29 +16520,11 @@
       "es-ES": "Patrón-Cron de generación de códigos promocionales",
       "ru": "Cron-паттерн (время) генерации промокода"
     },
-    "Достигнуто максимум промокодов: 1000": {
-      "en-US": "Maximum of promocodes reached: 1000",
-      "uk": "Досягнуто максимум промокодів: 1000",
-      "es-ES": "Alcanzado el máximo de códigos promocionales: 1000",
-      "ru": "Достигнуто максимум промокодов: 1000"
-    },
-    "Для создания больше промокодов - требуется премиум": {
-      "en-US": "To create more promocodes, premium is required",
-      "uk": "Для створення більше промокодів - потрібен преміум",
-      "es-ES": "Se requiere Premium para crear mas códigos promocionales",
-      "ru": "Для создания больше промокодов - требуется премиум"
-    },
     "Промокод уже существует, выбери другой код": {
       "en-US": "it already exists, choose another code",
       "uk": "промокод вже існує, вибери інший код",
       "es-ES": "ya existe, elige otro código",
       "ru": "уже существует, выбери другой код"
-    },
-    "Промокод заморожен, в связи с отсутствием премиума на сервере": {
-      "en-US": "The promocode is frozen due to the lack of a premium on the server",
-      "uk": "Промокод заморожений через відсутність преміуму на сервері",
-      "es-ES": "El código promocional está congelado por falta de premium en el servidor",
-      "ru": "Промокод заморожен, в связи с отсутствием премиума на сервере"
     },
     "Менеджер промокодов": {
       "en-US": "Manager of promocodes",
@@ -17239,24 +16694,6 @@
       "es-ES": "Eliminará odos los usos de regalos",
       "ru": "Удалит все использования подарков"
     },
-    "Перенести премиум на другой сервер": {
-      "en-US": "Transfer the premium to another server",
-      "uk": "Перенести преміум на інший сервер",
-      "es-ES": "Trasnferir Premium a otro servidor",
-      "ru": "Перенести премиум на другой сервер"
-    },
-    "На этом сервере нет премиума": {
-      "en-US": "There is no premium on this server",
-      "uk": "На цьому сервері немає преміуму",
-      "es-ES": "No exoste Premium en este servidor",
-      "ru": "На этом сервере нет премиума"
-    },
-    "Передача премиума": {
-      "en-US": "Transfer of the premium",
-      "uk": "Передача преміуму",
-      "es-ES": "Transferencia de Premium",
-      "ru": "Передача премиума"
-    },
     "ID сервера": {
       "en-US": "Server ID",
       "uk": "ID сервера",
@@ -17268,12 +16705,6 @@
       "uk": "Сервера з ID",
       "es-ES": "Servidor con ID",
       "ru": "Сервера с ID"
-    },
-    "На этом сервере уже есть премиум": {
-      "en-US": "There is already a premium on this server",
-      "uk": "На цьому сервері вже є преміум",
-      "es-ES": "Ya existe Premium en este servidor",
-      "ru": "На этом сервере уже есть премиум"
     },
     "является ботом, с ботами нельзя взаимодействовать": {
       "en-US": "is a bot, you can't interact with a bot",
@@ -17856,12 +17287,6 @@
       "uk": "Такого рецепту не існує",
       "es-ES": "Esa receta no existe",
       "ru": "Такого рецепта не существует"
-    },
-    "Пробный премиум (7 дн.)": {
-      "en-US": "Premium trial (7 days)",
-      "uk": "Пробний преміум (7 дн.)",
-      "es-ES": "Premium de prueba (7 días)",
-      "ru": "Пробный премиум (7 дн.)"
     },
     "Некорректный ID": {
       "en-US": "Incorrect ID",
@@ -19303,71 +18728,11 @@
       "es-ES": "o más en el mini-juego 'Crash'",
       "ru": "или больше в мини-игре 'Краш'"
     },
-    "!alltime.cookies": {
-      "en-US": "of the 🍪cookies of an all time",
-      "uk": "по 🍪печиву за весь час",
-      "es-ES": "por 🍪cookies globales",
-      "ru": "по 🍪печенькам за все время"
-    },
-    "!alltime.upvotes": {
-      "en-US": "of the 🔝upvotes of an all time",
-      "uk": "по 🔝голосам за весь час",
-      "es-ES": "por 🔝votos globales",
-      "ru": "по 🔝голосам за все время"
-    },
     "!weekly.bumps": {
       "en-US": "of the 🆙bumps of a week",
       "uk": "по 🆙бампам за тиждень",
       "es-ES": "por 🔝bumps semanales",
       "ru": "по 🆙бампам за неделю"
-    },
-    "!weekly.cookies": {
-      "en-US": "of the 🍪cookies of a week",
-      "uk": "по 🍪печиву за тиждень",
-      "es-ES": "por 🍪cookies globales",
-      "ru": "по 🍪печенькам за неделю"
-    },
-    "!weekly.upvotes": {
-      "en-US": "of the 🔝upvotes of a week",
-      "uk": "по 🔝голосам за тиждень",
-      "es-ES": "por 🔝votos semanales",
-      "ru": "по 🔝голосам за неделю"
-    },
-    "!yearly.cookies": {
-      "en-US": "of the 🍪cookies of an year",
-      "uk": "по 🍪печиву за рік",
-      "es-ES": "por 🍪cookies anuales",
-      "ru": "по 🍪печенькам за год"
-    },
-    "!monthly.cookies": {
-      "en-US": "of the 🍪cookies of a month",
-      "uk": "по 🍪печиву за місяць",
-      "es-ES": "por 🍪cookies mensuales",
-      "ru": "по 🍪печенькам за месяц"
-    },
-    "!daily.cookies": {
-      "en-US": "of the 🍪cookies of a day",
-      "uk": "по 🍪печиву за день",
-      "es-ES": "por 🍪cookies diarias",
-      "ru": "по 🍪печенькам за день"
-    },
-    "!yearly.upvotes": {
-      "en-US": "of the 🔝upvotes of an year",
-      "uk": "по 🔝голосам за рік",
-      "es-ES": "por 🔝votos anuales",
-      "ru": "по 🔝голосам за год"
-    },
-    "!monthly.upvotes": {
-      "en-US": "of the 🔝upvotes of a month",
-      "uk": "по 🔝голосам за місяць",
-      "es-ES": "por 🔝votos mensuales",
-      "ru": "по 🔝голосам за месяц"
-    },
-    "!daily.upvotes": {
-      "en-US": "of the 🔝upvotes of a day",
-      "uk": "по 🔝голосам за день",
-      "es-ES": "por 🔝votos darios",
-      "ru": "по 🔝голосам за день"
     },
     "!totalxp": {
       "en-US": "of the ⭐experience",
@@ -19428,18 +18793,6 @@
       "uk": "по 📝квестам",
       "es-ES": "de 📝misiones",
       "ru": "по 📝квестам"
-    },
-    "!cookies": {
-      "en-US": "of the 🍪cookies",
-      "uk": "по 🍪печиву",
-      "es-ES": "de 🍪cookies",
-      "ru": "по 🍪печенькам"
-    },
-    "!upvotes": {
-      "en-US": "of the 🔝upvotes",
-      "uk": "по 🔝голосам",
-      "es-ES": "🔝votos",
-      "ru": "по 🔝голосам"
     },
     "Победитель": {
       "en-US": "Winner",
@@ -20149,41 +19502,17 @@
       "es-ES": "Cambiar ranuras",
       "ru": "Изменить слоты"
     },
-    "Увеличить/уменьшить премиум": {
-      "en-US": "Increase/decrease premium",
-      "uk": "Збільшення/зменшення премії",
-      "es-ES": "Aumentar/disminuir prima",
-      "ru": "Увеличить/уменьшить премиум"
-    },
-    "Изменить печеньки": {
-      "en-US": "Change cookies",
-      "uk": "Змінити файли cookie",
-      "es-ES": "Cambiar cookies",
-      "ru": "Изменить печеньки"
-    },
     "В черном списке": {
       "en-US": "Blacklisted",
       "uk": "Чорний список",
       "es-ES": "En la lista negra",
       "ru": "В черном списке"
     },
-    "Апвоты": {
-      "en-US": "Upvotes",
-      "uk": "Голоси за",
-      "es-ES": "Votos a favor",
-      "ru": "Апвоты"
-    },
     "В черном списке (полный)": {
       "en-US": "Blacklisted (full)",
       "uk": "Чорний список (повний)",
       "es-ES": "Lista negra (completa)",
       "ru": "В черном списке (полный)"
-    },
-    "В черном списке (апвоты)": {
-      "en-US": "Blacklisted (upvotes)",
-      "uk": "Чорний список (голоси за)",
-      "es-ES": "En la lista negra (votos a favor)",
-      "ru": "В черном списке (апвоты)"
     },
     "Имя": {
       "en-US": "Name",
@@ -20269,12 +19598,6 @@
       "es-ES": "El ingreso por función automática está desactivado",
       "ru": "Авто доход ролей выключен"
     },
-    "Валюта для премиум функций бота, можно купить через </cookies buy yookassa:1150455840818614310>, </cookies buy crypto:1150455840818614310> или получить бесплатно через </monitorings:1150455842454388759>, потратить: </premium:1150455842454388762>": {
-      "en-US": "Currency for premium bot functions, can be purchased through </cookies buy yookassa:1150455840818614310>, </cookies buy crypto:1150455840818614310> or received for free through",
-      "uk": "Валюту для функцій преміум-бота можна придбати через </cookies buy yookassa:1150455840818614310>, </cookies buy crypto:1150455840818614310> або отримати безкоштовно через </monitorings:1150455842454388759>, витратити: </premium:1150455842454388762>",
-      "es-ES": "La moneda para las funciones premium del bot se puede comprar a través de </cookies buy yookassa:1150455840818614310>, </cookies buy crypto:1150455840818614310> o recibirse gratis a través de </monitorings:1150455842454388759>, gasta: </premium:1150455842454388762>",
-      "ru": "Валюта для премиум функций бота, можно купить через </cookies buy yookassa:1150455840818614310>, </cookies buy crypto:1150455840818614310> или получить бесплатно через </monitorings:1150455842454388759>, потратить: </premium:1150455842454388762>"
-    },
     "не целым является числом": {
       "en-US": "is not an integer",
       "uk": "не є цілим числом",
@@ -20286,12 +19609,6 @@
       "uk": "Ролі автоматичного доходу включені",
       "es-ES": "Roles de ingresos de automóviles en",
       "ru": "Авто доход ролей на"
-    },
-    "Канал с множителями заморожен, в связи с отсутствием премиума на сервере": {
-      "en-US": "The channel with multipliers is frozen due to the lack of premium on the server",
-      "uk": "Канал з множниками заморожений через відсутність преміуму на сервері",
-      "es-ES": "El canal con multiplicadores está congelado por falta de premium en el servidor",
-      "ru": "Канал с множителями заморожен, в связи с отсутствием премиума на сервере"
     },
     "Мин. чел. - это сколько минимум человек необходимо для активации бонуса за каждого человека.\nМакс. чел. - это сколько максимум людей бот будет считать для бонуса за каждого человека. Если бонус за каждого человека - 5%, то каждому человеку будет идти бонус 5%*кол-во человек": {
       "en-US": "Min. ",
@@ -20316,12 +19633,6 @@
       "uk": "Товар з назвою",
       "es-ES": "Artículo con nombre",
       "ru": "Предмет c названием"
-    },
-    "При покупке предмета, цена которого - печеньки, потраченные печеньки пользователем будут передаваться на счет сервера": {
-      "en-US": "When purchasing an item whose price is cookies, the cookies spent by the user will be transferred to the server account",
-      "uk": "При купівлі товару, ціна якого становить файли cookie, витрачені користувачем файли cookie будуть переведені на обліковий запис сервера",
-      "es-ES": "Al comprar un artículo cuyo precio son cookies, las cookies gastadas por el usuario se transferirán a la cuenta del servidor.",
-      "ru": "При покупке предмета, цена которого - печеньки, потраченные печеньки пользователем будут передаваться на счет сервера"
     },
     "Валютная пара": {
       "en-US": "Currency pair",
@@ -21036,6 +20347,78 @@
       "uk": "💰Виграш:",
       "es-ES": "💰Ganancia:",
       "ru": "💰Выигрыш:"
+    },
+    "Авто-вывод": {
+      "en-US": "Auto-withdraw",
+      "uk": "Авто-висновок",
+      "es-ES": "Tirada-automática",
+      "ru": "Авто-вывод"
+    },
+    "Вывести": {
+      "en-US": "Withdraw",
+      "uk": "Виводити",
+      "es-ES": "Retirar",
+      "ru": "Вывести"
+    },
+    "не был добавлен в доходную роль, лимит - 10 предметов": {
+      "en-US": "was not added to the income role, limit - 10 items",
+      "uk": "не був доданий до прибуткової ролі, ліміт - 10 предметів",
+      "es-ES": "no fue añadido al rol de ingresos, límite - 10 artículos",
+      "ru": "не был добавлен в доходную роль, лимит - 10 предметов"
+    },
+    "роли": {
+      "en-US": "roles",
+      "uk": "ролі",
+      "es-ES": "roles",
+      "ru": "роли"
+    },
+    "ролей": {
+      "en-US": "roles",
+      "uk": "ролей",
+      "es-ES": "roles",
+      "ru": "ролей"
+    },
+    "Купить предметы на маркете": {
+      "en-US": "Buy items on the market",
+      "uk": "Купити предмети на маркеті",
+      "es-ES": "Comprar objetos en el mercado",
+      "ru": "Купить предметы на маркете"
+    },
+    "Не валидный JSON": {
+      "en-US": "Invalid JSON",
+      "uk": "Не валідний JSON",
+      "es-ES": "JSON no válido",
+      "ru": "Не валидный JSON"
+    },
+    "сезонный уровень": {
+      "en-US": "",
+      "uk": "",
+      "es-ES": "",
+      "ru": "сезонный уровень"
+    },
+    "": {
+      "en-US": "",
+      "uk": "",
+      "es-ES": "",
+      "ru": ""
+    },
+    "": {
+      "en-US": "",
+      "uk": "",
+      "es-ES": "",
+      "ru": ""
+    },
+    "": {
+      "en-US": "",
+      "uk": "",
+      "es-ES": "",
+      "ru": ""
+    },
+    "": {
+      "en-US": "",
+      "uk": "",
+      "es-ES": "",
+      "ru": ""
     }
   }
 }

@@ -21,7 +21,6 @@ module.exports = {
     dmPermission: false,
     group: `general-group`,
     cooldowns: new Collection(),
-    premium: true,
     /**
      *
      * @param {Client} client
@@ -89,8 +88,8 @@ module.exports = {
                             ),
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `customRole_name_${interaction.id}` && i.user.id === interaction.user.id
-                interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                const filter = (i) => i.customId === `customRole_name_${interaction.id}` && i.user.id === interaction.user.id;
+                interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
                     interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -156,8 +155,8 @@ module.exports = {
                     flags: ["Ephemeral"],
                     withResponse: true
                 })
-                const filter = (i) => i.customId.includes(`custom-role_color`) && i.user.id === interaction.user.id
-                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 60000 * 5 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`custom-role_color`) && i.user.id === interaction.user.id;
+                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 60000 * 5 }).catch(() => null)
                 if (interaction2 && interaction2.customId.includes("custom-role_color")) {
                     if (interaction2.customId.includes("select")) {
                         customRole.color = interaction2.values[0]
@@ -221,8 +220,8 @@ module.exports = {
                                     ),
                             ]
                         })
-                        const filter = (i) => i.customId.includes(`custom-role_color`) && i.user.id === interaction.user.id
-                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 60000 * 5 }).catch(e => null)
+                        const filter = (i) => i.customId.includes(`custom-role_color`) && i.user.id === interaction.user.id;
+                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 60000 * 5 }).catch(() => null)
                         if (interaction2 && interaction2.customId.includes("custom-role_color_random")) {
                             if (interaction2.customId.includes("select")) {
                                 const random_color = randomColor({
@@ -257,8 +256,8 @@ module.exports = {
                                     ),
                             ])
                         await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                        const filter = (i) => i.customId === `customRole_color_${interaction2.id}` && i.user.id === interaction.user.id
-                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId === `customRole_color_${interaction2.id}` && i.user.id === interaction.user.id;
+                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                         if (interaction2 && interaction2.isModalSubmit()) {
                             const modalArgs = {}
                             interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -367,8 +366,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })
-                const filter = (i) => i.customId.includes(`custom-role_time`) && i.user.id === interaction.user.id
-                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`custom-role_time`) && i.user.id === interaction.user.id;
+                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
                 if (interaction2 && interaction2.customId.includes("custom-role_time")) {
                     if (interaction2.customId.includes("infinity")) {
                         customRole.minutes = Infinity
@@ -400,8 +399,8 @@ module.exports = {
                                     ),
                             ])
                         await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                        const filter = (i) => i.customId === `customRole_minutes_${interaction2.id}` && i.user.id === interaction.user.id
-                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId === `customRole_minutes_${interaction2.id}` && i.user.id === interaction.user.id;
+                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                         if (interaction2 && interaction2.isModalSubmit()) {
                             const modalArgs = {}
                             interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -644,16 +643,16 @@ module.exports = {
                     if (customRole.minutes === Infinity && settings.customRolePrice.length) {
                         for (let item of settings.customRolePrice) {
                             if (item.type === RewardType.Item) {
-                                await profile.subtractItem(item.id, item.amount)
+                                await profile.subtractItem({ itemID: item.id, amount: item.amount })
                             }
                             if (item.type === RewardType.Currency) {
-                                await profile.subtractCurrency(item.amount)
+                                await profile.subtractCurrency({ amount: item.amount })
                             }
                             if (item.type === RewardType.Role) {
-                                await profile.subtractRole(item.id, item.amount)
+                                await profile.subtractRole({ id: item.id, amount: item.amount })
                             }
                             if (item.type === RewardType.Reputation) {
-                                await profile.subtractRp(item.amount)
+                                await profile.subtractRp({ amount: item.amount })
                             }
                         }
                         await profile.save()    
@@ -661,16 +660,16 @@ module.exports = {
                     if (customRole.minutes !== Infinity && settings.customRolePriceMinute.length) {
                         for (let item of settings.customRolePriceMinute) {
                             if (item.type === RewardType.Item) {
-                                await profile.subtractItem(item.id, item.amount * customRole.minutes)
+                                await profile.subtractItem({ itemID: item.id, amount: item.amount * customRole.minutes })
                             }
                             if (item.type === RewardType.Currency) {
-                                await profile.subtractCurrency(item.amount * customRole.minutes)
+                                await profile.subtractCurrency({ amount: item.amount * customRole.minutes })
                             }
                             if (item.type === RewardType.Role) {
-                                await profile.subtractRole(item.id, item.amount * customRole.minutes)
+                                await profile.subtractRole({ id: item.id, amount: item.amount * customRole.minutes })
                             }
                             if (item.type === RewardType.Reputation) {
-                                await profile.subtractRp(item.amount * customRole.minutes)
+                                await profile.subtractRp({ amount: item.amount * customRole.minutes })
                             }
                         }
                         await profile.save()    
@@ -689,16 +688,16 @@ module.exports = {
                 if (customRole.minutes === Infinity && settings.customRolePrice.length) {
                     for (let item of settings.customRolePrice) {
                         if (item.type === RewardType.Item) {
-                            await profile.subtractItem(item.id, item.amount)
+                            await profile.subtractItem({ itemID: item.id, amount: item.amount })
                         }
                         if (item.type === RewardType.Currency) {
-                            await profile.subtractCurrency(item.amount)
+                            await profile.subtractCurrency({ amount: item.amount })
                         }
                         if (item.type === RewardType.Role) {
-                            await profile.subtractRole(item.id, item.amount)
+                            await profile.subtractRole({ id: item.id, amount: item.amount })
                         }
                         if (item.type === RewardType.Reputation) {
-                            await profile.subtractRp(item.amount)
+                            await profile.subtractRp({ amount: item.amount })
                         }
                     }
                     await profile.save()    
@@ -706,21 +705,21 @@ module.exports = {
                 if (customRole.minutes !== Infinity && settings.customRolePriceMinute.length) {
                     for (let item of settings.customRolePriceMinute) {
                         if (item.type === RewardType.Item) {
-                            await profile.subtractItem(item.id, item.amount * customRole.minutes)
+                            await profile.subtractItem({ itemID: item.id, amount: item.amount * customRole.minutes })
                         }
                         if (item.type === RewardType.Currency) {
-                            await profile.subtractCurrency(item.amount * customRole.minutes)
+                            await profile.subtractCurrency({ amount: item.amount * customRole.minutes })
                         }
                         if (item.type === RewardType.Role) {
-                            await profile.subtractRole(item.id, item.amount * customRole.minutes)
+                            await profile.subtractRole({ id: item.id, amount: item.amount * customRole.minutes })
                         }
                         if (item.type === RewardType.Reputation) {
-                            await profile.subtractRp(item.amount * customRole.minutes)
+                            await profile.subtractRp({ amount: item.amount * customRole.minutes })
                         }
                     }
                     await profile.save()    
                 }
-                profile.addRole(role.id, 1, customRole.minutes && customRole.minutes !== Infinity ? customRole.minutes * 60 * 1000 : undefined)
+                profile.addRole({ id: role.id, amount: 1, ms: customRole.minutes && customRole.minutes !== Infinity ? customRole.minutes * 60 * 1000 : undefined })
                 await profile.save()
                 if (settings.customRoleProperties?.length) {
                     const properties = {}

@@ -61,7 +61,7 @@ module.exports = {
         if (interaction.customId?.includes("eph")) flags.push("Ephemeral")
         const settings = client.cache.settings.get(interaction.guildId)
         if (!interaction.isChatInputCommand()) {
-            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
         }
         let fishingItems = client.cache.items.filter(e => e.guildID === interaction.guildId && !e.temp && e.enabled && e.activities?.fishing?.chance).sort((a, b) => a.activities.fishing.chance - b.activities.fishing.chance).map(e => { 
             return { itemID: e.itemID, displayEmoji: e.displayEmoji, emoji: e.emoji, name: e.name, activities: { fishing: { chance: e.activities.fishing.chance, amountFrom: e.activities.fishing.amountFrom, amountTo: e.activities.fishing.amountTo, minxp: e.activities.fishing.minxp, maxxp: e.activities.fishing.maxxp } }, found: e.found, rarity: e.rarity, description: e.description, hex: e.hex, image: e.image, activities_fishing_permission: e.activities_fishing_permission }
@@ -181,24 +181,24 @@ module.exports = {
             }
         }
         for (const itemID in object_items) {
-            await profile.addItem(itemID, object_items[itemID].amount)
-            await profile.addQuestProgression("fishing", object_items[itemID].amount, itemID)
+            await profile.addItem({ itemID: itemID, amount: object_items[itemID].amount })
+            await profile.addQuestProgression({ type: "fishing", amount: object_items[itemID].amount, object: itemID })
             const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.FishingItem)
             await Promise.all(achievements.map(async achievement => {
                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && achievement.items?.includes(itemID) && !client.tempAchievements[profile.userID]?.includes(achievement.id)) { 
                     if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                     client.tempAchievements[profile.userID].push(achievement.id)
-                    await profile.addAchievement(achievement)
+                    await profile.addAchievement({ achievement })
                 }    
             }))
         }
         profile.fishing += count
-        await profile.addQuestProgression("fishing", count)
-        if (rewards.xp) await profile.addXp(rewards.xp)
-        if (rewards.currency) await profile.addCurrency(rewards.currency)
+        await profile.addQuestProgression({ type: "fishing", amount: count })
+        if (rewards.xp) await profile.addXp({ amount: rewards.xp })
+        if (rewards.currency) await profile.addCurrency({ amount: rewards.currency })
         if (fishingPrice.amount > 0) {
-            if (fishingPrice.id === "currency") await profile.subtractCurrency(fishingPrice.amount*count)
-            else await profile.subtractItem(fishingPrice.id, fishingPrice.amount*count)
+            if (fishingPrice.id === "currency") await profile.subtractCurrency({ amount: fishingPrice.amount*count })
+            else await profile.subtractItem({ itemID: fishingPrice.id, amount: fishingPrice.amount*count })
         }
         const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Fishing)
         await Promise.all(achievements.map(async achievement => {
@@ -212,7 +212,7 @@ module.exports = {
         }))
         if (achievements_to_give.length) {
             for (const achievementID of achievements_to_give) {
-                await profile.addAchievement(achievementID)
+                await profile.addAchievement({ achievement: achievementID })
             }
         }
         await profile.save()

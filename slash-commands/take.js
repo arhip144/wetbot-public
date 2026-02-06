@@ -59,8 +59,7 @@ module.exports = {
                     },
                     type: ApplicationCommandOptionType.Integer,
                     required: true,
-                    min_value: 1,
-                    max_value: 100
+                    min_value: 1
                 }
             ]
         },
@@ -394,30 +393,30 @@ module.exports = {
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
         await interaction.deferReply({ flags: ["Ephemeral"] })
-        const member = await interaction.guild.members.fetch(args.user).catch(e => null)
+        const member = await interaction.guild.members.fetch(args.user).catch(() => null)
         if (!member) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Пользователь с ID`, guildId: interaction.guildId, locale: interaction.locale })} **${args.user}** ${client.language({ textId: `не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}.`})
         if (member.user.bot)  return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Ты не можешь использовать эту команду для бота`, guildId: interaction.guildId, locale: interaction.locale })}.` })
         const profile = await client.functions.fetchProfile(client, args.user, interaction.guildId)
         if (args.Subcommand === "level") {
-            await profile.subtractLevel(args.amount, true)
+            await profile.subtractLevel({ amount: args.amount, save: true })
             return interaction.editReply({ content: `${client.config.emojis.YES} 🎖${client.language({ textId: "Уровень", guildId: interaction.guildId, locale: interaction.locale })} (${args.amount.toLocaleString()}) ${client.language({ textId: `было уменьшено`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>` })  
         }
         if (args.Subcommand === "season_level") {
-            await profile.subtractSeasonLevel(args.amount, true)
+            await profile.subtractSeasonLevel({ amount: args.amount, save: true })
             return interaction.editReply({ content: `${client.config.emojis.YES} ${client.config.emojis.seasonLevel}${client.language({ textId: "Сезонный уровень", guildId: interaction.guildId, locale: interaction.locale })} (${args.amount.toLocaleString()}) ${client.language({ textId: `было уменьшено`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>` })  
         }
         if (args.Subcommand === "experience") {
-            await profile.subtractXp(args.amount, true)
+            await profile.subtractXp({ amount: args.amount, save: true })
             return interaction.editReply({ content: `${client.config.emojis.YES} ${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${args.amount.toLocaleString()}) ${client.language({ textId: `было уменьшено`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>` })
         }
         if (args.Subcommand === "reputation") {
             if (profile.rp - args.amount < -1000) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Репутация (RP) у пользователя не должна быть меньше -1000`, guildId: interaction.guildId, locale: interaction.locale })}` })
-            await profile.subtractRp(args.amount, true)
+            await profile.subtractRp({ amount: args.amount, save: true })
             return interaction.editReply({ content: `${client.config.emojis.YES} ${client.config.emojis.RP}**${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${args.amount.toLocaleString()}) ${client.language({ textId: `было уменьшено`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>` })
         }
         if (args.Subcommand === "currency") {
             const settings = client.cache.settings.get(interaction.guildId)
-            await profile.subtractCurrency(args.amount, true, true)
+            await profile.subtractCurrency({ amount: args.amount, save: true, noCurrencySpent: true })
             return interaction.editReply({ content: `${client.config.emojis.YES} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${args.amount.toLocaleString()}) ${client.language({ textId: `было уменьшено`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>` })
         }
         if (args.Subcommand === "likes") {
@@ -429,7 +428,7 @@ module.exports = {
             const inventoryRole = profile.inventoryRoles?.find(e => e.uniqId === args.role)
             if (!inventoryRole) return interaction.editReply({ content: `${client.config.emojis.NO}${client.language({ textId: "Роль не найдена", guildId: interaction.guildId, locale: interaction.locale })}` })
             const role = interaction.guild.roles.cache.get(inventoryRole.id)
-            profile.subtractRole(inventoryRole.id, args.amount, inventoryRole.ms)
+            profile.subtractRole({ id: inventoryRole.id, amount: args.amount, ms: inventoryRole.ms })
             await profile.save()
             return interaction.editReply({ content: `${client.config.emojis.YES}${client.language({ textId: "Роль", guildId: interaction.guildId, locale: interaction.locale })} ${role ? `<@&${role.id}>` : `${inventoryRole.id}`}${inventoryRole.ms ? ` [${client.functions.transformSecs(client, inventoryRole.ms, interaction.guildId, interaction.locale)}]` : ``} (${args.amount}) ${client.language({ textId: "была взята из </inventory-roles:1197450785324290148> пользователя", guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>` })
         }

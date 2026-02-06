@@ -158,20 +158,20 @@ module.exports = {
                 else {
                     const amount = client.functions.getRandomNumber(rew.valueFrom, rew.valueTo)
                     if (rew.itemID == "currency") {
-                        await profile.addCurrency(amount * week)
+                        await profile.addCurrency({ amount: amount * week })
                         rewardss.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** ${(amount * week).toLocaleString()}`)
                     }
                     if (rew.itemID == "xp") {
-                        await profile.addXp(amount * week)
+                        await profile.addXp({ amount: amount * week })
                         rewardss.push(`${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** ${(amount * week).toLocaleString()}`)
                     }
                     if (rew.itemID == "rp") {
-                        await profile.addRp(amount * week)
+                        await profile.addRp({ amount: amount * week })
                         rewardss.push(`${client.config.emojis.RP}**${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** ${(amount * week).toLocaleString()}`)
                     }
                     if (rew.itemID !== "currency" && rew.itemID !== "xp" && rew.itemID !== "rp") {
                         const rewardItem = client.cache.items.get(rew.itemID)
-                        await profile.addItem(rew.itemID, amount)
+                        await profile.addItem({ itemID: rew.itemID, amount })
                         rewardss.push(`${rewardItem.displayEmoji}**${rewardItem.name}** ${amount.toLocaleString()}`)
                     } 
                 }    
@@ -181,13 +181,13 @@ module.exports = {
             nextDaily = new Date(Date.UTC(lastDaily.getUTCFullYear(), lastDaily.getUTCMonth(), lastDaily.getUTCDate()+1, 0, 0, 0))
             profile.maxDaily++
             client.emit("economyLogCreate", interaction.guildId, `<@${interaction.user.id}> (${interaction.user.username}) ${client.language({ textId: "получил ежедневную награду за день", guildId: interaction.guildId })} ${profile.maxDaily}`)
-            await profile.addQuestProgression("daily", 1)
+            await profile.addQuestProgression({ type: "daily", amount: 1 })
             const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Daily)
             await Promise.all(achievements.map(async achievement => {
                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.maxDaily >= achievement.amount && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                     if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                     client.tempAchievements[profile.userID].push(achievement.id)
-                    await profile.addAchievement(achievement)
+                    await profile.addAchievement({ achievement })
                 }    
             }))
             await profile.save()

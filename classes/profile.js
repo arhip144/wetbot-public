@@ -4,1256 +4,3108 @@ const { RewardType, AchievementType } = require("../enums/index")
 const Decimal = require("decimal.js")
 const lt = require('long-timeout')
 const uniqid = require('uniqid')
-class Profile {
-	constructor(client, profile) {
-        this.client = client
-        this.userID = profile.userID
-        this.guildID = profile.guildID
-        this.totalxp = profile.totalxp
-        this.seasonTotalXp = profile.seasonTotalXp
-        this.xp = profile.xp
-        this.seasonXp = profile.seasonXp
-        this.xpSession = profile.xpSession
-        this.rpSession = profile.rpSession
-        this.level = profile.level
-        this.seasonLevel = profile.seasonLevel
-        this.messages = profile.messages
-        this.hours = profile.hours
-        this.rp = profile.rp
-        this.hoursSession = profile.hoursSession
-        this.likes = profile.likes
-        this.currency = profile.currency
-        this.currencySession = profile.currencySession
-        this.currencySpent = profile.currencySpent
-        this.itemsSession = profile.itemsSession
-        this.invites = profile.invites
-        this.startTime = profile.startTime
-        this.inviterInfo = profile.inviterInfo
-        this.bio = profile.bio
-        this.birthday_day = profile.birthday_day
-        this.birthday_month = profile.birthday_month
-        this.birthday_year = profile.birthday_year
-        this.image = profile.image
-        this.bumps = profile.bumps
-        this.giveawaysCreated = profile.giveawaysCreated
-        this.multiplyXP = profile.multiplyXP
-        this.multiplyXPTime = profile.multiplyXPTime
-        this.multiplyCUR = profile.multiplyCUR
-        this.multiplyCURTime = profile.multiplyCURTime
-        this.multiplyLuck = profile.multiplyLuck
-        this.multiplyLuckTime = profile.multiplyLuckTime
-        this.multiplyRP = profile.multiplyRP
-        this.multiplyRPTime = profile.multiplyRPTime
-        this.daysStreak = profile.daysStreak
-        this.lastDaily = profile.lastDaily
-        this.lastLike = profile.lastLike
-        this.fishing = profile.fishing
-        this.mining = profile.mining
-        this.maxDaily = profile.maxDaily
-        this.wormholeTouched = profile.wormholeTouched
-        this.doneQuests = profile.doneQuests
-        this.itemsSoldOnMarketPlace = profile.itemsSoldOnMarketPlace
-        this.inventory = profile.inventory
-        this.achievements = profile.achievements
-        this.roles = profile.roles
-        this.quests = profile.quests
-        this.blockActivities = profile.blockActivities
-        this.vk = profile.vk
-        this.tiktok = profile.tiktok
-        this.steam = profile.steam
-        this.instagram = profile.instagram
-        this.isHiden = profile.isHiden
-        this.joinDateIsHiden = profile.joinDateIsHiden
-        this.achievementsHiden = profile.achievementsHiden
-        this.sex = profile.sex
-        this.hideSex = profile.hideSex
-        this.marry = profile.marry
-        this.marryDate = profile.marryDate
-        this.trophies = profile.trophies
-        this.trophyHide = profile.trophyHide
-        this.deleteFromDB = profile.deleteFromDB
-        this.rank_card = profile.rank_card
-        this.itemsOpened = profile.itemsOpened
-        this.wormholesSpawned = profile.wormholesSpawned
-        this.itemsReceived = profile.itemsReceived
-        this.itemsCrafted = profile.itemsCrafted
-        this.itemsUsed = profile.itemsUsed
-        this.itemsBoughtInShop = profile.itemsBoughtInShop
-        this.itemsBoughtOnMarket = profile.itemsBoughtOnMarket
-        this.itemsSold = profile.itemsSold
-        this.roleIncomeCooldowns = profile.roleIncomeCooldowns ? new Map(Object.entries(profile.roleIncomeCooldowns)) : undefined
-        this.dailyLimits = profile.dailyLimits
-        this.weeklyLimits = profile.weeklyLimits
-        this.monthlyLimits = profile.monthlyLimits
-        this.dropdownCooldowns = profile.dropdownCooldowns ? new Map(Object.entries(profile.dropdownCooldowns)) : undefined
-        this.levelMention = profile.levelMention
-        this.achievementMention = profile.achievementMention
-        this.itemMention = profile.itemMention
-        this.roleIncomeMention = profile.roleIncomeMention
-        this.inviteJoinMention = profile.inviteJoinMention
-        this.inviteLeaveMention = profile.inviteLeaveMention
-        this.jobsCooldowns = profile.jobsCooldowns ? new Map(Object.entries(profile.jobsCooldowns)) : undefined
-        this.allJobsCooldown = profile.allJobsCooldown
-        this.itemsCooldowns = profile.itemsCooldowns ? new Map(Object.entries(profile.itemsCooldowns)) : undefined
-        this.stats = profile.stats
-        this.boosts = profile.boosts
-        this.works = profile.works
-        this.inventoryRoles = profile.inventoryRoles
-        this.giveawayWins = profile.giveawayWins
-        this.socialLinksHidden = profile.socialLinksHidden
-        this.rolesHidden = profile.rolesHidden
-        this.bioHidden = profile.bioHidden
-        this.bannerHidden = profile.bannerHidden
-        this.birthdateHidden = profile.birthdateHidden
-        this.birthYearHidden = profile.birthYearHidden
-        this.thumbnailHidden = profile.thumbnailHidden
-        this.thumbnail = profile.thumbnail
-        this.profileLikes = profile.profileLikes
-        this.usersWhoLiked = profile.usersWhoLiked
-        this.promocodesUsed = profile.promocodesUsed
-        this.autoIncomeExpire = profile.autoIncomeExpire
-        this.settings_open_ephemeral = profile.settings_open_ephemeral
-        this.settings_open_always_maximum = profile.settings_open_always_maximum
-        this.settings_open_disallow_luck = profile.settings_open_disallow_luck
-        this.settings_open_always_active = profile.settings_open_always_active
-        if (this.autoIncomeExpire && this.autoIncomeExpire > new Date()) {
-            this.setAutoIncomeTimeout()
-        } else if (this.autoIncomeExpire <= new Date()) {
-            this.autoIncomeExpire = undefined
-            this.save()
-        }
-	}
-    async setAutoIncomeTimeout() {
-        this.autoIncomeTimeoutId = lt.setTimeout(() => {
-            if (this.nextIncomeTimeoutId) {
-                lt.clearTimeout(this.nextIncomeTimeoutId)
-                this.nextIncomeTimeoutId = undefined
+function createStatSetter(propertyName) {
+    return function(value) {
+        const oldValue = this[`_${propertyName}`] || 0;
+        const difference = value - oldValue;
+        this[`_${propertyName}`] = value;
+        if (difference !== 0) {
+            const stats = this.stats ||= {};
+            const periods = ['daily', 'weekly', 'monthly', 'yearly'];
+            for (const period of periods) {
+                const periodObj = stats[period] ||= { [propertyName]: 0 };
+                periodObj[propertyName] = (periodObj[propertyName] || 0) + difference;
             }
-            this.autoIncomeExpire = undefined
-            this.autoIncomeTimeoutId = undefined
-        }, this.autoIncomeExpire.getTime() - Date.now())
-        if (!this.nextIncomeTimeoutId) {
-            let timeout = this.roleIncomeCooldowns && this.roleIncomeCooldowns.size ? Math.min.apply(null, Array.from(this.roleIncomeCooldowns.values()).map(value => value - Date.now()).filter(value => value > 0)) : 0
-            if (timeout === Infinity) timeout = 0
-            this.nextIncomeTimeoutId = lt.setTimeout(async () => {
-                await this.getIncome()
-            }, timeout)    
         }
     }
+}
+class Profile {
+	constructor(client, profile) {
+        this._client = client
+        this._userID = profile.userID
+        this._guildID = profile.guildID
+        this._totalxp = profile.totalxp
+        this._seasonTotalXp = profile.seasonTotalXp
+        this._xp = profile.xp
+        this._seasonXp = profile.seasonXp
+        this._xpSession = profile.xpSession
+        this._rpSession = profile.rpSession
+        this._level = profile.level
+        this._seasonLevel = profile.seasonLevel
+        this._messages = profile.messages
+        this._hours = profile.hours
+        this._rp = profile.rp
+        this._hoursSession = profile.hoursSession
+        this._likes = profile.likes
+        this._currency = profile.currency
+        this._currencySession = profile.currencySession
+        this._currencySpent = profile.currencySpent
+        this._itemsSession = profile.itemsSession
+        this._invites = profile.invites
+        this._startTime = profile.startTime
+        this._inviterInfo = profile.inviterInfo
+        this._bio = profile.bio
+        this._birthday_day = profile.birthday_day
+        this._birthday_month = profile.birthday_month
+        this._birthday_year = profile.birthday_year
+        this._image = profile.image
+        this._bumps = profile.bumps
+        this._giveawaysCreated = profile.giveawaysCreated
+        this._multiplyXP = profile.multiplyXP
+        this._multiplyXPTime = profile.multiplyXPTime
+        this._multiplyCUR = profile.multiplyCUR
+        this._multiplyCURTime = profile.multiplyCURTime
+        this._multiplyLuck = profile.multiplyLuck
+        this._multiplyLuckTime = profile.multiplyLuckTime
+        this._multiplyRP = profile.multiplyRP
+        this._multiplyRPTime = profile.multiplyRPTime
+        this._daysStreak = profile.daysStreak
+        this._lastDaily = profile.lastDaily
+        this._lastLike = profile.lastLike
+        this._fishing = profile.fishing
+        this._mining = profile.mining
+        this._maxDaily = profile.maxDaily
+        this._wormholeTouched = profile.wormholeTouched
+        this._doneQuests = profile.doneQuests
+        this._itemsSoldOnMarketPlace = profile.itemsSoldOnMarketPlace
+        this._inventory = profile.inventory
+        this._achievements = profile.achievements
+        this._roles = profile.roles
+        this._quests = profile.quests
+        this._blockActivities = profile.blockActivities
+        this._vk = profile.vk
+        this._tiktok = profile.tiktok
+        this._steam = profile.steam
+        this._instagram = profile.instagram
+        this._isHiden = profile.isHiden
+        this._joinDateIsHiden = profile.joinDateIsHiden
+        this._achievementsHiden = profile.achievementsHiden
+        this._sex = profile.sex
+        this._hideSex = profile.hideSex
+        this._marry = profile.marry
+        this._marryDate = profile.marryDate
+        this._trophies = profile.trophies
+        this._trophyHide = profile.trophyHide
+        this._deleteFromDB = profile.deleteFromDB
+        this._rank_card = profile.rank_card
+        this._itemsOpened = profile.itemsOpened
+        this._wormholesSpawned = profile.wormholesSpawned
+        this._itemsReceived = profile.itemsReceived
+        this._itemsCrafted = profile.itemsCrafted
+        this._itemsUsed = profile.itemsUsed
+        this._itemsBoughtInShop = profile.itemsBoughtInShop
+        this._itemsBoughtOnMarket = profile.itemsBoughtOnMarket
+        this._itemsSold = profile.itemsSold
+        this._roleIncomeCooldowns = profile.roleIncomeCooldowns ? new Map(Object.entries(profile.roleIncomeCooldowns)) : undefined
+        this._dailyLimits = profile.dailyLimits
+        this._weeklyLimits = profile.weeklyLimits
+        this._monthlyLimits = profile.monthlyLimits
+        this._dropdownCooldowns = profile.dropdownCooldowns ? new Map(Object.entries(profile.dropdownCooldowns)) : undefined
+        this._levelMention = profile.levelMention
+        this._achievementMention = profile.achievementMention
+        this._itemMention = profile.itemMention
+        this._roleIncomeMention = profile.roleIncomeMention
+        this._inviteJoinMention = profile.inviteJoinMention
+        this._inviteLeaveMention = profile.inviteLeaveMention
+        this._jobsCooldowns = profile.jobsCooldowns ? new Map(Object.entries(profile.jobsCooldowns)) : undefined
+        this._allJobsCooldown = profile.allJobsCooldown
+        this._itemsCooldowns = profile.itemsCooldowns ? new Map(Object.entries(profile.itemsCooldowns)) : undefined
+        this._stats = profile.stats
+        this._boosts = profile.boosts
+        this._works = profile.works
+        this._inventoryRoles = profile.inventoryRoles
+        this._giveawayWins = profile.giveawayWins
+        this._socialLinksHidden = profile.socialLinksHidden
+        this._rolesHidden = profile.rolesHidden
+        this._bioHidden = profile.bioHidden
+        this._bannerHidden = profile.bannerHidden
+        this._birthdateHidden = profile.birthdateHidden
+        this._birthYearHidden = profile.birthYearHidden
+        this._thumbnailHidden = profile.thumbnailHidden
+        this._thumbnail = profile.thumbnail
+        this._profileLikes = profile.profileLikes
+        this._usersWhoLiked = profile.usersWhoLiked
+        this._promocodesUsed = profile.promocodesUsed
+        this._autoIncomeExpire = profile.autoIncomeExpire
+        this._settings_open_ephemeral = profile.settings_open_ephemeral
+        this._settings_open_always_maximum = profile.settings_open_always_maximum
+        this._settings_open_disallow_luck = profile.settings_open_disallow_luck
+        this._settings_open_always_active = profile.settings_open_always_active
+        this._timeouts = {
+            autoIncome: null,
+            nextIncome: null,
+            deleteFromDb: null
+        }
+        if (this._autoIncomeExpire && this._autoIncomeExpire > new Date()) {
+            this.setAutoIncomeTimeout()
+        } else if (this._autoIncomeExpire <= new Date()) {
+            this._autoIncomeExpire = undefined
+            this.save()
+        }
+        if (this._deleteFromDB) {
+            this.setDeleteFromDbTimeout()
+        }
+	}
+
+    get timeouts() { return this._timeouts }
+
+    get client() { return this._client }
+
+    get guildID() { return this._guildID }
+
+    get userID() { return this._userID }
+
+    get messages() { return this._messages || 0 }
+    set messages(value) { createStatSetter('messages').call(this, value) }
+
+    get totalxp() { return this._totalxp || 0 }
+    set totalxp(value) { createStatSetter('totalxp').call(this, value) }
+
+    get seasonTotalXp() { return this._seasonTotalXp || 0 }
+    set seasonTotalXp(value) { this._seasonTotalXp = value }
+
+    get xp() { return this._xp || 0 }
+    set xp(value) { this._xp = value }
+
+    get level() { return this._level || 0 }
+    set level(value) { this._level = value }
+
+    get seasonLevel() { return this._seasonLevel || 0 }
+    set seasonLevel(value) { this._seasonLevel = value }
+
+    get seasonXp() { return this._seasonXp || 0 }
+    set seasonXp(value) { this._seasonXp = value }
+
+    get xpSession() { return this._xpSession || 0 }
+    set xpSession(value) { this._xpSession = value }
+
+    get rpSession() { return this._rpSession || 0 }
+    set rpSession(value) { this._rpSession = value }
+
+    get hours() { return this._hours || 0 }
+    set hours(value) { createStatSetter('hours').call(this, value) }
+
+    get rp() { return this._rp || 0 }
+    set rp(value) { createStatSetter('rp').call(this, value) }
+
+    get hoursSession() { return this._hoursSession || 0 }
+    set hoursSession(value) { this._hoursSession = value }
+
+    get likes() { return this._likes || 0 }
+    set likes(value) { createStatSetter('likes').call(this, value) }
+
+    get currency() { return this._currency || 0 }
+    set currency(value) { createStatSetter('currency').call(this, value) }
+
+    get currencySession() { return this._currencySession || 0 }
+    set currencySession(value) { this._currencySession = value }
+
+    get currencySpent() { return this._currencySpent || 0 }
+    set currencySpent(value) { this._currencySpent = value }
+
+    get itemsSession() { return this._itemsSession || [] }
+    set itemsSession(value) { this._itemsSession = value }
+
+    get invites() { return this._invites || 0 }
+    set invites(value) { createStatSetter('invites').call(this, value) }
+
+    get startTime() { return this._startTime }
+    set startTime(value) { this._startTime = value }
+
+    get inviterInfo() { return this._inviterInfo }
+    set inviterInfo(value) { this._inviterInfo = value }
+
+    get bumps() { return this._bumps || 0 }
+    set bumps(value) { createStatSetter('bumps').call(this, value) }
+
+    get giveawaysCreated() { return this._giveawaysCreated || 0 }
+    set giveawaysCreated(value) { createStatSetter('giveawaysCreated').call(this, value) }
+
+    get multiplyXP() { return this._multiplyXP || 0 }
+    set multiplyXP(value) { this._multiplyXP = value }
+
+    get multiplyCUR() { return this._multiplyCUR || 0 }
+    set multiplyCUR(value) { this._multiplyCUR = value }
+
+    get multiplyLuck() { return this._multiplyLuck || 0 }
+    set multiplyLuck(value) { this._multiplyLuck = value }
+
+    get multiplyRP() { return this._multiplyRP || 0 }
+    set multiplyRP(value) { this._multiplyRP = value }
+
+    get fishing() { return this._fishing || 0 }
+    set fishing(value) { this._fishing = value }
+
+    get mining() { return this._mining || 0 }
+    set mining(value) { this._mining = value }
+
+    get maxDaily() { return this._maxDaily || 0 }
+    set maxDaily(value) { this._maxDaily = value }
+
+    get wormholeTouched() { return this._wormholeTouched || 0 }
+    set wormholeTouched(value) { createStatSetter('wormholeTouched').call(this, value) }
+
+    get doneQuests() { return this._doneQuests || 0 }
+    set doneQuests(value) { createStatSetter('doneQuests').call(this, value) }
+
+    get itemsSoldOnMarketPlace() { return this._itemsSoldOnMarketPlace || 0 }
+    set itemsSoldOnMarketPlace(value) { createStatSetter('itemsSoldOnMarketPlace').call(this, value) }
+
+    get itemsOpened() { return this._itemsOpened || 0 }
+    set itemsOpened(value) { this._itemsOpened = value }
+
+    get wormholesSpawned() { return this._wormholesSpawned || 0 }
+    set wormholesSpawned(value) { this._wormholesSpawned = value }
+    
+    get itemsReceived() { return this._itemsReceived || 0 }
+    set itemsReceived(value) { this._itemsReceived = value }
+
+    get itemsCrafted() { return this._itemsCrafted || 0 }
+    set itemsCrafted(value) { this._itemsCrafted = value }
+
+    get itemsUsed() { return this._itemsUsed || 0 }
+    set itemsUsed(value) { this._itemsUsed = value }
+
+    get itemsBoughtInShop() { return this._itemsBoughtInShop || 0 }
+    set itemsBoughtInShop(value) { this._itemsBoughtInShop = value }
+
+    get itemsBoughtOnMarket() { return this._itemsBoughtOnMarket || 0 }
+    set itemsBoughtOnMarket(value) { this._itemsBoughtOnMarket = value }
+
+    get itemsSold() { return this._itemsSold || 0 }
+    set itemsSold(value) { this._itemsSold = value }
+
+    get lastDaily() { return this._lastDaily || new Date(Date.now() - 86400000) }
+    set lastDaily(value) { this._lastDaily = value }
+
+    get lastLike() { return this._lastLike || new Date(Date.now() - 86400000) }
+    set lastLike(value) { this._lastLike = value }
+
+    get boosts() { return this._boosts || 0 }
+    set boosts(value) { this._boosts = value }
+
+    get works() { return this._works || 0 }
+    set works(value) { this._works = value }
+
+    get giveawayWins() { return this._giveawayWins || 0 }
+    set giveawayWins(value) { this._giveawayWins = value }
+
+    get profileLikes() { return this._profileLikes || 0 }
+    set profileLikes(value) { this._profileLikes = value }
+
+    get promocodesUsed() { return this._promocodesUsed || 0 }
+    set promocodesUsed(value) { this._promocodesUsed = value }
+
+    get bio() { return this._bio || '' }
+    set bio(value) { this._bio = value }
+    
+    get birthday_day() { return this._birthday_day }
+    set birthday_day(value) { this._birthday_day = value }
+    
+    get birthday_month() { return this._birthday_month }
+    set birthday_month(value) { this._birthday_month = value }
+    
+    get birthday_year() { return this._birthday_year }
+    set birthday_year(value) { this._birthday_year = value }
+    
+    get image() { return this._image }
+    set image(value) { this._image = value }
+    
+    get multiplyXPTime() { return this._multiplyXPTime }
+    set multiplyXPTime(value) { this._multiplyXPTime = value }
+    
+    get multiplyCURTime() { return this._multiplyCURTime }
+    set multiplyCURTime(value) { this._multiplyCURTime = value }
+    
+    get multiplyLuckTime() { return this._multiplyLuckTime }
+    set multiplyLuckTime(value) { this._multiplyLuckTime = value }
+    
+    get multiplyRPTime() { return this._multiplyRPTime }
+    set multiplyRPTime(value) { this._multiplyRPTime = value }
+    
+    get daysStreak() { return this._daysStreak || 0 }
+    set daysStreak(value) { this._daysStreak = value }
+    
+    get inventory() { return this._inventory }
+    set inventory(value) { this._inventory = value }
+    
+    get achievements() { return this._achievements }
+    set achievements(value) { this._achievements = value }
+    
+    get roles() { return this._roles }
+    set roles(value) { this._roles = value }
+    
+    get quests() { return this._quests }
+    set quests(value) { this._quests = value }
+    
+    get blockActivities() { return this._blockActivities }
+    set blockActivities(value) { this._blockActivities = value }
+    
+    get vk() { return this._vk }
+    set vk(value) { this._vk = value }
+    
+    get tiktok() { return this._tiktok }
+    set tiktok(value) { this._tiktok = value }
+    
+    get steam() { return this._steam }
+    set steam(value) { this._steam = value }
+    
+    get instagram() { return this._instagram }
+    set instagram(value) { this._instagram = value }
+    
+    get isHiden() { return this._isHiden || false }
+    set isHiden(value) { this._isHiden = value }
+    
+    get joinDateIsHiden() { return this._joinDateIsHiden || false }
+    set joinDateIsHiden(value) { this._joinDateIsHiden = value }
+    
+    get achievementsHiden() { return this._achievementsHiden || false }
+    set achievementsHiden(value) { this._achievementsHiden = value }
+    
+    get sex() { return this._sex }
+    set sex(value) { this._sex = value }
+    
+    get hideSex() { return this._hideSex || false }
+    set hideSex(value) { this._hideSex = value }
+    
+    get marry() { return this._marry }
+    set marry(value) { this._marry = value }
+    
+    get marryDate() { return this._marryDate }
+    set marryDate(value) { this._marryDate = value }
+    
+    get trophies() { return this._trophies }
+    set trophies(value) { this._trophies = value }
+    
+    get trophyHide() { return this._trophyHide || false }
+    set trophyHide(value) { this._trophyHide = value }
+    
+    get deleteFromDB() { return this._deleteFromDB }
+    set deleteFromDB(value) { this._deleteFromDB = value }
+    
+    get rank_card() { return this._rank_card }
+    set rank_card(value) { this._rank_card = value }
+    
+    get roleIncomeCooldowns() { return this._roleIncomeCooldowns }
+    set roleIncomeCooldowns(value) { this._roleIncomeCooldowns = value instanceof Map ? value : new Map(Object.entries(value || {})) }
+    
+    get dailyLimits() { return this._dailyLimits }
+    set dailyLimits(value) { this._dailyLimits = value }
+    
+    get weeklyLimits() { return this._weeklyLimits }
+    set weeklyLimits(value) { this._weeklyLimits = value }
+    
+    get monthlyLimits() { return this._monthlyLimits }
+    set monthlyLimits(value) { this._monthlyLimits = value }
+    
+    get dropdownCooldowns() { return this._dropdownCooldowns }
+    set dropdownCooldowns(value) { this._dropdownCooldowns = value instanceof Map ? value : new Map(Object.entries(value || {})) }
+    
+    get levelMention() { return this._levelMention || false }
+    set levelMention(value) { this._levelMention = value }
+    
+    get achievementMention() { return this._achievementMention || false }
+    set achievementMention(value) { this._achievementMention = value }
+    
+    get itemMention() { return this._itemMention || false }
+    set itemMention(value) { this._itemMention = value }
+    
+    get roleIncomeMention() { return this._roleIncomeMention || false }
+    set roleIncomeMention(value) { this._roleIncomeMention = value }
+    
+    get inviteJoinMention() { return this._inviteJoinMention || false }
+    set inviteJoinMention(value) { this._inviteJoinMention = value }
+    
+    get inviteLeaveMention() { return this._inviteLeaveMention || false }
+    set inviteLeaveMention(value) { this._inviteLeaveMention = value }
+    
+    get jobsCooldowns() { return this._jobsCooldowns }
+    set jobsCooldowns(value) { this._jobsCooldowns = value instanceof Map ? value : new Map(Object.entries(value || {})) }
+    
+    get allJobsCooldown() { return this._allJobsCooldown }
+    set allJobsCooldown(value) { this._allJobsCooldown = value }
+    
+    get itemsCooldowns() { return this._itemsCooldowns }
+    set itemsCooldowns(value) { this._itemsCooldowns = value instanceof Map ? value : new Map(Object.entries(value || {})) }
+    
+    get stats() { return this._stats }
+    set stats(value) { this._stats = value }
+    
+    get inventoryRoles() { return this._inventoryRoles }
+    set inventoryRoles(value) { this._inventoryRoles = value }
+    
+    get socialLinksHidden() { return this._socialLinksHidden || false }
+    set socialLinksHidden(value) { this._socialLinksHidden = value }
+    
+    get rolesHidden() { return this._rolesHidden || false }
+    set rolesHidden(value) { this._rolesHidden = value }
+    
+    get bioHidden() { return this._bioHidden || false }
+    set bioHidden(value) { this._bioHidden = value }
+    
+    get bannerHidden() { return this._bannerHidden || false }
+    set bannerHidden(value) { this._bannerHidden = value }
+    
+    get birthdateHidden() { return this._birthdateHidden || false }
+    set birthdateHidden(value) { this._birthdateHidden = value }
+    
+    get birthYearHidden() { return this._birthYearHidden || false }
+    set birthYearHidden(value) { this._birthYearHidden = value }
+    
+    get thumbnailHidden() { return this._thumbnailHidden || false }
+    set thumbnailHidden(value) { this._thumbnailHidden = value }
+    
+    get thumbnail() { return this._thumbnail }
+    set thumbnail(value) { this._thumbnail = value }
+    
+    get usersWhoLiked() { return this._usersWhoLiked }
+    set usersWhoLiked(value) { this._usersWhoLiked = value }
+    
+    get autoIncomeExpire() { return this._autoIncomeExpire }
+    set autoIncomeExpire(value) { this._autoIncomeExpire = value }
+    
+    get settings_open_ephemeral() { return this._settings_open_ephemeral || false }
+    set settings_open_ephemeral(value) { this._settings_open_ephemeral = value }
+    
+    get settings_open_always_maximum() { return this._settings_open_always_maximum || false }
+    set settings_open_always_maximum(value) { this._settings_open_always_maximum = value }
+    
+    get settings_open_disallow_luck() { return this._settings_open_disallow_luck || false }
+    set settings_open_disallow_luck(value) { this._settings_open_disallow_luck = value }
+    
+    get settings_open_always_active() { return this._settings_open_always_active || false }
+    set settings_open_always_active(value) { this._settings_open_always_active = value }
+    
     clearAutoIncomeTimeout() {
-        lt.clearTimeout(this.autoIncomeTimeoutId)
-        if (this.nextIncomeTimeoutId) {
-            lt.clearTimeout(this.nextIncomeTimeoutId)
-            this.nextIncomeTimeoutId = undefined
+        lt.clearTimeout(this.timeouts.autoIncome)
+        delete this.timeouts.autoIncome
+        if (this.timeouts.nextIncome) {
+            lt.clearTimeout(this.timeouts.nextIncome)
+            delete this.timeouts.nextIncome
+        }
+    }
+    setDeleteFromDbTimeout() {
+        this.timeouts.deleteFromDb = lt.setTimeout(async () => {
+            const guild = this.client.guilds.cache.get(this.guildID)
+            const member = await guild.members.fetch(this.userID).catch(() => null)
+            if (!member) return this.delete()
+            this.deleteFromDB = undefined
+            this.clearDeleteFromDbTimeout()
+            this.save()   
+        }, this.deleteFromDB.getTime() - Date.now())
+    }
+    clearDeleteFromDbTimeout() {
+        lt.clearTimeout(this.timeouts.deleteFromDb)
+        delete this.timeouts.deleteFromDb
+    }
+    async save() {
+        const { _timeouts, _client, ...clone } = this
+        const keys = Object.keys(clone)
+        let hasStatsChanges = false
+        const statsChanges = {}
+        for (const key of keys) {
+            const value = clone[key]
+            if (key.startsWith("_")) {
+                const newKey = key.slice(1)
+                clone[newKey] = value
+                delete clone[key]
+                if (newKey === "stats" && value && typeof value === 'object') {
+                    this._processStats(value, statsChanges)
+                    hasStatsChanges = true
+                }
+            } 
+            else if (value === 0) {
+                clone[key] = undefined
+            } 
+            else if (key === "stats" && value && typeof value === 'object') {
+                this._processStats(value, statsChanges)
+                hasStatsChanges = true
+            }
+        }
+        if (hasStatsChanges) {
+            for (const [key, value] of Object.entries(statsChanges)) {
+                clone.stats[key] = value
+            }
+        }
+		await profileSchema.replaceOne({ userID: clone.userID, guildID: clone.guildID }, clone, { upsert: true })
+	}
+    async delete() {
+        const { timeouts } = this
+        if (timeouts.autoIncome) lt.clearTimeout(timeouts.autoIncome)
+        if (timeouts.nextIncome) lt.clearTimeout(timeouts.nextIncome)
+        const { userID, guildID, client } = this
+        const cacheKey = guildID + userID
+        await Promise.all([
+            profileSchema.deleteOne({ userID, guildID }),
+            client.cache.profiles.delete(cacheKey)
+        ])
+	}
+    async setAutoIncomeTimeout() {
+        const now = Date.now();
+        const autoIncomeExpireTime = this.autoIncomeExpire.getTime();
+        
+        // Устанавливаем таймер автоматического окончания дохода
+        this.timeouts.autoIncome = lt.setTimeout(() => {
+            this._clearIncomeTimeouts();
+            this.autoIncomeExpire = undefined;
+        }, Math.max(0, autoIncomeExpireTime - now));
+
+        // Устанавливаем таймер следующего дохода, если его нет
+        if (!this.timeouts.nextIncome) {
+            const nextIncomeTimeout = this._calculateNextIncomeTimeout(now);
+            if (nextIncomeTimeout > 0) {
+                this.timeouts.nextIncome = lt.setTimeout(async () => {
+                    await this.getIncome();
+                }, nextIncomeTimeout);
+            }
         }
     }
     async getIncome(interaction) {
-        const guild = this.client.guilds.cache.get(this.guildID)
-        const settings = this.client.cache.settings.find(settings => settings.guildID === guild.id)
-        const income = {}
-        const userRP = this.rp
-        const member = await guild.members.fetch(this.userID).catch(e => null)
-        if (member) {
-            const asyncFilter = async (arr, predicate) => {
-                const results = await Promise.all(arr.map(predicate))
-                return results.filter((_v, index) => results[index])
+        const { guildID, userID, client } = this;
+        const guild = client.guilds.cache.get(guildID);
+        if (!guild) return this._handleNoGuild();
+
+        const settings = client.cache.settings.find(s => s.guildID === guildID);
+        if (!settings) return;
+
+        const member = await guild.members.fetch(userID).catch(() => null);
+        if (!member) return this._handleNoMember();
+
+        // Получаем и фильтруем роли
+        const roles = await this._getFilteredRoles(guild, member);
+        
+        // Обрабатываем доход
+        const result = await this._processRolesIncome(roles, member, settings, interaction);
+        
+        // Управление таймерами
+        this._manageIncomeTimers();
+        
+        return result;
+    }
+    /**
+     * Добавляет опыт пользователю
+     * @param {Object} params - Параметры функции
+     * @param {number} params.amount - Количество опыта
+     * @param {boolean} [params.save=true] - Сохранять ли в базу данных
+     * @param {boolean} [params.noSeasonXP=false] - Без сезонного опыта
+     * @param {boolean} [params.noLogs=false] - Без логирования
+     * @param {boolean} [params.noNotification=false] - Без уведомлений
+     * @returns {Promise<void>}
+     */
+    async addXp({ amount = 1, save = false, noSeasonXP = false, noLogs = false, noNotification = false }) {
+        if (amount < 0) return this.subtractXp(+amount, save, noNotification, noLogs);
+        
+        const { guildID, userID, client } = this;
+        const settings = client.cache.settings.get(guildID);
+        if (!settings) return;
+
+        // Расчет опыта
+        this.totalxp += amount;
+
+        // Расчет уровней
+        await this._processLevelUps({ noNotification, noLogs });
+
+        this.xp = this._getCurrentXp(this.totalxp, settings.levelfactor)
+
+        // Квесты для опыта
+        const expQuests = this.client.cache.quests.filter(quest => 
+            quest.guildID === this.guildID && 
+            quest.isEnabled && 
+            quest.targets.some(target => target.type === "exp")
+        );
+        if (expQuests.size) {
+            await this.addQuestProgression({ type: "exp", amount, noNotification });
+        }
+
+        // Сезонный опыт
+        if (settings.seasonLevelsEnabled && !noSeasonXP) {
+            // Расчет сезонного опыта
+            this.seasonTotalXp += amount;
+            this.seasonXp = this._getCurrentXp(this.seasonTotalXp, settings.seasonLevelfactor)
+
+            // Расчет сезонных уровней
+            await this._processSeasonLevelUps({ noNotification });
+
+            // Квесты для сезонного опыта
+            const seasonXpQuests = this.client.cache.quests.filter(quest => 
+                quest.guildID === this.guildID && 
+                quest.isEnabled && 
+                quest.targets.some(target => target.type === "seasonXp")
+            );
+            if (seasonXpQuests.size) {
+                await this.addQuestProgression({ type: "seasonXp", amount, noNotification });
             }
-            let roles = this.client.cache.roles.filter(e => e.guildID === guild.id && e.isEnabled).map(e => e).sort(a => {
-                if (a.type === "static") return 1
-                else return -1
-            })
-            roles = await asyncFilter(roles, async (role) => {
-                if (role.permission) {
-                    const permission = this.client.cache.permissions.find(i => i.id === role.permission)
-                    if (permission) {
-                        const isPassing = permission.for(this, member)
-                        if (isPassing.value === true) return role
-                    } else return role
-                } else return role
-            })
-            const modifier = {
-                xp: 0,
-                cur: 0,
-                rp: 0
-            }
-            let pass = false
-            let notification = true
-            let totalIncome = {
-                xp: 0,
-                cur: 0,
-                rp: 0,
-                items: {}
-            }
-            for (const role_income of roles) {
-                if (role_income.cooldown < 0.16) {
-                    role_income.cooldown = 0.16
-                    await role_income.save()
-                }
-                const guildRole = await member.guild.roles.fetch(role_income.id).catch(e => null)
-                if (guildRole) {
-                    if (member.roles.cache.has(role_income.id)) {
-                        if (this.roleIncomeCooldowns && this.roleIncomeCooldowns.get(guildRole.id) > Date.now()) {
-                            income[guildRole.id] = { cooldown: this.roleIncomeCooldowns.get(guildRole.id) }
-                        } else {
-                            pass = true
-                            if (role_income.type === "static") {
-                                if (role_income.xp) {
-                                    const incomeAmount = role_income.xp + role_income.xp * (modifier.xp/100)
-                                    totalIncome.xp += incomeAmount
-                                    if (incomeAmount > 0) {
-                                        await this.addXp(incomeAmount)
-                                        if (!income[guildRole.id]) income[guildRole.id] = {}
-                                        if (interaction) income[guildRole.id]["xp"] = `• ${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${incomeAmount.toLocaleString()}${modifier.xp > 0 ? ` +${modifier.xp}%` : modifier.xp < 0 ? ` ${modifier.xp}%` : ""})`
-                                    }
-                                    if (incomeAmount < 0) {
-                                        await this.subtractXp(incomeAmount*-1)
-                                        if (!income[guildRole.id]) income[guildRole.id] = {}
-                                        if (interaction) income[guildRole.id]["xp"] = `• ${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${incomeAmount.toLocaleString()}${modifier.xp > 0 ? ` +${modifier.xp}%` : modifier.xp < 0 ? ` ${modifier.xp}%` : ""})`
-                                    }
-                                }
-                                if (role_income.cur) {
-                                    const incomeAmount = role_income.cur + role_income.cur * (modifier.cur/100)
-                                    totalIncome.cur += incomeAmount
-                                    if (incomeAmount > 0) {
-                                        await this.addCurrency(incomeAmount)
-                                        if (!income[guildRole.id]) income[guildRole.id] = {}
-                                        if (interaction) income[guildRole.id]["cur"] = `• ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${incomeAmount.toLocaleString()}${modifier.cur > 0 ? ` +${modifier.cur}%` : modifier.cur < 0 ? ` ${modifier.cur}%` : ""})`
-                                    }
-                                    if (incomeAmount < 0) {
-                                        await this.subtractCurrency(incomeAmount*-1)
-                                        if (!income[guildRole.id]) income[guildRole.id] = {}
-                                        if (interaction) income[guildRole.id]["cur"] = `• ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${incomeAmount.toLocaleString()}${modifier.cur > 0 ? ` +${modifier.cur}%` : modifier.cur < 0 ? ` ${modifier.cur}%` : ""})`
-                                    }
-                                }
-                                if (role_income.rp) {
-                                    const incomeAmount = role_income.rp + role_income.rp * (modifier.rp/100)
-                                    totalIncome.rp += incomeAmount
-                                    if (incomeAmount > 0 && userRP < 1000 && userRP >= -1000) {
-                                        await this.addRp(incomeAmount)
-                                        if (!income[guildRole.id]) income[guildRole.id] = {}
-                                        if (interaction) income[guildRole.id]["rp"] = `• ${this.client.config.emojis.RP}**${this.client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${incomeAmount.toLocaleString()}${modifier.rp > 0 ? ` +${modifier.rp}%` : modifier.rp < 0 ? ` ${modifier.rp}%` : ""})`
-                                    }
-                                    if (incomeAmount < 0 && userRP <= 1000 && userRP > -1000) {
-                                        await this.subtractRp(incomeAmount*-1)
-                                        if (!income[guildRole.id]) income[guildRole.id] = {}
-                                        if (interaction) income[guildRole.id]["rp"] = `• ${this.client.config.emojis.RP}**${this.client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${incomeAmount.toLocaleString()}${modifier.rp > 0 ? ` +${modifier.rp}%` : modifier.rp < 0 ? ` ${modifier.rp}%` : ""})`
-                                    }
-                                }
-                                if (role_income.items.length) {
-                                    for (let role_income_item of role_income.items) {
-                                        const incomeAmount = role_income_item.amount + role_income_item.amount * ((modifier[role_income_item.itemID] || 0)/100)
-                                        if (incomeAmount > 0) {
-                                            const item = this.client.cache.items.find(e => e.itemID === role_income_item.itemID && e.enabled && !e.temp)
-                                            if (item) {
-                                                if (!totalIncome.items[item.itemID]) {
-                                                    totalIncome.items[item.itemID] = incomeAmount
-                                                } else {
-                                                    totalIncome.items[item.itemID] += incomeAmount
-                                                }
-                                                await this.addItem(item.itemID, incomeAmount)
-                                                if (!income[guildRole.id]) income[guildRole.id] = {}
-                                                if (!income[guildRole.id].items) income[guildRole.id].items = []
-                                                if (interaction) income[guildRole.id].items.push(`• ${item.displayEmoji}**${item.name}** (${incomeAmount.toLocaleString()}${(modifier[role_income_item.itemID] || 0) > 0 ? ` +${modifier[role_income_item.itemID]}%` : (modifier[role_income_item.itemID] || 0) < 0 ? ` ${modifier[role_income_item.itemID]}%` : ""})`)
-                                            }
-                                        }
-                                        if (incomeAmount < 0) {
-                                            const item = this.client.cache.items.find(e => e.itemID === role_income_item.itemID && e.enabled && !e.temp)
-                                            if (item) {
-                                                if (!totalIncome.items[item.itemID]) {
-                                                    totalIncome.items[item.itemID] = incomeAmount
-                                                } else {
-                                                    totalIncome.items[item.itemID] += incomeAmount
-                                                }
-                                                await this.subtractItem(item.itemID, Math.abs(incomeAmount))
-                                                if (!income[guildRole.id]) income[guildRole.id] = {}
-                                                if (!income[guildRole.id].items) income[guildRole.id].items = []
-                                                if (interaction) income[guildRole.id].items.push(`• ${item.displayEmoji}**${item.name}** (${incomeAmount.toLocaleString()}${(modifier[role_income_item.itemID] || 0) > 0 ? ` +${modifier[role_income_item.itemID]}%` : (modifier[role_income_item.itemID] || 0) < 0 ? ` ${modifier[role_income_item.itemID]}%` : ""})`)
-                                            }
-                                        }
-                                    }
-                                    if (income[guildRole.id] && income[guildRole.id].items?.length) {
-                                        income[guildRole.id].items = income[guildRole.id].items.join("\n")
-                                    }
-                                }   
-                            }
-                            if (role_income.type === "dynamic") {
-                                if (role_income.xp) {
-                                    modifier.xp += role_income.xp
-                                }
-                                if (role_income.cur) {
-                                    modifier.cur += role_income.cur
-                                }
-                                if (role_income.rp) {
-                                    modifier.rp += role_income.rp
-                                }
-                                if (role_income.items.length) {
-                                    for (let role_income_item of role_income.items) {
-                                        const item = this.client.cache.items.find(e => e.itemID === role_income_item.itemID && e.enabled && !e.temp)
-                                        if (item) {
-                                            if (!modifier[item.itemID]) modifier[item.itemID] = role_income_item.amount
-                                            else modifier[item.itemID] += role_income_item.amount
-                                        }
-                                    }
-                                }
-                            }
-                            if (role_income.type === "static" && role_income.notification) notification = true
-                            if (role_income.type === "static" && income[guildRole.id]) {
-                                if (!this.roleIncomeCooldowns) this.roleIncomeCooldowns = new Map()
-                                this.roleIncomeCooldowns.set(guildRole.id, new Date(Date.now() + ((role_income.cooldown || 1) * 60 * 60 * 1000)))
-                            }
-                            await this.save()
-                        }
-                    } else if (this.roleIncomeCooldowns && this.roleIncomeCooldowns.get(guildRole.id)) {
-                        this.roleIncomeCooldowns.delete(guildRole.id)
-                        await this.save()
-                    }
-                } else if (this.roleIncomeCooldowns && this.roleIncomeCooldowns.get(role_income.id)) {
-                    this.roleIncomeCooldowns.delete(role_income.id)
-                    await this.save()
-                } 
-            }
-            if (this.autoIncomeExpire && this.roleIncomeCooldowns && this.roleIncomeCooldowns.size) {
-                let timeout = Math.min.apply(null, Array.from(this.roleIncomeCooldowns.values()).map(value => value - Date.now()).filter(value => value > 0))
-                if (timeout === Infinity) timeout = 0
-                this.nextIncomeTimeoutId = lt.setTimeout(async () => {
-                    await this.getIncome()
-                }, timeout)
-            }
-            const totalIncome2 = []
-            if (interaction) {
-                if (totalIncome.xp) totalIncome2.push(`• ${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${totalIncome.xp.toLocaleString()})`)
-                if (totalIncome.rp) totalIncome2.push(`• ${this.client.config.emojis.RP}**${this.client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${totalIncome.rp.toLocaleString()})`)
-                if (totalIncome.cur) totalIncome2.push(`• ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${totalIncome.cur.toLocaleString()})`)
-                if (Object.keys(totalIncome.items).length) {
-                    Object.keys(totalIncome.items).forEach(itemID => {
-                        const item = this.client.cache.items.find(e => e.itemID === itemID && e.enabled && !e.temp)
-                        totalIncome2.push(`• ${item.displayEmoji}**${item.name}** (${totalIncome.items[itemID].toLocaleString()})`)
-                    })
-                }    
-            }
-            return { income, pass, notification, totalIncome: totalIncome2 }    
-        } else {
-            if (this.autoIncomeExpire) {
-                this.autoIncomeExpire = undefined
-                this.clearAutoIncomeTimeout()
-                await this.save()
-            }
+        }
+
+        // Сохранение
+        if (save) {
+            await this.save();
+        }
+
+        //Логирование
+        if (!noLogs) {
+            client.emit("economyLogCreate", guildID, 
+                `${client.language({ textId: "Изменение опыта", guildId: guildID })} (${amount}) ${client.language({ textId: "для", guildId: guildID })} <@${userID}>`
+            );
         }
     }
-	async save() {
-        const clone = Object.assign({}, { ...this, client: undefined })
-        delete clone.autoIncomeTimeoutId
-        delete clone.nextIncomeTimeoutId
-        Object.keys(clone).filter(key => key.startsWith("_")).map(key => {
-            key = key.substring(1)
-            clone[key] = clone["_" + key]
-            delete clone["_" + key]
-        })
-        Object.keys(clone).forEach(key => {
-            if (key === "stats" && clone[key]) {
-                Object.keys(clone[key]).forEach(key2 => {
-                    if (clone[key][key2] === 0) clone[key][key2] = undefined
-                })
-            }
-            else if (clone[key] === 0) clone[key] = undefined
-        })
-		await profileSchema.replaceOne({ userID: clone.userID, guildID: clone.guildID }, clone, { upsert: true })
-	}
-	async delete() {
-        if (this.autoIncomeTimeoutId) lt.clearTimeout(this.autoIncomeTimeoutId)
-        if (this.nextIncomeTimeoutId) lt.clearTimeout(this.nextIncomeTimeoutId)
-		await profileSchema.deleteOne({ userID: this.userID, guildID: this.guildID })
-		this.client.cache.profiles.delete(this.guildID + this.userID)
-	}
-    get messages() { return this._messages || 0 }
-    set messages(value) {
-        if (!this._messages) this._messages = this.messages
-        if (value === undefined) this._messages = value
-        else this._messages += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { messages: 0 },
-                weekly: { messages: 0 },
-                monthly: { messages: 0 },
-                yearly: { messages: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { messages: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { messages: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { messages: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { messages: 0 }
-        }
-        if (this.stats.daily.messages === undefined) this.stats.daily.messages = 0
-        if (this.stats.weekly.messages === undefined) this.stats.weekly.messages = 0
-        if (this.stats.monthly.messages === undefined) this.stats.monthly.messages = 0
-        if (this.stats.yearly.messages === undefined) this.stats.yearly.messages = 0
-        this.stats.daily.messages += value
-        this.stats.weekly.messages += value
-        this.stats.monthly.messages += value
-        this.stats.yearly.messages += value
-    }
-    get totalxp() { return this._totalxp || 0 }
-    set totalxp(value) {
-        if (!this._totalxp) this._totalxp = this.totalxp
-        if (value === undefined) this._totalxp = value
-        else this._totalxp += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { totalxp: 0 },
-                weekly: { totalxp: 0 },
-                monthly: { totalxp: 0 },
-                yearly: { totalxp: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { totalxp: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { totalxp: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { totalxp: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { totalxp: 0 }
-        }
-        if (this.stats.daily.totalxp === undefined) this.stats.daily.totalxp = 0
-        if (this.stats.weekly.totalxp === undefined) this.stats.weekly.totalxp = 0
-        if (this.stats.monthly.totalxp === undefined) this.stats.monthly.totalxp = 0
-        if (this.stats.yearly.totalxp === undefined) this.stats.yearly.totalxp = 0
-        this.stats.daily.totalxp += value
-        this.stats.weekly.totalxp += value
-        this.stats.monthly.totalxp += value
-        this.stats.yearly.totalxp += value
-    }
-    get seasonTotalXp() { return this._seasonTotalXp || 0 }
-    set seasonTotalXp(value) { this._seasonTotalXp = value }
-    get xp() { return this._xp || 0 }
-    set xp(value) { this._xp = value }
-    get seasonXp() { return this._seasonXp || 0 }
-    set seasonXp(value) { this._seasonXp = value }
-    get xpSession() { return this._xpSession || 0 }
-    set xpSession(value) { this._xpSession = value }
-    get rpSession() { return this._rpSession || 0 }
-    set rpSession(value) { this._rpSession = value }
-    get hours() { return this._hours || 0 }
-    set hours(value) {
-        if (!this._hours) this._hours = this.hours
-        if (value === undefined) this._hours = value
-        else this._hours += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { hours: 0 },
-                weekly: { hours: 0 },
-                monthly: { hours: 0 },
-                yearly: { hours: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { hours: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { hours: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { hours: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { hours: 0 }
-        }
-        if (this.stats.daily.hours === undefined) this.stats.daily.hours = 0
-        if (this.stats.weekly.hours === undefined) this.stats.weekly.hours = 0
-        if (this.stats.monthly.hours === undefined) this.stats.monthly.hours = 0
-        if (this.stats.yearly.hours === undefined) this.stats.yearly.hours = 0
-        this.stats.daily.hours += value
-        this.stats.weekly.hours += value
-        this.stats.monthly.hours += value
-        this.stats.yearly.hours += value
-    }
-    get rp() { return this._rp || 0 }
-    set rp(value) { 
-        if (!this._rp) this._rp = this.rp
-        if (value === undefined) this._rp = value
-        else this._rp += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { rp: 0 },
-                weekly: { rp: 0 },
-                monthly: { rp: 0 },
-                yearly: { rp: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { rp: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { rp: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { rp: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { rp: 0 }
-        }
-        if (this.stats.daily.rp === undefined) this.stats.daily.rp = 0
-        if (this.stats.weekly.rp === undefined) this.stats.weekly.rp = 0
-        if (this.stats.monthly.rp === undefined) this.stats.monthly.rp = 0
-        if (this.stats.yearly.rp === undefined) this.stats.yearly.rp = 0
-        this.stats.daily.rp += value
-        this.stats.weekly.rp += value
-        this.stats.monthly.rp += value
-        this.stats.yearly.rp += value
-    }
-    get hoursSession() { return this._hoursSession || 0 }
-    set hoursSession(value) { this._hoursSession = value }
-    get likes() { return this._likes || 0 }
-    set likes(value) { 
-        if (!this._likes) this._likes = this.likes
-        if (value === undefined) this._likes = value
-        else this._likes += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { likes: 0 },
-                weekly: { likes: 0 },
-                monthly: { likes: 0 },
-                yearly: { likes: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { likes: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { likes: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { likes: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { likes: 0 }
-        }
-        if (this.stats.daily.likes === undefined) this.stats.daily.likes = 0
-        if (this.stats.weekly.likes === undefined) this.stats.weekly.likes = 0
-        if (this.stats.monthly.likes === undefined) this.stats.monthly.likes = 0
-        if (this.stats.yearly.likes === undefined) this.stats.yearly.likes = 0
-        this.stats.daily.likes += value
-        this.stats.weekly.likes += value
-        this.stats.monthly.likes += value
-        this.stats.yearly.likes += value
-    }
-    get currency() { return this._currency || 0 }
-    set currency(value) { 
-        if (!this._currency) this._currency = this.currency
-        if (value === undefined) this._currency = value
-        else this._currency += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { currency: 0 },
-                weekly: { currency: 0 },
-                monthly: { currency: 0 },
-                yearly: { currency: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { currency: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { currency: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { currency: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { currency: 0 }
-        }
-        if (this.stats.daily.currency === undefined) this.stats.daily.currency = 0
-        if (this.stats.weekly.currency === undefined) this.stats.weekly.currency = 0
-        if (this.stats.monthly.currency === undefined) this.stats.monthly.currency = 0
-        if (this.stats.yearly.currency === undefined) this.stats.yearly.currency = 0
-        this.stats.daily.currency += value
-        this.stats.weekly.currency += value
-        this.stats.monthly.currency += value
-        this.stats.yearly.currency += value
-    }
-    get currencySession() { return this._currencySession || 0 }
-    set currencySession(value) { this._currencySession = value }
-    get currencySpent() { return this._currencySpent || 0 }
-    set currencySpent(value) { this._currencySpent = value }
-    get invites() { return this._invites || 0 }
-    set invites(value) { 
-        if (!this._invites) this._invites = this.invites
-        if (value === undefined) this._invites = value
-        else this._invites += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { invites: 0 },
-                weekly: { invites: 0 },
-                monthly: { invites: 0 },
-                yearly: { invites: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { invites: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { invites: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { invites: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { invites: 0 }
-        }
-        if (this.stats.daily.invites === undefined) this.stats.daily.invites = 0
-        if (this.stats.weekly.invites === undefined) this.stats.weekly.invites = 0
-        if (this.stats.monthly.invites === undefined) this.stats.monthly.invites = 0
-        if (this.stats.yearly.invites === undefined) this.stats.yearly.invites = 0
-        this.stats.daily.invites += value
-        this.stats.weekly.invites += value
-        this.stats.monthly.invites += value
-        this.stats.yearly.invites += value
-    }
-    get bumps() { return this._bumps || 0 }
-    set bumps(value) { 
-        if (!this._bumps) this._bumps = this.bumps
-        if (value === undefined) this._bumps = value
-        else this._bumps += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { bumps: 0 },
-                weekly: { bumps: 0 },
-                monthly: { bumps: 0 },
-                yearly: { bumps: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { bumps: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { bumps: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { bumps: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { bumps: 0 }
-        }
-        if (this.stats.daily.bumps === undefined) this.stats.daily.bumps = 0
-        if (this.stats.weekly.bumps === undefined) this.stats.weekly.bumps = 0
-        if (this.stats.monthly.bumps === undefined) this.stats.monthly.bumps = 0
-        if (this.stats.yearly.bumps === undefined) this.stats.yearly.bumps = 0
-        this.stats.daily.bumps += value
-        this.stats.weekly.bumps += value
-        this.stats.monthly.bumps += value
-        this.stats.yearly.bumps += value
-    }
-    get giveawaysCreated() { return this._giveawaysCreated || 0 }
-    set giveawaysCreated(value) { 
-        if (!this._giveawaysCreated) this._giveawaysCreated = this.giveawaysCreated
-        if (value === undefined) this._giveawaysCreated = value
-        else this._giveawaysCreated += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { giveawaysCreated: 0 },
-                weekly: { giveawaysCreated: 0 },
-                monthly: { giveawaysCreated: 0 },
-                yearly: { giveawaysCreated: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { giveawaysCreated: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { giveawaysCreated: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { giveawaysCreated: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { giveawaysCreated: 0 }
-        }
-        if (this.stats.daily.giveawaysCreated === undefined) this.stats.daily.giveawaysCreated = 0
-        if (this.stats.weekly.giveawaysCreated === undefined) this.stats.weekly.giveawaysCreated = 0
-        if (this.stats.monthly.giveawaysCreated === undefined) this.stats.monthly.giveawaysCreated = 0
-        if (this.stats.yearly.giveawaysCreated === undefined) this.stats.yearly.giveawaysCreated = 0
-        this.stats.daily.giveawaysCreated += value
-        this.stats.weekly.giveawaysCreated += value
-        this.stats.monthly.giveawaysCreated += value
-        this.stats.yearly.giveawaysCreated += value
-    }
-    get multiplyXP() { return this._multiplyXP || 0 }
-    set multiplyXP(value) { this._multiplyXP = value }
-    get multiplyCUR() { return this._multiplyCUR || 0 }
-    set multiplyCUR(value) { this._multiplyCUR = value }
-    get multiplyLuck() { return this._multiplyLuck || 0 }
-    set multiplyLuck(value) { this._multiplyLuck = value }
-    get multiplyRP() { return this._multiplyRP || 0 }
-    set multiplyRP(value) { this._multiplyRP = value }
-    get fishing() { return this._fishing || 0 }
-    set fishing(value) { this._fishing = value }
-    get mining() { return this._mining || 0 }
-    set mining(value) { this._mining = value }
-    get maxDaily() { return this._maxDaily || 0 }
-    set maxDaily(value) { this._maxDaily = value }
-    get wormholeTouched() { return this._wormholeTouched || 0 }
-    set wormholeTouched(value) { 
-        if (!this._wormholeTouched) this._wormholeTouched = this.wormholeTouched
-        if (value === undefined) this._wormholeTouched = value
-        else this._wormholeTouched += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { wormholeTouched: 0 },
-                weekly: { wormholeTouched: 0 },
-                monthly: { wormholeTouched: 0 },
-                yearly: { wormholeTouched: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { wormholeTouched: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { wormholeTouched: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { wormholeTouched: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { wormholeTouched: 0 }
-        }
-        if (this.stats.daily.wormholeTouched === undefined) this.stats.daily.wormholeTouched = 0
-        if (this.stats.weekly.wormholeTouched === undefined) this.stats.weekly.wormholeTouched = 0
-        if (this.stats.monthly.wormholeTouched === undefined) this.stats.monthly.wormholeTouched = 0
-        if (this.stats.yearly.wormholeTouched === undefined) this.stats.yearly.wormholeTouched = 0
-        this.stats.daily.wormholeTouched += value
-        this.stats.weekly.wormholeTouched += value
-        this.stats.monthly.wormholeTouched += value
-        this.stats.yearly.wormholeTouched += value
-    }
-    get doneQuests() { return this._doneQuests || 0 }
-    set doneQuests(value) { 
-        if (!this._doneQuests) this._doneQuests = this.doneQuests
-        if (value === undefined) this._doneQuests = value
-        else this._doneQuests += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { doneQuests: 0 },
-                weekly: { doneQuests: 0 },
-                monthly: { doneQuests: 0 },
-                yearly: { doneQuests: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { doneQuests: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { doneQuests: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { doneQuests: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { doneQuests: 0 }
-        }
-        if (this.stats.daily.doneQuests === undefined) this.stats.daily.doneQuests = 0
-        if (this.stats.weekly.doneQuests === undefined) this.stats.weekly.doneQuests = 0
-        if (this.stats.monthly.doneQuests === undefined) this.stats.monthly.doneQuests = 0
-        if (this.stats.yearly.doneQuests === undefined) this.stats.yearly.doneQuests = 0
-        this.stats.daily.doneQuests += value
-        this.stats.weekly.doneQuests += value
-        this.stats.monthly.doneQuests += value
-        this.stats.yearly.doneQuests += value
-    }
-    get itemsSoldOnMarketPlace() { return this._itemsSoldOnMarketPlace || 0 }
-    set itemsSoldOnMarketPlace(value) { 
-        if (!this._itemsSoldOnMarketPlace) this._itemsSoldOnMarketPlace = this.itemsSoldOnMarketPlace
-        if (value === undefined) this._itemsSoldOnMarketPlace = value
-        else this._itemsSoldOnMarketPlace += value
-        if (!this.stats) {
-            this.stats = {
-                daily: { itemsSoldOnMarketPlace: 0 },
-                weekly: { itemsSoldOnMarketPlace: 0 },
-                monthly: { itemsSoldOnMarketPlace: 0 },
-                yearly: { itemsSoldOnMarketPlace: 0 }
-            }
-        } else {
-            if (!this.stats.daily) this.stats.daily = { itemsSoldOnMarketPlace: 0 }
-            if (!this.stats.weekly) this.stats.weekly = { itemsSoldOnMarketPlace: 0 }
-            if (!this.stats.monthly) this.stats.monthly = { itemsSoldOnMarketPlace: 0 }
-            if (!this.stats.yearly) this.stats.yearly = { itemsSoldOnMarketPlace: 0 }
-        }
-        if (this.stats.daily.itemsSoldOnMarketPlace === undefined) this.stats.daily.itemsSoldOnMarketPlace = 0
-        if (this.stats.weekly.itemsSoldOnMarketPlace === undefined) this.stats.weekly.itemsSoldOnMarketPlace = 0
-        if (this.stats.monthly.itemsSoldOnMarketPlace === undefined) this.stats.monthly.itemsSoldOnMarketPlace = 0
-        if (this.stats.yearly.itemsSoldOnMarketPlace === undefined) this.stats.yearly.itemsSoldOnMarketPlace = 0
-        this.stats.daily.itemsSoldOnMarketPlace += value
-        this.stats.weekly.itemsSoldOnMarketPlace += value
-        this.stats.monthly.itemsSoldOnMarketPlace += value
-        this.stats.yearly.itemsSoldOnMarketPlace += value
-    }
-    get itemsOpened() { return this._itemsOpened || 0 }
-    set itemsOpened(value) { this._itemsOpened = value }
-    get wormholesSpawned() { return this._wormholesSpawned || 0 }
-    set wormholesSpawned(value) { this._wormholesSpawned = value }
-    get itemsReceived() { return this._itemsReceived || 0 }
-    set itemsReceived(value) { this._itemsReceived = value }
-    get itemsCrafted() { return this._itemsCrafted || 0 }
-    set itemsCrafted(value) { this._itemsCrafted = value }
-    get itemsUsed() { return this._itemsUsed || 0 }
-    set itemsUsed(value) { this._itemsUsed = value }
-    get itemsBoughtInShop() { return this._itemsBoughtInShop || 0 }
-    set itemsBoughtInShop(value) { this._itemsBoughtInShop = value }
-    get itemsBoughtOnMarket() { return this._itemsBoughtOnMarket || 0 }
-    set itemsBoughtOnMarket(value) { this._itemsBoughtOnMarket = value }
-    get itemsSold() { return this._itemsSold || 0 }
-    set itemsSold(value) { this._itemsSold = value }
-    get lastDaily() { return this._lastDaily || new Date(Date.now() - 86400000) }
-    set lastDaily(value) { this._lastDaily = value }
-    get lastLike() { return this._lastLike || new Date(Date.now() - 86400000) }
-    set lastLike(value) { this._lastLike = value }
-    get boosts() { return this._boosts || 0 }
-    set boosts(value) { this._boosts = value }
-    get works() { return this._works || 0 }
-    set works(value) { this._works = value }
-    get giveawayWins() { return this._giveawayWins || 0 }
-    set giveawayWins(value) { this._giveawayWins = value }
-    get profileLikes() { return this._profileLikes || 0 }
-    set profileLikes(value) { this._profileLikes = value }
-    get promocodesUsed() { return this._promocodesUsed || 0 }
-    set promocodesUsed(value) { this._promocodesUsed = value }
-    async addCurrency(amount, save, withoutAchievement, withoutLogs, withoutNotification) {
-        if (amount < 0) return await this.subtractCurrency(amount*-1, save)
-        this.currency = amount
-        if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение валюты", guildId: this.guildID })} (${amount}) ${this.client.language({ textId: "для", guildId: this.guildID })} <@${this.userID}>`)
-        const guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "currency"))
-        if (guildQuests.size && amount !== 0) await this.addQuestProgression("currency", amount, undefined, false, withoutNotification)
-        if (!withoutAchievement) {
-            const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.Currency && e.enabled)
-            await Promise.all(achievements.map(async achievement => {
-                if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && this.currency >= achievement.amount && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) {
-                    if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
-                    this.client.tempAchievements[this.userID].push(achievement.id)
-                    await this.addAchievement(achievement, false, withoutLogs, withoutNotification)
-                }    
-            }))
-        }
-        if (save) await this.save()
-        return
-    }
-    async subtractCurrency(amount, save, withoutCurrencySpent) {
-        this.currency = amount*-1
-        if (!withoutCurrencySpent) this.currencySpent += amount
-        this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение валюты", guildId: this.guildID })} (-${amount}) ${this.client.language({ textId: "для", guildId: this.guildID })} <@${this.userID}>`)
-        const guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "currencySpent"))
-        if (guildQuests.size && amount !== 0) await this.addQuestProgression("currencySpent", amount)
-        const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.CurrencySpent && e.enabled)
-        await Promise.all(achievements.map(async achievement => {
-            if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && this.currencySpent >= achievement.amount && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) {
-                if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
-                this.client.tempAchievements[this.userID].push(achievement.id)
-                await this.addAchievement(achievement)
-            }        
-        }))
-        if (save) await this.save()
-        return
-    }
-    async addQuestProgression(type, amount, object, save, withoutNotification) {
-        let guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && !quest.community)
-        const guild = this.client.guilds.cache.get(this.guildID)
-        if (guildQuests.size && guild) {
-            const member = await guild.members.fetch(this.userID).catch(e => null)
-            if (member) {
-                const settings = this.client.cache.settings.find(settings => settings.guildID === this.guildID)
-                if (!member.roles.cache.hasAny(...settings.roles?.mutedRoles)) {
-                    const activeQuests = this.quests?.filter((element) => element.finished === false && guildQuests.some(e => e.questID == element.questID && e.targets.some(t => t.type === type && element.targets?.find(et => et.targetID === t.targetID && !et.finished)))) || []
-                    if (activeQuests.length) {
-                        for (let quest of activeQuests) {
-                            const guildQuest = guildQuests.find(e => e.questID == quest.questID)
-                            for (const target of quest.targets) {
-                                if (!target.finished) {
-                                    const guildQuestTarget = guildQuest.targets.find((element) => { return element.targetID == target.targetID })
-                                    if ((guildQuestTarget?.type === type && !object && !guildQuestTarget.object) || (guildQuestTarget?.type === type && object && ((guildQuestTarget.object && guildQuestTarget.object === object) || !guildQuestTarget.object))) {
-                                        target.reached += amount
-                                        if (target.reached >= guildQuestTarget.amount) {
-                                            target.reached = guildQuestTarget.amount
-                                            target.finished = true
-                                            if (!withoutNotification) {
-                                                const description = guildQuest.getDescription(guildQuestTarget)
-                                                const imageURL = await this.client.functions.getEmojiURL(this.client, guildQuest.emoji)
-                                                const container = new ContainerBuilder()
-                                                    .addTextDisplayComponents([
-                                                        new TextDisplayBuilder()
-                                                            .setContent([
-                                                                `-# ${this.client.language({ textId: "Сервер", guildId: guild.id })} ${guild.name}`
-                                                            ].join("\n"))
-                                                    ])
-                                                if (imageURL) {
-                                                    container.addSectionComponents([
-                                                        new SectionBuilder()
-                                                            .addTextDisplayComponents([
-                                                                new TextDisplayBuilder()
-                                                                    .setContent([
-                                                                        `# ${guildQuest.name}`,
-                                                                        `## ${this.client.language({ textId: "Подзадача выполнена", guildId: guild.id })}`
-                                                                    ].join("\n"))
-                                                            ])
-                                                            .setThumbnailAccessory(new ThumbnailBuilder().setURL(imageURL))
-                                                    ])
-                                                } else {
-                                                    container.addTextDisplayComponents([
-                                                        new TextDisplayBuilder()
-                                                            .setContent([
-                                                                `# ${guildQuest.name}`,
-                                                                `## ${this.client.language({ textId: "Подзадача выполнена", guildId: guild.id })}`
-                                                            ].join("\n"))
-                                                    ])
-                                                }
-                                                container.addSeparatorComponents(new SeparatorBuilder())
-                                                    .addTextDisplayComponents([
-                                                        new TextDisplayBuilder()
-                                                            .setContent([
-                                                                description
-                                                            ].join("\n"))
-                                                    ])
-                                                    .addSeparatorComponents(new SeparatorBuilder())
-                                                    .addActionRowComponents(new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel(guild.name).setStyle(ButtonStyle.Link).setURL(`https://discord.com/channels/${guild.id}`)))
-                                                member?.send({ components: [container], flags: [MessageFlags.IsComponentsV2] }).catch(e => console.error(e))
-                                            }
-                                        }
-                                    }
-                                }
-                            }    
-                        }   
-                    } 
-                }
-            }
-        }
-        guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.community && quest.active)
-        if (guildQuests.size && guild) {
-            const member = await guild.members.fetch(this.userID).catch(e => null)
-            if (member) {
-                guildQuests.forEach(quest => {
-                    for (const target of quest.targets) {
-                        if (!target.finished) {
-                            if ((target?.type === type && !object && !target.object) || (target?.type === type && object && ((target.object && target.object === object) || !target.object))) {
-                                target.reached += amount
-                                if (target.reached >= target.amount) {
-                                    target.reached = target.amount
-                                    target.finished = true
-                                }
-                            }     
-                        }
-                    }
-                    quest.save()
-                })
-            }
-        }
-        if (save) await this.save()
-    }
-    async addAchievement(achievement, save, withoutLogs, withoutNotification) {
-        if (typeof achievement !== "object") {
-            achievement = this.client.cache.achievements.find(ach => ach.id === achievement && ach.enabled)
-        }
-        if (this.achievements?.some(e => e.achievmentID === achievement.id)) return
-        const guild = this.client.guilds.cache.get(this.guildID)
-        if (guild) {
-            const member = await guild.members.fetch(this.userID).catch(e => null)
-            if (member) {
-                const settings = this.client.cache.settings.find(settings => settings.guildID === guild.id)
-                if (!member.roles.cache.hasAny(...settings.roles?.mutedRoles)) {
-                    if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `<@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "получил достижение", guildId: guild.id })} ${achievement.displayEmoji}${achievement.name} (${achievement.id})`)
-                    const rewardArray = []
-                    for (const reward of achievement.rewards) {
-                        if (reward.type === RewardType.Currency) {
-                            await this.addCurrency(reward.amount, false, true, withoutLogs, withoutNotification)
-                            rewardArray.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${reward.amount})`)
-                        } else if (reward.type === RewardType.Experience) {
-                            await this.addXp(reward.amount, false, false, true, withoutLogs, withoutNotification)
-                            rewardArray.push(`${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: guild.id })}** (${reward.amount})`)
-                        } else if (reward.type === RewardType.Reputation) {
-                            await this.addRp(reward.amount, false, true, withoutLogs, withoutNotification)
-                            rewardArray.push(`${this.client.config.emojis.RP}**${this.client.language({ textId: "Репутация", guildId: guild.id })}** (${reward.amount})`)
-                        } else if (reward.type === RewardType.Item) {
-                            const rewardItem = this.client.cache.items.find(item => item.itemID === reward.id && item.guildID === guild.id && !item.temp && item.enabled)
-                            if (rewardItem) {
-                                await this.addItem(reward.id, reward.amount, true, false, withoutLogs, withoutNotification)
-                                rewardArray.push(`> ${rewardItem.displayEmoji}**${rewardItem.name}** (${reward.amount})`)
-                            }
-                        } else if (reward.type === RewardType.Role) {
-                            const guild_role = await guild.roles.fetch(reward.id).catch(e => null)
-                            if (guild_role && guild.members.me.roles.highest.position > guild_role.position) {
-                                try {
-                                    await member.roles.add(reward.id)
-                                    rewardArray.push(`<@&${reward.id}>`)
-                                    if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение ролей", guildId: guild.id })} (+<@&${reward.id}>) ${this.client.language({ textId: "для", guildId: guild.id })} <@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "за награду достижения", guildId: guild.id })} ${achievement.displayEmoji}${achievement.name} (${achievement.id})`)
-                                } catch (err) {
-                                    console.error(err)
-                                    if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Не удалось добавить роль", guildId: guild.id })} (<@&${reward.id}>) ${this.client.language({ textId: "для", guildId: guild.id })} <@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "за награду достижения", guildId: guild.id })} ${achievement.displayEmoji}${achievement.name} (${achievement.id}): ${err.message}`)
-                                }
-                            }
-                        }
-                    }
-                    if (!this.achievements) this.achievements = []
-                    this.achievements.push({
-                        achievmentID: achievement.id
-                    })
-                    const achievement_GetAllAchievements = this.client.cache.achievements.find(e => e.guildID === this.guildID && e.type === AchievementType.GetAllAchievements && e.enabled)
-                    if (achievement_GetAllAchievements && achievement.id !== achievement_GetAllAchievements.id) {
-                        const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.id !== achievement_GetAllAchievements.id)
-                        let getAllAchievements = achievements.size ? true : false
-                        achievements.some(e => {
-                            if (!this.achievements?.find(ach => ach.achievmentID == e.id)) {
-                                getAllAchievements = false
-                                return true
-                            }
-                        })
-                        if (!this.achievements?.some(ach => ach.achievmentID === achievement_GetAllAchievements.id) && getAllAchievements === true && !this.client.tempAchievements[this.userID]?.includes(achievement_GetAllAchievements.id)) {
-                            if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
-                            this.client.tempAchievements[this.userID].push(achievement_GetAllAchievements.id)
-                            await this.addAchievement(achievement_GetAllAchievements.id, false, withoutLogs, withoutNotification)
-                        }
-                    }
-                    if (!withoutNotification && settings.channels?.achievmentsNotificationChannelId) {
-                        const description = this.client.functions.getAchievementDescription(achievement, undefined, settings, { guildId: guild.id }, member)
-                        const newAchNotifEmbed = new EmbedBuilder()
-                            .setColor(member.displayHexColor)
-                            .setAuthor({ name: `${member.displayName} ${this.sex === "male" ? `${this.client.language({ textId: "получил", guildId: guild.id })}` : this.sex === "female" ? `${this.client.language({ textId: "получила", guildId: guild.id })}` : `${this.client.language({ textId: "получил(-а)", guildId: guild.id })}`} ${this.client.language({ textId: "новое достижение", guildId: guild.id })}!`, iconURL: member.displayAvatarURL() })
-                            .addFields([{ name: `${this.client.language({ textId: "Достижение", guildId: guild.id })}:`, value: `${achievement.displayEmoji}${achievement.name} › ${description}${rewardArray.length ? `\n${this.client.language({ textId: "Награда", guildId: guild.id })}:\n${rewardArray.join('\n')}` : ``}` }])
-                        const channel = await guild.channels.fetch(settings.channels.achievmentsNotificationChannelId)
-                        channel.send({ content: this.achievementMention ? `<@${member.user.id}>` : ` `, embeds: [newAchNotifEmbed] }) 
-                    }
-                    if (save) await this.save()
-                } 
-            }
-        }
-    }
-    async delAchievement(achievement, save) {
-        if (typeof achievement !== "object") {
-            achievement = this.client.cache.achievements.get(achievement)
-        }
-        this.achievements = this.achievements?.filter(e => e.achievmentID !== achievement.id)
-        if (!this.achievements.length) this.achievements = undefined
-        if (save) await this.save()
-        return
-    }
-    async addXp(amount, save, withoutSeasonXP, withoutLogs, withoutNotification) {
-        if (amount < 0) return this.subtractXp(amount*-1, save)
-        if (amount > 1000000000000) amount = 1000000000000
-        const settings = this.client.cache.settings.find(settings => settings.guildID === this.guildID)
-        this.xp += amount
-        this.totalxp = amount
-        if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение опыта", guildId: this.guildID })} (${amount}) ${this.client.language({ textId: "для", guildId: this.guildID })} <@${this.userID}>`)
-        const oldLevel = this.level
-        const oldXp = this.xp
-        let i = 0
-        while (this.xp >= this.level * settings.levelfactor + 100) {
-            this.xp -= this.level * settings.levelfactor + 100
-            this.level++
-            i++
-            if (i > 100000) throw new Error(`Бесконечный цикл: addXp:733, amount: ${amount}, levelfactor: ${settings.levelfactor}, oldLevel: ${oldLevel}, oldXp: ${oldXp}`)
-        }
-        let guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "exp"))
-        if (guildQuests.size) await this.addQuestProgression("exp", amount, undefined, false, withoutNotification)
-        if (this.level > oldLevel) {
-            guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "level"))
-            if (guildQuests.size) await this.addQuestProgression("level", this.level - oldLevel, undefined, false, withoutNotification)
-            if (!withoutNotification) await this.newLevelNotify()
-        }
-        i = 0
-        if (settings.seasonLevelsEnabled && !withoutSeasonXP) {
-            this.seasonXp += amount
-            this.seasonTotalXp += amount
-            const seasonOldLevel = this.seasonLevel
-            while (this.seasonXp >= this.seasonLevel * settings.seasonLevelfactor + 100) {
-                this.seasonXp -= this.seasonLevel * settings.seasonLevelfactor + 100
-                this.seasonLevel++
-                i++
-                if (i > 100000) throw new Error(`Бесконечный цикл: addXp:751, amount: ${amount}, seasonLevelfactor: ${settings.seasonLevelfactor}, seasonOldLevel: ${seasonOldLevel}, oldXp: ${oldXp}`) 
-            }
-            let guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "seasonXp"))
-            if (guildQuests.size) await this.addQuestProgression("seasonXp", amount, undefined, false, withoutNotification)
-            if (this.seasonLevel > seasonOldLevel) {
-                guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "seasonLevel"))
-                if (guildQuests.size) await this.addQuestProgression("seasonLevel", this.seasonLevel - seasonOldLevel, undefined, false, withoutNotification)
-                if (!withoutNotification) await this.newSeasonLevelNotify()
-            }    
-        }
-        if (save) await this.save()
-        return
-    }
-    async subtractXp(amount, save) {
-        const settings = this.client.cache.settings.find(settings => settings.guildID === this.guildID)
-        this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение опыта", guildId: this.guildID })} (-${amount}) ${this.client.language({ textId: "для", guildId: this.guildID })} <@${this.userID}>`)
-        const oldLevel = this.level
-        const oldXp = this.xp
-        let i = 0
-        if (this.totalxp <= amount) {
-            this.xp = 0
-            this.level = 1
-            this.totalxp = 0 - this.totalxp
-        } else {
-            this.totalxp = amount*-1
-            while (amount > 0) {
-                if (this.level === 1 && amount > this.level * settings.levelfactor + 100) {
-                    this.xp = 0
-                    this.totalxp = 0 - this.totalxp
-                    amount = 0
-                } else {
-                    if (amount > this.level * settings.levelfactor + 100) {
-                        amount -= this.xp
-                        this.level--
-                        this.xp = this.level * settings.levelfactor + 100
-                    } else {
-                        this.xp -= amount
-                        amount = 0
-                    }    
-                }
-                i++
-                if (i > 100000) throw new Error(`Бесконечный цикл: subtractXp:792, amount: ${amount}, levelfactor: ${settings.levelfactor}, oldLevel: ${oldLevel}, oldXp: ${oldXp}`)
-            }
-        }
-        i = 0
+    /**
+     * Вычитает указанное количество опыта у пользователя и обрабатывает связанные системные события
+     * 
+     * Метод выполняет комплексную операцию по вычитанию опыта, включая:
+     * - Вычитание основного и сезонного опыта (если включено)
+     * - Пересчет уровней и обработку понижения уровня
+     * - Обновление ролей уровня при понижении
+     * - Отправку уведомлений пользователю
+     * - Логирование операции
+     * 
+     * @async
+     * @param {Object} options - Объект с настройками операции
+     * @param {number} [options.amount=1] - Количество опыта для вычитания. Должно быть положительным числом
+     * @param {boolean} [options.save=false] - Если true, изменения сохраняются в базу данных
+     * @param {boolean} [options.noNotification=false] - Если true, уведомления пользователю не отправляются
+     * @param {boolean} [options.noLogs=false] - Если true, операция не логируется в системе
+     * @returns {Promise<void>}
+     * @throws {Error} Когда настройки гильдии не найдены или возникают ошибки при сохранении/обработке
+     * 
+     * @fires Client#economyLogCreate - Событие логирования экономических операций
+     * 
+     * @see _subtractRegularXp
+     * @see _subtractSeasonXp  
+     * @see _processSeasonLevelUps
+     * @see _processLevelRoles
+     * @see _sendLevelNotification
+     */
+    async subtractXp({ amount = 1, save = false, noNotification = false, noLogs = false }) {
+        const { guildID, userID, client } = this;
+        const settings = client.cache.settings.get(guildID);
+        if (!settings) return;
+
+        const oldLevel = this.level;
+        
+        // Вычитание основного опыта
+        this._subtractRegularXp(amount);
+        
+        // Вычитание сезонного опыта
         if (settings.seasonLevelsEnabled) {
-            const seasonOldLevel = this.seasonLevel
-            if (this.seasonTotalxp <= amount) {
-                this.seasonXp = 0
-                this.seasonLevel = 1
-                this.seasonTotalxp = 0
-            } else {
-                this.seasonTotalxp -= amount
-                while (amount > 0) {
-                    if (this.seasonLevel === 1 && amount > this.seasonLevel * settings.seasonLevelfactor + 100) {
-                        this.seasonXp = 0
-                        this.seasonTotalxp = 0
-                        amount = 0
-                    } else {
-                        if (amount > this.seasonLevel * settings.seasonLevelfactor + 100) {
-                            amount -= this.seasonXp
-                            this.seasonLevel--
-                            this.seasonXp = this.seasonLevel * settings.seasonLevelfactor + 100
-                        } else {
-                            this.seasonXp -= amount
-                            amount = 0
-                        }    
-                    }
-                    i++
-                    if (i > 100000) throw new Error(`Бесконечный цикл: subtractXp:820, amount: ${amount}, seasonLevelfactor: ${settings.seasonLevelfactor}, seasonOldLevel: ${seasonOldLevel}, oldXp: ${oldXp}`) 
-                }
+            this._subtractSeasonXp(amount);
+            // Расчет сезонных уровней
+            await this._processSeasonLevelUps({ noNotification });
+        }
+
+        // Уведомления об изменении уровня
+        const levelDecreased = this.level < oldLevel;
+        if (levelDecreased) {
+            const guild = this.client.guilds.cache.get(this.guildID);
+            const member = await guild.members.fetch(this.userID).catch(() => null);
+            // Обработка ролей уровня
+            const roleChanges = await this._processLevelRoles(guild, member, settings);
+            if (!noNotification) await this._sendLevelNotification(roleChanges)
+        }
+
+        if (save) {
+            await this.save();
+        }
+
+        // Логирование
+        client.emit("economyLogCreate", guildID, 
+            `${client.language({ textId: "Изменение опыта", guildId: guildID })} (-${amount}) ${client.language({ textId: "для", guildId: guildID })} <@${userID}>`
+        );
+    }
+    /**
+     * Устанавливает точное значение опыта пользователя, автоматически вычисляя разницу
+     * 
+     * Метод интеллектуально устанавливает указанное количество опыта, определяя 
+     * необходимость добавления или вычитания опыта для достижения целевого значения.
+     * 
+     * @async
+     * @param {Object} options - Параметры установки опыта
+     * @param {number} [options.amount=1] - Целевое количество опыта для установки
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.noNotification=false] - Отключить уведомления пользователя
+     * @param {boolean} [options.noLogs=false] - Отключить логирование операции
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при вызове addXp или subtractXp
+     * @example
+     * // Установить точно 1000 опыта
+     * await profile.setXp({ amount: 1000, save: true });
+     * 
+     * // Установить 500 опыта без уведомлений
+     * await profile.setXp({ 
+     *   amount: 500, 
+     *   noNotification: true 
+     * });
+     * 
+     * // Сбросить опыт до 1 без логирования
+     * await profile.setXp({ 
+     *   amount: 1, 
+     *   noLogs: true 
+     * });
+     */
+    async setXp({ amount = 1, save = false, noNotification = false, noLogs = false }) {
+        if (this.totalxp > amount) await this.subtractXp({ amount: this.totalxp - amount, save, noNotification, noLogs })
+        if (this.totalxp < amount) await this.addXp({ amount: amount - this.totalxp, save, noNotification, noLogs })
+        return
+    }
+    /**
+     * Добавляет уровни пользователю с пересчетом опыта и обработкой связанных систем
+     * 
+     * Метод выполняет комплексное добавление уровней, включая:
+     * - Увеличение уровня пользователя
+     * - Пересчет общего опыта по арифметической прогрессии
+     * - Обработку квестов, связанных с уровнями
+     * - Обновление ролей уровня и отправку уведомлений
+     * - Добавление сезонных уровней (если применимо)
+     * 
+     * @async
+     * @param {Object} options - Параметры добавления уровней
+     * @param {number} [options.amount=1] - Количество уровней для добавления
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.noNotification=false] - Отключить уведомления пользователя
+     * @returns {Promise<void>}
+     * @throws {Error} Если настройки гильдии не найдены или возникают ошибки при сохранении
+     * 
+     * @example
+     * // Добавить 5 уровней с сохранением
+     * await profile.addLevel({ amount: 5, save: true });
+     * 
+     * // Добавить 1 уровень без уведомлений
+     * await profile.addLevel({ noNotification: true });
+     * 
+     * // Массовое добавление уровней
+     * await profile.addLevel({ amount: 10, save: true, noNotification: false });
+     */
+    async addLevel({ amount = 1, save = false, noNotification = false }) {
+        const { guildID, client } = this;
+        const settings = client.cache.settings.find(s => s.guildID === guildID);
+        if (!settings) return;
+
+        const oldLevel = this.level;
+        const targetLevel = oldLevel + amount;
+        
+        if (amount > 0) {
+            this.level = targetLevel;
+            const LEVEL_FACTOR = settings.levelfactor;
+            const startXp = oldLevel * LEVEL_FACTOR + 100;
+            const totalXpToAdd = (amount / 2) * (2 * startXp + (amount - 1) * LEVEL_FACTOR);
+            this.totalxp += totalXpToAdd;
+        }
+
+        // Обработка квестов
+        const hasLevelQuests = this.client.cache.quests.some(quest => 
+            quest.guildID === guildID && 
+            quest.isEnabled && 
+            quest.targets.some(target => target.type === "level")
+        );
+        
+        if (hasLevelQuests) {
+            await this.addQuestProgression({ type: "level", amount, noNotification });
+        }
+
+        if (this.level > oldLevel) {
+            // Обработка ролей уровня
+            const roleChanges = await this._processLevelRoles();
+
+            await Promise.all([
+                !noNotification ? this._sendLevelNotification(roleChanges) : null,
+                this.addSeasonLevel({ amount, noNotification })
+            ].filter(Boolean));
+        } else {
+            await this.addSeasonLevel({ amount, noNotification });
+        }
+
+        if (save) await this.save();
+    }
+    /**
+     * Вычитает уровни у пользователя с пересчетом опыта и обработкой связанных систем
+     * 
+     * Метод выполняет комплексное вычитание уровней, включая:
+     * - Уменьшение уровня пользователя (не ниже 1)
+     * - Пересчет общего опыта по формуле арифметической прогрессии
+     * - Корректировку текущего опыта в пределах нового уровня
+     * - Обновление ролей уровня и отправку уведомлений
+     * 
+     * @async
+     * @param {Object} options - Параметры вычитания уровней
+     * @param {number} [options.amount=1] - Количество уровней для вычитания
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.noNotification=false] - Отключить уведомления пользователя
+     * @returns {Promise<void>}
+     * @throws {Error} Если настройки гильдии не найдены или возникают ошибки при сохранении
+     * 
+     * @example
+     * // Вычесть 3 уровня с сохранением
+     * await profile.subtractLevel({ amount: 3, save: true });
+     * 
+     * // Вычесть 1 уровень без уведомлений
+     * await profile.subtractLevel({ noNotification: true });
+     * 
+     * // Вычесть 5 уровней (не ниже 1)
+     * await profile.subtractLevel({ amount: 5, save: true, noNotification: false });
+     */
+    async subtractLevel({ amount = 1, save = false }) {
+        const { guildID, client } = this;
+        const settings = client.cache.settings.get(guildID);
+        if (!settings || amount <= 0) return;
+
+        const oldLevel = this.level;
+        const targetLevel = Math.max(1, oldLevel - amount);
+        
+        if (targetLevel < oldLevel) {
+            const LEVEL_FACTOR = settings.levelfactor;
+            const levelsToRemove = oldLevel - targetLevel;
+            
+            // Вычисляем сумму XP для удаления (от targetLevel+1 до oldLevel)
+            const startLevel = targetLevel + 1;
+            const endLevel = oldLevel;
+            
+            // Сумма уровней: Σ(i=start to end) i = (end*(end+1) - start*(start-1))/2
+            const sumLevels = (endLevel * (endLevel + 1) - startLevel * (startLevel - 1)) / 2;
+            
+            // Сумма XP для удаления: FACTOR * sumLevels + 100 * levelsToRemove
+            const totalXpToRemove = LEVEL_FACTOR * sumLevels + 100 * levelsToRemove;
+            
+            // Обновляем значения
+            this.level = targetLevel;
+            this.totalxp -= Math.max(0, totalXpToRemove);
+            
+            // Корректируем текущий XP
+            const currentLevelXp = this.level * LEVEL_FACTOR + 100;
+            this.xp = Math.min(this.xp, currentLevelXp);
+        }
+
+        if (this.level < oldLevel) {
+            // Обработка ролей уровня
+            const roleChanges = await this._processLevelRoles();
+            if (!noNotification) {
+                // Отправка уведомления
+                await this._sendLevelNotification(roleChanges);
             }
-            if (this.seasonLevel < seasonOldLevel) await this.newSeasonLevelNotify()
         }
-        if (this.level < oldLevel) await this.newLevelNotify()
-        if (save) await this.save()
+
+        if (save) await this.save();
+    }
+    /**
+     * Устанавливает точное значение уровня профиля, автоматически вычисляя разницу
+     * 
+     * Метод интеллектуально устанавливает указанный уровень, определяя 
+     * необходимость добавления или вычитания уровней для достижения целевого значения.
+     * Если текущий уровень выше целевого - вызывается subtractLevel, 
+     * если ниже - addLevel.
+     * 
+     * @async
+     * @param {Object} options - Параметры установки уровня
+     * @param {number} [options.amount=1] - Целевое значение уровня для установки
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при вызове addLevel или subtractLevel
+     * @example
+     * // Установить точно 10 уровень
+     * await profile.setLevel({ amount: 10, save: true });
+     * 
+     * // Установить 5 уровень
+     * await profile.setLevel({ amount: 5 });
+     * 
+     * // Сбросить уровень до 1
+     * await profile.setLevel({ amount: 1, save: true });
+     * 
+     * // Повысить до максимального уровня
+     * await profile.setLevel({ amount: 100, save: true });
+     */
+    async setLevel({ amount = 1, save = false }) {
+        if (this.level > amount) await this.subtractLevel({ amount: this.level - amount, save })
+        if (this.level < amount) await this.addLevel({ amount: amount - this.level, save })
         return
     }
-    async addRp(amount, save, withoutAchievement, withoutLogs, withoutNotification) {
-        if (amount < 0) return this.subtractRp(amount*-1, save, withoutAchievement)
-        if (this.rp < 1000) { 
-            this.rp = amount
+    /**
+     * Добавляет сезонные уровни пользователю с пересчетом сезонного опыта
+     * 
+     * Метод выполняет добавление сезонных уровней, включая:
+     * - Увеличение сезонного уровня и пересчет сезонного опыта по арифметической прогрессии
+     * - Обработку квестов, связанных с сезонными уровнями
+     * - Отправку уведомлений о повышении сезонного уровня
+     * - Обработку достижений сезонных уровней
+     * 
+     * @async
+     * @param {Object} options - Параметры добавления сезонных уровней
+     * @param {number} [options.amount=1] - Количество сезонных уровней для добавления
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.noNotification=false] - Отключить уведомления пользователя
+     * @returns {Promise<void>}
+     * @throws {Error} Если настройки гильдии не найдены или возникают ошибки при сохранении
+     * 
+     * @example
+     * // Добавить 3 сезонных уровня с сохранением
+     * await profile.addSeasonLevel({ amount: 3, save: true });
+     * 
+     * // Добавить 1 сезонный уровень без уведомлений
+     * await profile.addSeasonLevel({ noNotification: true });
+     * 
+     * // Массовое добавление сезонных уровней
+     * await profile.addSeasonLevel({ amount: 5, save: true, noNotification: false });
+     */
+    async addSeasonLevel({ amount = 1, save = false, noNotification = false }) {
+        const { guildID, client } = this;
+        const settings = client.cache.settings.get(guildID);
+        if (!settings || !settings.seasonLevelsEnabled || amount <= 0) return;
+
+        const oldSeasonLevel = this.seasonLevel;
+        const targetLevel = oldSeasonLevel + amount;
+        
+        if (amount > 0) {
+            const LEVEL_FACTOR = settings.seasonLevelfactor;
+            const startXp = oldSeasonLevel * LEVEL_FACTOR + 100;
+            const totalXpToAdd = (amount / 2) * (2 * startXp + (amount - 1) * LEVEL_FACTOR);
+            this.seasonLevel = targetLevel;
+            this.seasonTotalXp += totalXpToAdd;
+            this.seasonXp = this._getCurrentXp(this.seasonTotalXp, settings.seasonLevelfactor)
         }
+
+        const hasSeasonLevelQuests = client.cache.quests.some(quest => 
+            quest.guildID === guildID && 
+            quest.isEnabled && 
+            quest.targets.some(target => target.type === "seasonLevel")
+        );
+        
+        if (hasSeasonLevelQuests) {
+            await this.addQuestProgression({ type: "seasonLevel", amount, noNotification });
+        }
+
+        // Уведомление
+        if (!noNotification) {
+            await this._sendSeasonLevelNotification();
+        }
+        if (this.seasonLevel > oldSeasonLevel) await this._processSeasonLevelAchievements(noNotification)
+
+        if (save) await this.save();
+    }
+    /**
+     * Устанавливает точное значение сезонного уровня профиля, автоматически вычисляя разницу
+     * 
+     * Метод интеллектуально устанавливает указанный сезонный уровень, определяя 
+     * необходимость добавления или вычитания сезонных уровней для достижения целевого значения.
+     * Если текущий сезонный уровень выше целевого - вызывается subtractSeasonLevel, 
+     * если ниже - addSeasonLevel.
+     * 
+     * @async
+     * @param {Object} options - Параметры установки сезонного уровня
+     * @param {number} [options.amount=1] - Целевое значение сезонного уровня для установки
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при вызове addSeasonLevel или subtractSeasonLevel
+     * @example
+     * // Установить точно 15 сезонный уровень
+     * await profile.setSeasonLevel({ amount: 15, save: true });
+     * 
+     * // Установить 5 сезонный уровень
+     * await profile.setSeasonLevel({ amount: 5 });
+     * 
+     * // Сбросить сезонный уровень до 1
+     * await profile.setSeasonLevel({ amount: 1, save: true });
+     * 
+     * // Установить высокий сезонный уровень
+     * await profile.setSeasonLevel({ amount: 50, save: true });
+     */
+    async setSeasonLevel({ amount = 1, save = false }) {
+        if (this.seasonLevel > amount) return await this.subtractSeasonLevel({ amount: this.seasonLevel - amount, save })
+        if (this.seasonLevel < amount) return await this.addSeasonLevel({ amount: amount - this.seasonLevel, save })
+        return
+    }
+    /**
+     * Вычитает сезонные уровни у профиля с пересчетом сезонного опыта
+     * 
+     * Метод выполняет вычитание сезонных уровней, включая:
+     * - Уменьшение сезонного уровня (не ниже 1)
+     * - Пересчет сезонного опыта по формуле арифметической прогрессии
+     * - Корректировку текущего сезонного опыта в пределах нового уровня
+     * - Отправку уведомлений о понижении сезонного уровня
+     * 
+     * @async
+     * @param {Object} options - Параметры вычитания сезонных уровней
+     * @param {number} [options.amount=1] - Количество сезонных уровней для вычитания
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @returns {Promise<void>}
+     * @throws {Error} Если настройки гильдии не найдены или возникают ошибки при сохранении
+     * 
+     * @example
+     * // Вычесть 3 сезонных уровня с сохранением
+     * await profile.subtractSeasonLevel({ amount: 3, save: true });
+     * 
+     * // Вычесть 1 сезонный уровень
+     * await profile.subtractSeasonLevel({ amount: 1 });
+     * 
+     * // Вычесть 5 сезонных уровней (не ниже 1)
+     * await profile.subtractSeasonLevel({ amount: 5, save: true });
+     */
+    async subtractSeasonLevel({ amount = 1, save = false }) {
+        const { guildID, client } = this;
+        const settings = client.cache.settings.get(guildID);
+        if (!settings || amount <= 0) return;
+
+        const oldSeasonLevel = this.seasonLevel;
+        const targetLevel = Math.max(1, oldSeasonLevel - amount); // Минимальный уровень 1
+        
+        // Оптимизированный расчет с помощью математических формул
+        if (targetLevel < oldSeasonLevel) {
+            const LEVEL_FACTOR = settings.seasonLevelfactor;
+            const levelsToRemove = oldSeasonLevel - targetLevel;
+            
+            // Вычисляем сумму XP для удаления (от targetLevel+1 до oldSeasonLevel)
+            const startLevel = targetLevel + 1;
+            const endLevel = oldSeasonLevel;
+            
+            // Сумма уровней: Σ(i=start to end) i = (end*(end+1) - start*(start-1))/2
+            const sumLevels = (endLevel * (endLevel + 1) - startLevel * (startLevel - 1)) / 2;
+            
+            // Сумма XP для удаления: FACTOR * sumLevels + 100 * levelsToRemove
+            const totalXpToRemove = LEVEL_FACTOR * sumLevels + 100 * levelsToRemove;
+            
+            // Обновляем значения
+            this.seasonLevel = targetLevel;
+            this.seasonTotalXp -= Math.max(0, totalXpToRemove);
+            
+            // Корректируем текущий сезонный XP
+            this.seasonXp = this._getCurrentXp(this.seasonTotalXp, settings.seasonLevelfactor)
+        }
+
+        // Уведомление только если уровень изменился
+        if (this.seasonLevel < oldSeasonLevel) {
+            await this._sendSeasonLevelNotification();
+        }
+
+        if (save) await this.save();
+    }
+    getRequiredXp(level, factor) {
+        return level * factor + 100;
+    }
+    /**
+     * Добавляет валюту пользователю с обработкой связанных систем
+     * 
+     * Метод выполняет комплексное добавление валюты, включая:
+     * - Увеличение количества валюты у пользователя
+     * - Автоматическое перенаправление на subtractCurrency при отрицательном amount
+     * - Логирование экономических операций
+     * - Обработку квестов, связанных с получением валюты
+     * - Проверку и выдача достижений за накопление валюты
+     * - Временное хранение обработанных достижений для избежания дублирования
+     * 
+     * @async
+     * @param {Object} options - Параметры добавления валюты
+     * @param {number} [options.amount=1] - Количество валюты для добавления (при отрицательном значении вызывает subtractCurrency)
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.withoutAchievement=false] - Отключить проверку достижений
+     * @param {boolean} [options.noLogs=false] - Отключить логирование операции
+     * @param {boolean} [options.noNotification=false] - Отключить уведомления пользователя
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при сохранении или обработке достижений
+     * 
+     * @example
+     * // Добавить 100 валюты с сохранением
+     * await profile.addCurrency({ amount: 100, save: true });
+     * 
+     * // Добавить 50 валюты без достижений и логов
+     * await profile.addCurrency({ 
+     *   amount: 50, 
+     *   withoutAchievement: true, 
+     *   noLogs: true 
+     * });
+     * 
+     * // Добавить 10 валюты без уведомлений
+     * await profile.addCurrency({ 
+     *   amount: 10, 
+     *   noNotification: true 
+     * });
+     */
+    async addCurrency({ amount = 1, save = false, withoutAchievement = false, noLogs = false, noNotification = false }) {
+        if (amount < 0) return this.subtractCurrency({ amount, save });
+        
+        this.currency += amount;
+        
+        // Логирование
+        if (!noLogs) {
+            this.client.emit("economyLogCreate", this.guildID, 
+                `${this.client.language({ textId: "Изменение валюты", guildId: this.guildID })} (${amount}) ${this.client.language({ textId: "для", guildId: this.guildID })} <@${this.userID}>`
+            );
+        }
+        
+        const { guildID, userID, client } = this;
+        
+        // Квесты
+        const guildQuests = client.cache.quests.filter(quest => 
+            quest.guildID === guildID && 
+            quest.isEnabled && 
+            quest.targets.some(target => target.type === "currency")
+        );
+        
+        if (guildQuests.size && amount !== 0) {
+            await this.addQuestProgression({ type: "currency", amount, noNotification });
+        }
+        
+        // Достижения
         if (!withoutAchievement) {
-            const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.Rp && e.enabled)
-            await Promise.all(achievements.map(async achievement => {
-                if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && (achievement.amount > 0 ? this.rp >= achievement.amount : this.rp <= achievement.amount) && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) {
-                    if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
-                    this.client.tempAchievements[this.userID].push(achievement.id)
-                    await this.addAchievement(achievement, false, withoutLogs, withoutNotification)
-                }    
-            }))   
+            const achievements = client.cache.achievements.filter(achievement => 
+                achievement.guildID === guildID && 
+                achievement.type === AchievementType.Currency && 
+                achievement.enabled
+            );
+            
+            const userAchievements = this.achievements || [];
+            const tempAchievements = client.tempAchievements[userID] || [];
+            
+            const achievementsToAdd = achievements.filter(achievement => 
+                !userAchievements.some(ach => ach.achievmentID === achievement.id) &&
+                this.currency >= achievement.amount &&
+                !tempAchievements.includes(achievement.id)
+            );
+            
+            if (achievementsToAdd.length > 0) {
+                // Инициализация временных достижений
+                if (!client.tempAchievements[userID]) {
+                    client.tempAchievements[userID] = [];
+                }
+                
+                // Добавляем ID во временный список
+                achievementsToAdd.forEach(achievement => {
+                    client.tempAchievements[userID].push(achievement.id);
+                });
+                
+                // Добавляем достижения параллельно
+                await Promise.all(
+                    achievementsToAdd.map(achievement => 
+                        this.addAchievement({ achievement, noLogs, noNotification })
+                    )
+                );
+            }
         }
-        if (this.rp > 1000) this.rp = 1000 - this.rp
-        try {
-            if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение репутации", guildId: this.guildID })} (${amount}) ${this.client.language({ textId: "для", guildId: this.guildID })} <@${this.userID}>`)
-        } catch (err) {
-            console.error(err)
-        }
-        if (save) await this.save()
-        return
+        
+        // Сохранение
+        if (save) await this.save();
     }
-    async subtractRp(amount, save, withoutAchievement) {
-        if (this.rp > -1000) this.rp = amount*-1
-        try {
-            this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение репутации", guildId: this.guildID })} (-${amount}) ${this.client.language({ textId: "для", guildId: this.guildID })} <@${this.userID}>`)
-        } catch (err) {
-            console.error(err)
+    /**
+     * Вычитает валюту у пользователя с обработкой связанных систем
+     * 
+     * Метод выполняет комплексное вычитание валюты, включая:
+     * - Уменьшение количества валюты у пользователя
+     * - Увеличение счетчика потраченной валюты (если не отключено)
+     * - Логирование экономических операций
+     * - Обработку квестов, связанных с тратой валюты
+     * - Проверку и выдача достижений за потраченную валюту
+     * - Временное хранение обработанных достижений для избежания дублирования
+     * 
+     * @async
+     * @param {Object} options - Параметры вычитания валюты
+     * @param {number} [options.amount=1] - Количество валюты для вычитания
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.noCurrencySpent=false] - Отключить увеличение счетчика потраченной валюты
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при сохранении или обработке достижений
+     * 
+     * @example
+     * // Вычесть 50 валюты с сохранением
+     * await profile.subtractCurrency({ amount: 50, save: true });
+     * 
+     * // Вычесть 25 валюты без учета в статистике потраченной валюты
+     * await profile.subtractCurrency({ 
+     *   amount: 25, 
+     *   noCurrencySpent: true 
+     * });
+     * 
+     * // Вычесть 100 валюты с полной обработкой
+     * await profile.subtractCurrency({ 
+     *   amount: 100, 
+     *   save: true 
+     * });
+     */
+    async subtractCurrency({ amount = 1, save = false, noCurrencySpent = false }) {
+        this.currency -= amount;
+        if (!noCurrencySpent) this.currencySpent += amount;
+        
+        const { guildID, userID, client } = this;
+        
+        // Логирование
+        this.client.emit("economyLogCreate", guildID, 
+            `${client.language({ textId: "Изменение валюты", guildId: guildID })} (-${amount}) ${client.language({ textId: "для", guildId: guildID })} <@${userID}>`
+        );
+        
+        // Квесты
+        const guildQuests = client.cache.quests.filter(quest => 
+            quest.guildID === guildID && 
+            quest.isEnabled && 
+            quest.targets.some(target => target.type === "currencySpent")
+        );
+        
+        if (guildQuests.size && amount !== 0) {
+            await this.addQuestProgression({ type: "currencySpent", amount });
         }
+        
+        // Достижения
+        const achievements = client.cache.achievements.filter(achievement => 
+            achievement.guildID === guildID && 
+            achievement.type === AchievementType.CurrencySpent && 
+            achievement.enabled
+        );
+        
+        if (achievements.size > 0) {
+            const userAchievements = this.achievements || [];
+            const tempAchievements = client.tempAchievements[userID] || [];
+            
+            const achievementsToAdd = achievements.filter(achievement => 
+                !userAchievements.some(ach => ach.achievmentID === achievement.id) &&
+                this.currencySpent >= achievement.amount &&
+                !tempAchievements.includes(achievement.id)
+            );
+            
+            if (achievementsToAdd.length > 0) {
+                // Инициализация временных достижений
+                if (!client.tempAchievements[userID]) {
+                    client.tempAchievements[userID] = [];
+                }
+                
+                // Добавляем ID во временный список
+                achievementsToAdd.forEach(achievement => {
+                    client.tempAchievements[userID].push(achievement.id);
+                });
+                
+                // Добавляем достижения параллельно
+                await Promise.all(
+                    achievementsToAdd.map(achievement => this.addAchievement({ achievement }))
+                );
+            }
+        }
+        
+        if (save) await this.save();
+    }
+    /**
+     * Добавляет прогресс для квестов пользователя по указанному типу
+     * 
+     * Метод выполняет обработку прогресса квестов, включая:
+     * - Проверку доступности пользователя (не в муте)
+     * - Обработку индивидуальных квестов пользователя
+     * - Обработку комьюнити квестов гильдии
+     * - Автоматическое сохранение изменений при необходимости
+     * 
+     * @async
+     * @param {Object} options - Параметры добавления прогресса квестов
+     * @param {string} options.type - Тип квеста для прогресса (например: "level", "currency", "message" и т.д.)
+     * @param {number} [options.amount=1] - Количество прогресса для добавления
+     * @param {Object} [options.object] - Дополнительный объект данных, связанный с прогрессом
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.noNotification=false] - Отключить уведомления о выполнении квестов
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при обработке квестов или сохранении
+     * 
+     * @example
+     * // Добавить прогресс для квестов типа "message"
+     * await profile.addQuestProgression({ 
+     *   type: "message", 
+     *   amount: 1, 
+     *   save: true 
+     * });
+     * 
+     * // Добавить прогресс для квестов типа "currency" с дополнительными данными
+     * await profile.addQuestProgression({ 
+     *   type: "currency", 
+     *   amount: 100,
+     *   object: { currencyType: "gold" },
+     *   noNotification: true 
+     * });
+     * 
+     * // Добавить прогресс для квестов типа "level" без уведомлений
+     * await profile.addQuestProgression({ 
+     *   type: "level", 
+     *   amount: 5,
+     *   save: true,
+     *   noNotification: true 
+     * });
+     */
+    async addQuestProgression({ type, amount = 1, object, save = false, noNotification = false }) {
+        const { guildID, userID, client } = this;
+        const guild = client.guilds.cache.get(guildID);
+        if (!guild) return;
+
+        const member = await guild.members.fetch(userID).catch(() => null);
+        if (!member) return;
+
+        const settings = client.cache.settings.find(s => s.guildID === guildID);
+        if (settings?.roles?.mutedRoles && member.roles.cache.hasAny(...settings.roles.mutedRoles)) {
+            return;
+        }
+
+        // Обработка обычных квестов
+        await this._processIndividualQuests(type, amount, object, guild, member, noNotification);
+        
+        // Обработка комьюнити квестов
+        await this._processCommunityQuests(type, amount, object, guild, member);
+        
+        if (save) await this.save();
+    }
+    /**
+     * Добавляет достижение пользователю с выдачей наград и уведомлений
+     * 
+     * Метод выполняет комплексную выдачу достижения, включая:
+     * - Поиск объекта достижения по ID (если передан не объект)
+     * - Проверку дублирования достижения
+     * - Проверку доступности пользователя (не в муте)
+     * - Логирование получения достижения
+     * - Выдачу наград за достижение (валюта, роли, предметы)
+     * - Проверку достижения "Получить все достижения"
+     * - Отправку уведомлений в специальный канал
+     * 
+     * @async
+     * @param {Object} options - Параметры добавления достижения
+     * @param {string|Object} options.achievement - ID достижения или объект достижения
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.noLogs=false] - Отключить логирование операции
+     * @param {boolean} [options.noNotification=false] - Отключить уведомления о получении достижения
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при выдаче наград или сохранении
+     * 
+     * @example
+     * // Добавить достижение по ID с сохранением
+     * await profile.addAchievement({ 
+     *   achievement: "achievement_001", 
+     *   save: true 
+     * });
+     * 
+     * // Добавить достижение по объекту без логов и уведомлений
+     * await profile.addAchievement({ 
+     *   achievement: achievementObject,
+     *   noLogs: true,
+     *   noNotification: true 
+     * });
+     * 
+     * // Добавить достижение с полной обработкой
+     * await profile.addAchievement({ 
+     *   achievement: "veteran_player",
+     *   save: true 
+     * });
+     */
+    async addAchievement({ achievement, save = false, noLogs = false, noNotification = false }) {
+        // Получаем объект достижения если передан ID
+        if (typeof achievement !== "object") {
+            achievement = this.client.cache.achievements.find(ach => ach.id === achievement && ach.enabled);
+            if (!achievement) return;
+        }
+
+        // Проверяем, есть ли уже это достижение
+        if (this.achievements?.some(e => e.achievmentID === achievement.id)) return;
+
+        const { guildID, userID, client } = this;
+        const guild = client.guilds.cache.get(guildID);
+        if (!guild) return;
+
+        const member = await guild.members.fetch(userID).catch(() => null);
+        if (!member) return;
+
+        const settings = client.cache.settings.find(s => s.guildID === guildID);
+        if (settings?.roles?.mutedRoles && member.roles.cache.hasAny(...settings.roles.mutedRoles)) {
+            return;
+        }
+
+        // Логирование получения достижения
+        if (!noLogs) {
+            client.emit("economyLogCreate", guildID, 
+                `<@${userID}> (${member.user.username}) ${client.language({ textId: "получил достижение", guildId: guild.id })} ${achievement.displayEmoji}${achievement.name} (${achievement.id})`
+            );
+        }
+
+        // Выдача наград
+        const rewardArray = await this._processAchievementRewards(achievement, guild, member, settings, noLogs, noNotification);
+        
+        // Добавляем достижение
+        if (!this.achievements) this.achievements = [];
+        this.achievements.push({ achievmentID: achievement.id });
+
+        // Проверяем достижение "Получить все достижения"
+        await this._checkGetAllAchievements(achievement, noLogs, noNotification);
+
+        // Уведомление в канал
+        if (!noNotification && settings.channels?.achievmentsNotificationChannelId) {
+            await this._sendAchievementNotification(member, guild, settings, achievement, rewardArray);
+        }
+
+        if (save) await this.save();
+    }
+    /**
+     * Удаляет достижение у пользователя
+     * 
+     * Метод выполняет удаление достижения из профиля пользователя, включая:
+     * - Определение ID достижения (из объекта или строки)
+     * - Поиск и удаление достижения из массива достижений пользователя
+     * - Очистку массива достижений при его опустошении
+     * - Автоматическое сохранение изменений при необходимости
+     * 
+     * @async
+     * @param {Object} options - Параметры удаления достижения
+     * @param {string|Object} options.achievement - ID достижения или объект достижения для удаления
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @returns {Promise<void>}
+     * 
+     * @example
+     * // Удалить достижение по ID с сохранением
+     * await profile.delAchievement({ 
+     *   achievement: "achievement_001", 
+     *   save: true 
+     * });
+     * 
+     * // Удалить достижение по объекту
+     * await profile.delAchievement({ 
+     *   achievement: achievementObject 
+     * });
+     * 
+     * // Удалить достижение без сохранения
+     * await profile.delAchievement({ 
+     *   achievement: "invalid_achievement" 
+     * });
+     */
+    async delAchievement({ achievement, save = false }) {
+        const achievementId = typeof achievement === "object" ? achievement.id : achievement;
+        
+        if (!this.achievements) return;
+        
+        const index = this.achievements.findIndex(e => e.achievmentID === achievementId);
+        if (index === -1) return;
+        
+        // Удаляем один элемент вместо фильтрации всего массива
+        this.achievements.splice(index, 1);
+        
+        // Очищаем массив если пустой
+        if (this.achievements.length === 0) {
+            this.achievements = undefined;
+        }
+        
+        if (save) await this.save();
+    }
+    /**
+     * Добавляет репутацию пользователю с ограничением и обработкой достижений
+     * 
+     * Метод выполняет добавление репутации, включая:
+     * - Увеличение репутации с ограничением максимум 1000
+     * - Автоматическое перенаправление на subtractRp при отрицательном amount
+     * - Проверку и блокировку при достижении максимальной репутации (1000)
+     * - Обработку достижений, связанных с репутацией
+     * - Логирование изменения репутации с обработкой ошибок
+     * 
+     * @async
+     * @param {Object} options - Параметры добавления репутации
+     * @param {number} [options.amount=1] - Количество репутации для добавления (при отрицательном значении вызывает subtractRp)
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.withoutAchievement=false] - Отключить проверку достижений
+     * @param {boolean} [options.noLogs=false] - Отключить логирование операции
+     * @param {boolean} [options.noNotification=false] - Отключить уведомления пользователя
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при сохранении или обработке достижений
+     * 
+     * @example
+     * // Добавить 10 репутации с сохранением
+     * await profile.addRp({ amount: 10, save: true });
+     * 
+     * // Добавить 5 репутации без достижений
+     * await profile.addRp({ 
+     *   amount: 5, 
+     *   withoutAchievement: true 
+     * });
+     * 
+     * // Добавить репутацию без логов и уведомлений
+     * await profile.addRp({ 
+     *   amount: 15, 
+     *   noLogs: true, 
+     *   noNotification: true 
+     * });
+     * 
+     * // Попытка добавить репутацию при максимальном значении (не выполнится)
+     * await profile.addRp({ amount: 50 }); // Если rp >= 1000
+     */
+    async addRp({ amount = 1, save = false, withoutAchievement = false, noLogs = false, noNotification = false }) {
+        if (amount < 0) return this.subtractRp({ amount, save, withoutAchievement });
+        if (this.rp >= 1000) return
+        const { guildID, userID, client } = this;
+        
+        // Добавляем репутацию с ограничением
+        this.rp += Math.min(1000, amount);
+        if  (this.rp > 1000) this.rp = 1000
+        
+        // Обработка достижений
         if (!withoutAchievement) {
-            const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.Rp && e.enabled)
-            await Promise.all(achievements.map(async achievement => {
-                if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && (achievement.amount > 0 ? this.rp >= achievement.amount : this.rp <= achievement.amount) && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) {
-                    if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
-                    this.client.tempAchievements[this.userID].push(achievement.id)
-                    await this.addAchievement(achievement)
-                }    
-            }))   
+            await this._processRpAchievements(noLogs, noNotification);
         }
-        if (save) await this.save()
-        return
+        
+        // Логирование
+        if (!noLogs) {
+            try {
+                client.emit("economyLogCreate", guildID, 
+                    `${client.language({ textId: "Изменение репутации", guildId: guildID })} (${amount}) ${client.language({ textId: "для", guildId: guildID })} <@${userID}>`
+                );
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        
+        if (save) await this.save();
     }
-    async addItem(itemID, amount, withoutAchievement, save, withoutLogs, withoutNotification) {
-        const item = this.client.cache.items.find(item => item.itemID === itemID && item.guildID === this.guildID && !item.temp && item.enabled)
-        if (!item) throw new Error(`Предмет не найден (Параметры itemID: ${itemID} guildID: ${this.guildID})`)
-        if (!this.inventory) this.inventory = []
-        const userItem = this.inventory.find((element) => { return element.itemID === itemID })
-        if (!userItem) {
-            const settings = this.client.cache.settings.find(settings => settings.guildID === this.guildID)
+    /**
+     * Вычитает репутацию у пользователя с ограничением и обработкой достижений
+     * 
+     * Метод выполняет вычитание репутации, включая:
+     * - Уменьшение репутации с ограничением минимум -1000
+     * - Логирование изменения репутации с обработкой ошибок
+     * - Обработку достижений, связанных с репутацией
+     * - Автоматическое сохранение изменений при необходимости
+     * 
+     * @async
+     * @param {Object} options - Параметры вычитания репутации
+     * @param {number} [options.amount=1] - Количество репутации для вычитания
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.withoutAchievement=false] - Отключить проверку достижений
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при сохранении или обработке достижений
+     * 
+     * @example
+     * // Вычесть 10 репутации с сохранением
+     * await profile.subtractRp({ amount: 10, save: true });
+     * 
+     * // Вычесть 5 репутации без обработки достижений
+     * await profile.subtractRp({ 
+     *   amount: 5, 
+     *   withoutAchievement: true 
+     * });
+     * 
+     * // Вычесть 25 репутации
+     * await profile.subtractRp({ amount: 25 });
+     * 
+     * // Вычесть большую сумму (ограничится до -1000)
+     * await profile.subtractRp({ amount: 1500, save: true });
+     */
+    async subtractRp({ amount = 1, save = false, withoutAchievement = false }) {
+        const { guildID, userID, client } = this;
+        
+        // Вычитаем репутацию с ограничением
+        this.rp -= Math.max(-1000, amount);
+        if (this.rp < -1000) this.rp = -1000
+        
+        // Логирование
+        try {
+            client.emit("economyLogCreate", guildID, 
+                `${client.language({ textId: "Изменение репутации", guildId: guildID })} (-${amount}) ${client.language({ textId: "для", guildId: guildID })} <@${userID}>`
+            );
+        } catch (err) {
+            console.error(err);
+        }
+        
+        // Обработка достижений
+        if (!withoutAchievement) {
+            await this._processRpAchievements();
+        }
+        
+        if (save) await this.save();
+    }
+    /**
+     * Добавляет предмет в инвентарь пользователя с обработкой связанных систем
+     * 
+     * Метод выполняет комплексное добавление предмета, включая:
+     * - Поиск и валидацию предмета в кэше
+     * - Инициализацию инвентаря при необходимости
+     * - Добавление нового предмета или увеличение количества существующего
+     * - Выдачу наград за первый полученный предмет
+     * - Логирование операции изменения инвентаря
+     * - Отметку предмета как найденного
+     * - Обработку достижений, связанных с предметами
+     * - Обновление прогресса квестов на получение предметов
+     * - Увеличение счетчика полученных предметов
+     * - Обработку достижений за общее количество полученных предметов
+     * 
+     * @async
+     * @param {Object} options - Параметры добавления предмета
+     * @param {string} options.itemID - ID предмета для добавления
+     * @param {number} [options.amount=1] - Количество предметов для добавления
+     * @param {boolean} [options.withoutAchievement=false] - Отключить проверку достижений
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @param {boolean} [options.noLogs=false] - Отключить логирование операции
+     * @param {boolean} [options.noNotification=false] - Отключить уведомления пользователя
+     * @returns {Promise<void>}
+     * @throws {Error} Если предмет не найден или возникают ошибки при сохранении
+     * 
+     * @example
+     * // Добавить 1 предмет по ID с сохранением
+     * await profile.addItem({ 
+     *   itemID: "sword_001", 
+     *   save: true 
+     * });
+     * 
+     * // Добавить 5 предметов без достижений и логов
+     * await profile.addItem({ 
+     *   itemID: "potion_health",
+     *   amount: 5,
+     *   withoutAchievement: true,
+     *   noLogs: true 
+     * });
+     * 
+     * // Добавить предмет с полной обработкой
+     * await profile.addItem({ 
+     *   itemID: "rare_artifact",
+     *   amount: 1,
+     *   save: true 
+     * });
+     */
+    async addItem({ itemID, amount = 1, withoutAchievement = false, save = false, noLogs = false, noNotification = false }) {
+        const { guildID, userID, client } = this;
+        
+        // Находим предмет
+        const item = client.cache.items.find(item => 
+            item.itemID === itemID && 
+            item.guildID === guildID && 
+            !item.temp && 
+            item.enabled
+        );
+        if (!item) throw new Error(`Предмет не найден (Параметры itemID: ${itemID} guildID: ${guildID})`);
+
+        // Инициализируем инвентарь
+        if (!this.inventory) this.inventory = [];
+        
+        const userItem = this.inventory.find(element => element.itemID === itemID);
+        const isNewItem = !userItem;
+
+        // Добавляем предмет
+        if (isNewItem) {
+            this.inventory.push({ itemID, amount });
+            await this._processFirstItemRewards(item, noLogs, noNotification);
+        } else {
+            userItem.amount = +`${new Decimal(userItem.amount).plus(amount)}`;
+        }
+
+        // Логирование
+        if (!noLogs) {
+            client.emit("economyLogCreate", guildID, 
+                `${client.language({ textId: "Изменение инвентаря", guildId: guildID })} (${item.displayEmoji}${item.name} (${item.itemID}) (${amount})) ${client.language({ textId: "для", guildId: guildID })} <@${userID}>`
+            );
+        }
+
+        // Отмечаем предмет как найденный
+        if (!item.found) {
+            item.found = true;
+            await item.save();
+        }
+
+        // Обработка достижений
+        if (!withoutAchievement) {
+            await this._processItemAchievements(itemID, noLogs, noNotification);
+        }
+
+        // Квесты
+        const quests = client.cache.quests.filter(quest => 
+            quest.guildID === guildID && 
+            quest.isEnabled && 
+            quest.targets.some(target => target.type === "itemsReceived")
+        );
+        if (quests.size) {
+            await this.addQuestProgression({ type: "itemsReceived", amount, object: itemID, noNotification });
+        }
+
+        // Обновляем счетчик полученных предметов
+        this.itemsReceived += amount;
+
+        // Достижения для полученных предметов
+        await this._processItemsReceivedAchievements(noLogs, noNotification);
+
+        if (save) await this.save();
+    }
+    /**
+     * Вычитает предмет из инвентаря пользователя или создает запись с отрицательным количеством
+     * 
+     * Метод выполняет вычитание предмета из инвентаря, включая:
+     * - Инициализацию инвентаря при необходимости
+     * - Поиск существующего предмета в инвентаре
+     * - Уменьшение количества существующего предмета с использованием точной арифметики Decimal
+     * - Создание новой записи с отрицательным количеством, если предмет не найден
+     * - Автоматическое сохранение изменений при необходимости
+     * 
+     * @async
+     * @param {Object} options - Параметры вычитания предмета
+     * @param {string} options.itemID - ID предмета для вычитания
+     * @param {number} [options.amount=1] - Количество предметов для вычитания
+     * @param {boolean} [options.save=false] - Сохранять ли изменения в базе данных
+     * @returns {Promise<void>}
+     * 
+     * @example
+     * // Вычесть 1 предмет по ID с сохранением
+     * await profile.subtractItem({ 
+     *   itemID: "potion_health", 
+     *   save: true 
+     * });
+     * 
+     * // Вычесть 3 предмета
+     * await profile.subtractItem({ 
+     *   itemID: "arrow",
+     *   amount: 3 
+     * });
+     * 
+     * // Вычесть предмет, которого нет в инвентаре (создаст отрицательную запись)
+     * await profile.subtractItem({ 
+     *   itemID: "nonexistent_item",
+     *   amount: 5,
+     *   save: true 
+     * });
+     */
+    async subtractItem({ itemID, amount = 1, save = false }) {
+        // Инициализируем инвентарь если нужно
+        if (!this.inventory) this.inventory = [];
+        
+        // Находим предмет
+        const itemIndex = this.inventory.findIndex(e => e.itemID === itemID);
+        
+        if (itemIndex !== -1) {
+            // Обновляем существующий предмет
+            const userItem = this.inventory[itemIndex];
+            userItem.amount = +`${new Decimal(userItem.amount).minus(amount)}`;
+        } else {
+            // Добавляем новый предмет с отрицательным количеством
             this.inventory.push({
                 itemID: itemID,
-                amount: amount,
-            })
-            if (((settings.xpForFirstFoundItem && !this.blockActivities?.item?.XP) || (settings.curForFirstFoundItem && !this.blockActivities?.item?.CUR))) {
-                const rewards = []
-                if (settings.xpForFirstFoundItem && !this.blockActivities?.item?.XP) {
-                    await this.addXp(settings.xpForFirstFoundItem, false, false, withoutLogs, withoutNotification)
-                    rewards.push(`> ${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: this.guildID })}** ${settings.xpForFirstFoundItem}`)
-                }
-                if (settings.curForFirstFoundItem && !this.blockActivities?.item?.CUR) {
-                    await this.addCurrency(settings.curForFirstFoundItem, false, false, withoutLogs)
-                    rewards.push(`> ${settings.displayCurrencyEmoji}**${settings.currencyName}** ${settings.curForFirstFoundItem}`)
-                }
-                if (rewards.length && !withoutNotification) {
-                    const guild = this.client.guilds.cache.get(this.guildID)
-                    if (guild) {
-                        const member = await guild.members.fetch(this.userID).catch(e => null)
-                        if (member && settings.channels.itemsNotificationChannelId) {
-                            const channel = await guild.channels.fetch(settings.channels.itemsNotificationChannelId).catch(e => null)
-                            if (channel && channel.permissionsFor(guild.members.me).has("SendMessages")) {
-                                const embed = new EmbedBuilder()
-                                    .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL() })
-                                    .setColor(item.hex || "#2F3236")
-                                    .setDescription(`${this.client.language({ textId: "За первое нахождение", guildId: this.guildID })} ${item.displayEmoji}**${item.name}** ${this.client.language({ textId: "ты", guildId: this.guildID })} ${this.sex === "male" ? `${this.client.language({ textId: "получил", guildId: this.guildID })}` : this.sex === "female" ? `${this.client.language({ textId: "получила", guildId: this.guildID })}` : `${this.client.language({ textId: "получил(-а)", guildId: this.guildID })}`}:\n${rewards.join("\n")}`)
-                                channel.send({ content: this.itemMention ? `<@${member.user.id}>` : ` `, embeds: [embed] }).catch(e => null)
-                            }
-                        }
-                    }    
-                }
+                amount: -amount
+            });
+        }
+        
+        if (save) await this.save();
+    }
+    /**
+     * Добавляет бамп пользователю с обработкой квестов и достижений
+     * 
+     * Метод выполняет комплексное добавление бампов, включая:
+     * - Увеличение счетчика бампов пользователя
+     * - Обработку квестов, связанных с бамперами
+     * - Проверку и выдача достижений за количество бампов
+     * - Использование временного хранилища достижений для избежания дублирования
+     * - Параллельное выполнение всех операций для оптимизации производительности
+     * - Автоматическое сохранение изменений при необходимости
+     * 
+     * @async
+     * @param {boolean} [save=false] - Сохранять ли изменения в базе данных
+     * @returns {Promise<void>}
+     * @throws {Error} Если возникают ошибки при обработке квестов или достижений
+     * 
+     * @example
+     * // Добавить бамп с сохранением
+     * await profile.addBump(true);
+     * 
+     * // Добавить бамп без сохранения
+     * await profile.addBump();
+     * 
+     * // Добавить бамп с автоматической обработкой квестов и достижений
+     * await profile.addBump(true);
+     */
+    async addBump(save) {
+        const { guildID, userID, client } = this;
+        
+        this.bumps += 1;
+
+        // Создаем все промисы сразу
+        const promises = [];
+
+        // Квесты
+        const hasBumpQuests = client.cache.quests.some(quest => 
+            quest.guildID === guildID && 
+            quest.isEnabled && 
+            quest.targets.some(target => target.type === "bump")
+        );
+        if (hasBumpQuests) {
+            promises.push(this.addQuestProgression({ type: "bump", amount: 1 }));
+        }
+
+        // Достижения
+        const achievements = client.cache.achievements.filter(achievement => 
+            achievement.guildID === guildID && 
+            achievement.type === AchievementType.Bump && 
+            achievement.enabled
+        );
+
+        const achievementsToAdd = achievements.filter(achievement => 
+            !this.achievements?.some(ach => ach.achievmentID === achievement.id) &&
+            this.bumps >= achievement.amount &&
+            !client.tempAchievements[userID]?.includes(achievement.id)
+        );
+
+        if (achievementsToAdd.length > 0) {
+            client.tempAchievements[userID] = client.tempAchievements[userID] || [];
+            achievementsToAdd.forEach(achievement => {
+                client.tempAchievements[userID].push(achievement.id);
+            });
+            
+            promises.push(...achievementsToAdd.map(achievement => this.addAchievement({ achievement })));
+        }
+
+        // Выполняем все операции параллельно
+        if (promises.length > 0) {
+            await Promise.all(promises);
+        }
+
+        if (save) await this.save();
+    }
+    getXpBoost(sum) { return this._getBoost('xp', sum); }
+    getCurBoost(sum) { return this._getBoost('cur', sum); }
+    getRpBoost(sum) { return this._getBoost('rp', sum); }
+    getLuckBoost(sum) { return this._getBoost('luck', sum); }
+    getXpBoostTime() { return this._getBoostTime('xp'); }
+    getCurBoostTime() { return this._getBoostTime('cur'); }
+    getRpBoostTime() { return this._getBoostTime('rp'); }
+    getLuckBoostTime() { return this._getBoostTime('luck'); }
+    /**
+     * Добавляет или сбрасывает квест для пользователя
+     * 
+     * Метод выполняет управление квестами пользователя, включая:
+     * - Инициализацию массива квестов при необходимости
+     * - Различную логику для комьюнити и обычных квестов
+     * - Для комьюнити квестов: простое добавление если не существует
+     * - Для обычных квестов: сброс прогресса существующего квеста или создание нового
+     * - Сброс всех целей и статуса выполнения для существующих обычных квестов
+     * - Автоматическое сохранение изменений при необходимости
+     * 
+     * @async
+     * @param {Object} quest - Объект квеста для добавления
+     * @param {string} quest.questID - ID квеста
+     * @param {boolean} quest.community - Флаг комьюнити квеста
+     * @param {Array} [quest.targets] - Массив целей квеста
+     * @param {boolean} [save=false] - Сохранять ли изменения в базе данных
+     * @returns {Promise<void>}
+     * 
+     * @example
+     * // Добавить обычный квест с сохранением
+     * await profile.addQuest({
+     *   questID: "daily_quest_001",
+     *   community: false,
+     *   targets: [
+     *     { targetID: "kill_monsters", reached: 0, finished: false },
+     *     { targetID: "collect_items", reached: 0, finished: false }
+     *   ]
+     * }, true);
+     * 
+     * // Добавить комьюнити квест
+     * await profile.addQuest({
+     *   questID: "community_event",
+     *   community: true
+     * });
+     * 
+     * // Сбросить существующий обычный квест
+     * await profile.addQuest(existingQuest, true);
+     */
+    async addQuest(quest, save) {
+        if (!quest) return;
+
+        // Инициализируем массив квестов если нужно
+        if (!this.quests) this.quests = [];
+
+        const questIndex = this.quests.findIndex(e => e.questID === quest.questID);
+        const questExists = questIndex >= 0;
+
+        if (quest.community) {
+            // Для комьюнити квестов просто добавляем если не существует
+            if (!questExists) {
+                this.quests.push({
+                    questID: quest.questID,
+                });
             }
         } else {
-            userItem.amount = +`${new Decimal(userItem.amount).plus(amount)}`
-        }
-        if (!withoutLogs) this.client.emit("economyLogCreate", this.guildID, `${this.client.language({ textId: "Изменение инвентаря", guildId: this.guildID })} (${item.displayEmoji}${item.name} (${item.itemID}) (${amount})) ${this.client.language({ textId: "для", guildId: this.guildID })} <@${this.userID}>`)
-        if (!item.found) {
-            item.found = true
-            await item.save()
-        }
-        if (!withoutAchievement) {
-            const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.Item && e.enabled)
-            await Promise.all(achievements.map(async achievement => {
-                if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && achievement.items.includes(itemID) && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) { 
-                    if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
-                    this.client.tempAchievements[this.userID].push(achievement.id)
-                    await this.addAchievement(achievement, false, withoutLogs, withoutNotification)
+            // Для обычных квестов
+            if (questExists) {
+                // Сбрасываем существующий квест
+                const existingQuest = this.quests[questIndex];
+                existingQuest.finished = false;
+                existingQuest.finishedDate = undefined;
+                
+                // Сбрасываем все цели квеста
+                if (existingQuest.targets) {
+                    existingQuest.targets.forEach(target => {
+                        target.reached = 0;
+                        target.finished = false;
+                    });
                 }
-            }))
+            } else {
+                // Создаем новый квест
+                this.quests.push({
+                    questID: quest.questID,
+                    targets: quest.targets?.map(target => ({
+                        targetID: target.targetID,
+                        reached: 0,
+                        finished: false,
+                    })) || [],
+                    finished: false
+                });
+            }
         }
-        const achievement = this.client.cache.achievements.find(e => e.guildID === this.guildID && e.type === AchievementType.Items && e.enabled)
-        if (achievement) {
-            const items = this.client.cache.items.filter(item => item.guildID === this.guildID && item.enabled && !item.temp)
-            let foundAllItems = items.size ? true : false
-            items.some(e => {
-                if (!this.inventory.find(ui => ui.itemID == e.itemID)) {
-                    foundAllItems = false
-                    return true
+
+        if (save) await this.save();
+    }
+    /**
+     * Удаляет квест из списка квестов пользователя
+     * 
+     * Метод выполняет удаление квеста, включая:
+     * - Поддержку передачи как объекта квеста, так и ID квеста
+     * - Эффективный поиск квеста с использованием findIndex
+     * - Удаление одного элемента без фильтрации всего массива
+     * - Очистку массива квестов при его опустошении
+     * - Автоматическое сохранение изменений при необходимости
+     * 
+     * @async
+     * @param {Object|string} quest - Объект квеста или ID квеста для удаления
+     * @param {boolean} [save=false] - Сохранять ли изменения в базе данных
+     * @returns {Promise<void>}
+     * 
+     * @example
+     * // Удалить квест по ID с сохранением
+     * await profile.delQuest("daily_quest_001", true);
+     * 
+     * // Удалить квест по объекту
+     * await profile.delQuest(questObject);
+     * 
+     * // Удалить квест без сохранения
+     * await profile.delQuest("expired_quest");
+     * 
+     * // Удалить квест и очистить массив если он последний
+     * await profile.delQuest("last_quest", true);
+     */
+    async delQuest(quest, save) {
+        if (!this.quests?.length) return;
+
+        const questId = typeof quest === 'object' ? quest.questID : quest;
+        const initialLength = this.quests.length;
+        
+        // Используем findIndex для более эффективного поиска
+        const questIndex = this.quests.findIndex(e => e.questID === questId);
+        
+        if (questIndex !== -1) {
+            // Удаляем один элемент вместо фильтрации всего массива
+            this.quests.splice(questIndex, 1);
+            
+            // Очищаем массив если он пустой
+            if (initialLength === 1) {
+                this.quests = undefined;
+            }
+        }
+
+        if (save) await this.save();
+    }
+    /**
+     * Добавляет роль в инвентарь ролей пользователя или увеличивает количество существующей
+     * 
+     * Метод управляет инвентарем ролей пользователя, включая:
+     * - Инициализацию массива inventoryRoles при необходимости
+     * - Поиск существующей роли по ID и времени действия (ms)
+     * - Увеличение количества существующей роли
+     * - Добавление новой роли с уникальным идентификатором
+     * - Генерацию уникального ID для каждой новой записи роли
+     * 
+     * @param {Object} options - Параметры добавления роли
+     * @param {string} options.id - ID роли для добавления
+     * @param {number} [options.amount=1] - Количество ролей для добавления
+     * @param {number} [options.ms] - Время действия роли в миллисекундах (опционально)
+     * @returns {void}
+     * 
+     * @example
+     * // Добавить 1 роль с временем действия
+     * profile.addRole({ 
+     *   id: "premium_role", 
+     *   ms: 2592000000 // 30 дней
+     * });
+     * 
+     * // Добавить 3 роли без времени действия
+     * profile.addRole({ 
+     *   id: "vip_role",
+     *   amount: 3 
+     * });
+     * 
+     * // Увеличить количество существующей роли
+     * profile.addRole({ 
+     *   id: "premium_role",
+     *   ms: 2592000000,
+     *   amount: 2 
+     * });
+     */
+    addRole({ id, amount = 1, ms }) {
+        // Инициализируем массив если нужно
+        if (!this.inventoryRoles) this.inventoryRoles = [];
+        
+        // Используем findIndex для получения индекса
+        const roleIndex = this.inventoryRoles.findIndex(e => e.id === id && e.ms === ms);
+        
+        if (roleIndex !== -1) {
+            // Обновляем существующую роль
+            this.inventoryRoles[roleIndex].amount += amount;
+        } else {
+            // Добавляем новую роль
+            this.inventoryRoles.push({ 
+                id, 
+                amount, 
+                ms, 
+                uniqId: uniqid.time() 
+            });
+        }
+    }
+    /**
+     * Вычитает роль из инвентаря ролей пользователя или удаляет ее при нулевом количестве
+     * 
+     * Метод управляет уменьшением количества ролей в инвентаре, включая:
+     * - Проверку существования массива inventoryRoles
+     * - Поиск роли по ID и времени действия (ms)
+     * - Уменьшение количества существующей роли
+     * - Удаление роли из инвентаря при достижении количества 0 или меньше
+     * - Очистку массива inventoryRoles при его опустошении
+     * 
+     * @param {Object} options - Параметры вычитания роли
+     * @param {string} options.id - ID роли для вычитания
+     * @param {number} [options.amount=1] - Количество ролей для вычитания
+     * @param {number} [options.ms] - Время действия роли в миллисекундах (для идентификации конкретной роли)
+     * @returns {void}
+     * 
+     * @example
+     * // Вычесть 1 роль с временем действия
+     * profile.subtractRole({ 
+     *   id: "premium_role", 
+     *   ms: 2592000000 
+     * });
+     * 
+     * // Вычесть 2 роли без времени действия
+     * profile.subtractRole({ 
+     *   id: "vip_role",
+     *   amount: 2 
+     * });
+     * 
+     * // Вычесть роль и удалить ее из инвентаря (если количество станет 0)
+     * profile.subtractRole({ 
+     *   id: "temporary_role",
+     *   ms: 86400000,
+     *   amount: 1 
+     * });
+     */
+    subtractRole({ id, amount = 1, ms }) {
+        if (!this.inventoryRoles?.length) return;
+        
+        // Находим индекс и элемент за одну операцию
+        const roleIndex = this.inventoryRoles.findIndex(e => e.id === id && e.ms === ms);
+        
+        if (roleIndex !== -1) {
+            const inventoryRole = this.inventoryRoles[roleIndex];
+            inventoryRole.amount -= amount;
+            
+            if (inventoryRole.amount <= 0) {
+                // Удаляем элемент по индексу
+                this.inventoryRoles.splice(roleIndex, 1);
+                
+                // Очищаем массив если он пустой
+                if (this.inventoryRoles.length === 0) {
+                    this.inventoryRoles = undefined;
+                }
+            }
+        }
+    }
+    _clearIncomeTimeouts() {
+        if (this.timeouts.nextIncome) {
+            lt.clearTimeout(this.timeouts.nextIncome);
+            this.timeouts.nextIncome = null;
+        }
+        if (this.timeouts.autoIncome) {
+            lt.clearTimeout(this.timeouts.autoIncome);
+            this.timeouts.autoIncome = null;
+        }
+    }
+    _calculateNextIncomeTimeout(now = Date.now()) {
+        if (!this.roleIncomeCooldowns?.size) return 0;
+        
+        let minTimeout = Infinity;
+        
+        for (const cooldownTime of this.roleIncomeCooldowns.values()) {
+            const timeout = cooldownTime - now;
+            if (timeout > 0 && timeout < minTimeout) {
+                minTimeout = timeout;
+            }
+        }
+        
+        return minTimeout !== Infinity ? minTimeout : 0;
+    }
+    async _getFilteredRoles(guild, member) {
+        let roles = this.client.cache.roles
+            .filter(role => role.guildID === guild.id && role.isEnabled)
+            .sort(a => a.type === "static" ? 1 : -1);
+
+        // Параллельная проверка разрешений
+        const roleChecks = await Promise.all(
+            roles.map(async (role) => {
+                if (!role.permission) return role;
+                
+                const permission = this.client.cache.permissions.find(p => p.id === role.permission);
+                if (!permission) return role;
+                
+                const isPassing = await permission.for(this, member);
+                return isPassing.value === true ? role : null;
+            })
+        );
+
+        return roleChecks.filter(role => role !== null);
+    }
+    async _processRolesIncome(roles, member, settings, interaction) {
+        const income = {};
+        const totalIncome = { xp: 0, cur: 0, rp: 0, items: {} };
+        const modifier = { xp: 0, cur: 0, rp: 0 };
+        let pass = false;
+        let notification = true;
+        const userRP = this.rp;
+
+        const now = Date.now();
+        
+        // Предзагружаем все роли гильдии
+        const guildRoles = new Map();
+        await Promise.all(
+            roles.map(async (role) => {
+                const guildRole = await member.guild.roles.fetch(role.id).catch(() => null);
+                if (guildRole) guildRoles.set(role.id, guildRole);
+            })
+        );
+
+        for (const roleIncome of roles) {
+            const guildRole = guildRoles.get(roleIncome.id);
+            if (!guildRole) {
+                await this._cleanupRoleCooldown(roleIncome.id);
+                continue;
+            }
+
+            if (!member.roles.cache.has(roleIncome.id)) {
+                await this._cleanupRoleCooldown(roleIncome.id);
+                continue;
+            }
+
+            // Проверка кулдауна
+            const cooldownEnd = this.roleIncomeCooldowns?.get(guildRole.id);
+            if (cooldownEnd && cooldownEnd > now) {
+                income[guildRole.id] = { cooldown: cooldownEnd };
+                continue;
+            }
+
+            // Исправляем минимальный кулдаун
+            if (roleIncome.cooldown < 0.16) {
+                roleIncome.cooldown = 0.16;
+                await roleIncome.save();
+            }
+
+            pass = true;
+            
+            if (roleIncome.type === "static") {
+                await this._processStaticIncome(roleIncome, guildRole, modifier, totalIncome, income, userRP, settings, interaction);
+                await this._setRoleCooldown(roleIncome, guildRole);
+                if (roleIncome.notification) notification = true;
+            } else if (roleIncome.type === "dynamic") {
+                this._processDynamicModifiers(roleIncome, modifier);
+            }
+        }
+
+        await this.save();
+
+        const totalIncomeDisplay = interaction ? this._formatTotalIncome(totalIncome, settings, interaction) : [];
+        
+        return { income, pass, notification, totalIncome: totalIncomeDisplay };
+    }
+    async _processStaticIncome(roleIncome, guildRole, modifier, totalIncome, income, userRP, settings, interaction) {
+        const incomeEntries = [];
+
+        // Обработка XP
+        if (roleIncome.xp) {
+            const amount = this._calculateAmount(roleIncome.xp, modifier.xp);
+            totalIncome.xp += amount;
+            incomeEntries.push({ type: 'xp', amount, method: amount > 0 ? 'addXp' : 'subtractXp' });
+        }
+
+        // Обработка валюты
+        if (roleIncome.cur) {
+            const amount = this._calculateAmount(roleIncome.cur, modifier.cur);
+            totalIncome.cur += amount;
+            incomeEntries.push({ type: 'cur', amount, method: amount > 0 ? 'addCurrency' : 'subtractCurrency' });
+        }
+
+        // Обработка репутации
+        if (roleIncome.rp) {
+            const amount = this._calculateAmount(roleIncome.rp, modifier.rp);
+            totalIncome.rp += amount;
+            if ((amount > 0 && userRP < 1000 && userRP >= -1000) || (amount < 0 && userRP <= 1000 && userRP > -1000)) {
+                incomeEntries.push({ type: 'rp', amount, method: amount > 0 ? 'addRp' : 'subtractRp' });
+            }
+        }
+
+        // Обработка предметов
+        if (roleIncome.items?.length) {
+            for (const itemIncome of roleIncome.items) {
+                const item = this.client.cache.items.find(e => 
+                    e.itemID === itemIncome.itemID && e.enabled && !e.temp
+                );
+                if (!item) continue;
+
+                const amount = this._calculateAmount(itemIncome.amount, modifier[itemIncome.itemID] || 0);
+                totalIncome.items[item.itemID] = (totalIncome.items[item.itemID] || 0) + amount;
+                
+                incomeEntries.push({ 
+                    type: 'item', 
+                    amount, 
+                    method: amount > 0 ? 'addItem' : 'subtractItem',
+                    itemId: item.itemID,
+                    item
+                });
+            }
+        }
+
+        // Параллельное выполнение всех операций с доходом
+        await Promise.all(
+            incomeEntries.map(async (entry) => {
+                const absAmount = Math.abs(entry.amount);
+                if (entry.type === 'item') {
+                    await this[entry.method]({ itemID: entry.itemId, amount: absAmount });
+                } else {
+                    await this[entry.method]({ amount: absAmount });
+                }
+                
+                // Форматирование для вывода
+                if (interaction && entry.amount !== 0) {
+                    this._formatIncomeDisplay(income, guildRole.id, entry, settings, interaction, modifier);
                 }
             })
-            if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && foundAllItems === true && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) {
-                if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
-                this.client.tempAchievements[this.userID].push(achievement.id)
-                await this.addAchievement(achievement, false, withoutLogs, withoutNotification)
+        );
+    }
+    _processDynamicModifiers(roleIncome, modifier) {
+        if (roleIncome.xp) modifier.xp += roleIncome.xp;
+        if (roleIncome.cur) modifier.cur += roleIncome.cur;
+        if (roleIncome.rp) modifier.rp += roleIncome.rp;
+        
+        if (roleIncome.items?.length) {
+            for (const itemIncome of roleIncome.items) {
+                const item = this.client.cache.items.find(e => 
+                    e.itemID === itemIncome.itemID && e.enabled && !e.temp
+                );
+                if (item) {
+                    modifier[item.itemID] = (modifier[item.itemID] || 0) + itemIncome.amount;
+                }
             }
         }
-        const guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "itemsReceived"))
-        if (guildQuests.size) await this.addQuestProgression("itemsReceived", amount, itemID, false, withoutNotification)
-        this.itemsReceived += amount
-        const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.ItemsReceived && e.enabled)
-        await Promise.all(achievements.map(async achievement => {
-            if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && this.itemsReceived >= achievement.amount && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) { 
-                if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
-                this.client.tempAchievements[this.userID].push(achievement.id)
-                await this.addAchievement(achievement, false, withoutLogs, withoutNotification)
-            }        
-        }))
-        if (save) await this.save()
-        return
     }
-    async newLevelNotify() {
-        const guild = this.client.guilds.cache.get(this.guildID)
-        if (guild) {
-            const member = await guild.members.fetch(this.userID).catch(e => null)
-            if (member) {
-                this.client.emit("economyLogCreate", this.guildID, `<@${member.user.id}> (${member.user.username}) ${this.client.language({ textId: "получил уровень", guildId: this.guildID })} 🎖${this.level}`)
-                const settings = this.client.cache.settings.find(settings => settings.guildID === this.guildID)
-                if (settings.levelsRoles.length > 0) {
-                    let rolesadd = ""
-                    let rolesremove = ""
-                    const rolesAdd = settings.levelsRoles.filter(e => this.level >= e.levelFrom && (!e.levelTo || e.levelTo > this.level) && !member.roles.cache.has(e.roleId))
-                    for (const role of rolesAdd) {
-                        const guild_role = await guild.roles.fetch(role.roleId).catch(e => null)
-                        if (guild_role && guild.members.me.roles.highest.position > guild_role.position) {
-                            await member.roles.add(guild_role.id).catch(e => null)
-                            rolesadd += `\n> <@&${guild_role.id}>`
-                        }
-                    }
-                    const rolesRemove = settings.levelsRoles.filter(e => (e.levelTo <= this.level || e.levelFrom > this.level) && member.roles.cache.has(e.roleId))
-                    for (const role of rolesRemove) {
-                        const guild_role = await guild.roles.fetch(role.roleId).catch(e => null)
-                        if (guild_role && guild.members.me.roles.highest.position > guild_role.position) {
-                            await member.roles.remove(guild_role.id).catch(e => null)
-                            rolesremove += `\n> <@&${guild_role.id}>`
-                        }
-                    }
-                    const newLevelNotifEmbed = new EmbedBuilder()
-                        .setColor(member.displayHexColor)
-                        .setFooter({ text: `${member.displayName} ${this.sex === "male" ? `${this.client.language({ textId: "получил", guildId: guild.id })}` : this.sex === "female" ? `${this.client.language({ textId: "получила", guildId: guild.id })}` : `${this.client.language({ textId: "получил(-а)", guildId: guild.id })}`} ${this.client.language({ textId: "уровень", guildId: guild.id })} 🎖${this.level}!\n${this.client.language({ textId: "До следующего уровня", guildId: guild.id })} ⭐${this.xp.toFixed()}/${this.level * settings.levelfactor + 100 } XP (${Math.floor((this.xp / (this.level * settings.levelfactor + 100)) * 100)}%)`, iconURL: member.displayAvatarURL() })
-                    if (rolesadd == "" && rolesremove == "" && settings.channels.levelNotificationChannelId) return guild.channels.fetch(settings.channels.levelNotificationChannelId).then(channel => channel.send({ embeds: [newLevelNotifEmbed] })).catch(e => null)
-                    newLevelNotifEmbed.setAuthor({ name: `${member.displayName} ${this.sex === "male" ? `${this.client.language({ textId: "получил", guildId: guild.id })}` : this.sex === "female" ? `${this.client.language({ textId: "получила", guildId: guild.id })}` : `${this.client.language({ textId: "получил(-а)", guildId: guild.id })}`} ${this.client.language({ textId: "уровень", guildId: guild.id })} 🎖${this.level}!`, iconURL: member.displayAvatarURL() })
-                    if (rolesadd !== "") newLevelNotifEmbed.addFields([{ name: `${this.client.language({ textId: "Добавлены роли", guildId: guild.id })}:`, value: rolesadd }])
-                    if (rolesremove !== "") newLevelNotifEmbed.addFields([{ name: `${this.client.language({ textId: "Удалены роли", guildId: guild.id })}:`, value: rolesremove }])
-                    newLevelNotifEmbed.setFooter({ text: `${this.client.language({ textId: "До следующего уровня", guildId: guild.id })} ⭐${this.xp.toFixed()}/${this.level * settings.levelfactor + 100 } XP (${Math.floor((this.xp / (this.level * settings.levelfactor + 100)) * 100)}%)` })
-                    if (settings.channels?.levelNotificationChannelId) guild.channels.fetch(settings.channels.levelNotificationChannelId).then(channel => channel.send({ content: this.levelMention ? `<@${member.user.id}>` : ` `, embeds: [newLevelNotifEmbed] })).catch(e => null)
-                } else {
-                    if (settings.channels?.levelNotificationChannelId) guild.channels.fetch(settings.channels.levelNotificationChannelId).then(channel => channel.send({ content: this.levelMention ? `<@${member.user.id}>` : ` `, embeds: [newLevelNotifEmbed] })).catch(e => null)
-                }    
+    _calculateAmount(base, modifier) {
+        return base + base * (modifier / 100);
+    }
+    _formatIncomeDisplay(income, roleId, entry, settings, interaction, modifier) {
+        if (!income[roleId]) income[roleId] = {};
+        
+        const modValue = entry.type === 'item' ? (modifier[entry.itemId] || 0) : modifier[entry.type];
+        const modText = modValue > 0 ? ` +${modValue}%` : modValue < 0 ? ` ${modValue}%` : "";
+        
+        let displayText = "";
+        switch (entry.type) {
+            case 'xp':
+                displayText = `${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${entry.amount.toLocaleString()}${modText})`;
+                income[roleId].xp = displayText;
+                break;
+            case 'cur':
+                displayText = `${settings.displayCurrencyEmoji}**${settings.currencyName}** (${entry.amount.toLocaleString()}${modText})`;
+                income[roleId].cur = displayText;
+                break;
+            case 'rp':
+                displayText = `${this.client.config.emojis.RP}**${this.client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${entry.amount.toLocaleString()}${modText})`;
+                income[roleId].rp = displayText;
+                break;
+            case 'item':
+                if (!income[roleId].items) income[roleId].items = [];
+                displayText = `${entry.item.displayEmoji}**${entry.item.name}** (${entry.amount.toLocaleString()}${modText})`;
+                income[roleId].items.push(displayText);
+                break;
+        }
+    }
+    _formatTotalIncome(totalIncome, settings, interaction) {
+        const result = [];
+        
+        if (totalIncome.xp) {
+            result.push(`• ${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${totalIncome.xp.toLocaleString()})`);
+        }
+        if (totalIncome.rp) {
+            result.push(`• ${this.client.config.emojis.RP}**${this.client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${totalIncome.rp.toLocaleString()})`);
+        }
+        if (totalIncome.cur) {
+            result.push(`• ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${totalIncome.cur.toLocaleString()})`);
+        }
+        
+        Object.keys(totalIncome.items).forEach(itemID => {
+            const item = this.client.cache.items.find(e => e.itemID === itemID && e.enabled && !e.temp);
+            if (item) {
+                result.push(`• ${item.displayEmoji}**${item.name}** (${totalIncome.items[itemID].toLocaleString()})`);
             }
-            const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.Level && e.enabled)
+        });
+        
+        return result;
+    }
+    _setRoleCooldown(roleIncome, guildRole) {
+        if (!this.roleIncomeCooldowns) this.roleIncomeCooldowns = new Map();
+        const cooldownMs = (roleIncome.cooldown || 1) * 60 * 60 * 1000;
+        this.roleIncomeCooldowns.set(guildRole.id, Date.now() + cooldownMs);
+    }
+    async _cleanupRoleCooldown(roleId) {
+        if (this.roleIncomeCooldowns?.has(roleId)) {
+            this.roleIncomeCooldowns.delete(roleId);
+            await this.save();
+        }
+    }
+    _manageIncomeTimers() {
+        if (!this.autoIncomeExpire || !this.roleIncomeCooldowns?.size) return;
+        
+        const timeouts = Array.from(this.roleIncomeCooldowns.values())
+            .map(value => value - Date.now())
+            .filter(value => value > 0);
+        
+        if (timeouts.length === 0) return;
+        
+        const timeout = Math.min(...timeouts);
+        this.timeouts.nextIncome = lt.setTimeout(async () => {
+            await this.getIncome();
+        }, timeout);
+    }
+    _handleNoGuild() {
+        if (this.autoIncomeExpire) {
+            this.autoIncomeExpire = undefined;
+            this.clearAutoIncomeTimeout();
+            return this.save();
+        }
+    }
+    _handleNoMember() {
+        if (this.autoIncomeExpire) {
+            this.autoIncomeExpire = undefined;
+            this.clearAutoIncomeTimeout();
+            return this.save();
+        }
+    }
+    _processStats(stats, changes) {
+        for (const [key, value] of Object.entries(stats)) {
+            if (value === 0) {
+                changes[key] = undefined
+            }
+        }
+    }
+    _subtractRegularXp(amount) {
+        const settings = this.client.cache.settings.get(this.guildID);
+        if (this.totalxp <= amount) {
+            this.xp = 0;
+            this.level = 1;
+            this.totalxp = 0;
+            return
+        }
+        this.totalxp -= amount;
+        this.level = this._getCurrentLevel(this.totalxp, settings.levelfactor);
+        this.xp = this._getCurrentXp(this.totalxp, settings.levelfactor);
+    }
+    _subtractSeasonXp(amount) {
+        const settings = this.client.cache.settings.get(this.guildID);
+        if (this.seasonTotalXp <= amount) {
+            this.seasonXp = 0;
+            this.seasonLevel = 1;
+            this.seasonTotalXp = 0;
+            return
+        }
+        this.seasonTotalXp -= amount;
+        this.seasonXp = this._getCurrentXp(this.seasonTotalXp, settings.seasonLevelfactor);
+    }
+    async _processLevelUps({ noNotification, noLogs }) {
+        const settings = this.client.cache.settings.get(this.guildID)
+        const oldLevel = this.level
+        this.level = this._getCurrentLevel(this.totalxp, settings.levelfactor)
+        const levelUps = this.level - oldLevel
+
+        if (levelUps > 0) {
+            const guild = this.client.guilds.cache.get(this.guildID);
+            const member = await guild.members.fetch(this.userID).catch(() => null);
+            if (!noLogs) {
+                // Логирование
+                this.client.emit("economyLogCreate", this.guildID, 
+                    `<@${member.user.id}> (${member.user.username}) ${this.client.language({ textId: "получил уровень", guildId: this.guildID })} 🎖${this.level}`
+                );     
+            }
+            // Квесты для уровней
+            const levelQuests = this.client.cache.quests.filter(quest => 
+                quest.guildID === this.guildID && 
+                quest.isEnabled && 
+                quest.targets.some(target => target.type === "level")
+            );
+            if (levelQuests.size) {
+                await this.addQuestProgression({ type: "level", amount: levelUps, noNotification });
+            }
+            // Обработка ролей уровня
+            const roleChanges = await this._processLevelRoles();
+
+            // Обработка достижений уровня
+            await this._processLevelAchievements(noNotification, noLogs);
+
+            if (!noNotification) {
+                // Отправка уведомления
+                await this._sendLevelNotification(roleChanges);
+            }
+        }
+    }
+    async _processSeasonLevelUps({ noNotification }) {
+        const settings = this.client.cache.settings.get(this.guildID)
+        const oldLevel = this.seasonLevel
+        this.seasonLevel = this._getCurrentLevel(this.seasonTotalXp, settings.seasonLevelfactor)
+        const levelUps = this.seasonLevel - oldLevel
+        
+        // Квесты для сезонных уровней
+        if (levelUps > 0) {
+            const seasonLevelQuests = this.client.cache.quests.filter(quest => 
+                quest.guildID === this.guildID && 
+                quest.isEnabled && 
+                quest.targets.some(target => target.type === "seasonLevel")
+            );
+            
+            if (seasonLevelQuests.size) {
+                await this.addQuestProgression({ type: "seasonLevel", amount: levelUps, noNotification });
+            }
+
+            const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.SeasonLevel && e.enabled)
             await Promise.all(achievements.map(async achievement => {
-                if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && this.level >= achievement.amount && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) { 
+                if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && this.seasonLevel >= achievement.amount && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) { 
                     if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
                     this.client.tempAchievements[this.userID].push(achievement.id)
-                    await this.addAchievement(achievement)
+                    await this.addAchievement({ achievement, noNotification })
                 }    
-            })) 
+            }))
+        } else if (levelUps < 0 && !noNotification) {
+            await this._sendSeasonLevelNotification()
         }
     }
-    async newSeasonLevelNotify() {
+    _getCurrentLevel(totalXp, factor) {
+        const a = factor / 2;
+        const b = 100 - factor / 2;
+        const c = -totalXp;
+        const discriminant = b * b - 4 * a * c;
+        const rawLevel = (-b + Math.sqrt(discriminant)) / (2 * a);
+        const exactXpForLevel = (Math.floor(rawLevel)) * (factor * (Math.floor(rawLevel) + 1) / 2 + 100);
+        if (totalXp >= exactXpForLevel) {
+            return Math.floor(rawLevel) + 1;
+        } else {
+            return Math.floor(rawLevel);
+        }
+    }
+    _getCurrentXp(totalXp, factor) {
+        const level = this._getCurrentLevel(totalXp, factor)
+        const xpForCurrentLevel = (level - 1) * (factor * level / 2 + 100);
+        return totalXp - xpForCurrentLevel;
+    }
+    async _processIndividualQuests(type, amount, object, guild, member, noNotification) {
+        const guildQuests = this.client.cache.quests.filter(quest => 
+            quest.guildID === this.guildID && 
+            quest.isEnabled && 
+            !quest.community
+        );
+        
+        if (!guildQuests.size) return;
+
+        const activeQuests = this.quests?.filter(quest => 
+            !quest.finished && 
+            guildQuests.some(gq => gq.questID == quest.questID && 
+                gq.targets.some(t => t.type === type && 
+                    quest.targets?.some(et => et.targetID === t.targetID && !et.finished)
+                )
+            )
+        ) || [];
+
+        for (const quest of activeQuests) {
+            const guildQuest = guildQuests.find(gq => gq.questID == quest.questID);
+            if (!guildQuest) continue;
+
+            let hasUpdates = false;
+            
+            for (const target of quest.targets) {
+                if (target.finished) continue;
+                
+                const guildQuestTarget = guildQuest.targets.find(t => t.targetID == target.targetID);
+                if (!guildQuestTarget || guildQuestTarget.type !== type) continue;
+                
+                if (!this._isTargetMatch(guildQuestTarget, object)) continue;
+                
+                target.reached = Math.min(target.reached + amount, guildQuestTarget.amount);
+                hasUpdates = true;
+                
+                if (target.reached >= guildQuestTarget.amount) {
+                    target.finished = true;
+                    if (!noNotification) {
+                        await this._sendQuestNotification(member, guild, guildQuest, guildQuestTarget);
+                    }
+                }
+            }
+            
+            if (hasUpdates) {
+                await this.save();
+            }
+        }
+    }
+    async _processCommunityQuests(type, amount, object) {
+        const communityQuests = this.client.cache.quests.filter(quest => 
+            quest.guildID === this.guildID && 
+            quest.isEnabled && 
+            quest.community && 
+            quest.active
+        );
+        
+        if (!communityQuests.size) return;
+
+        const savePromises = [];
+        
+        for (const [questId, quest] of communityQuests) {
+            let hasUpdates = false;
+            for (const target of quest.targets) {
+                if (target.finished) continue;
+                
+                if (!this._isTargetMatch(target, object) || target.type !== type) continue;
+                
+                target.reached = Math.min(target.reached + amount, target.amount);
+                hasUpdates = true;
+                
+                if (target.reached >= target.amount) {
+                    target.finished = true;
+                }
+            }
+            
+            if (hasUpdates) {
+                savePromises.push(quest.save());
+            }
+        }
+        
+        if (savePromises.length > 0) {
+            await Promise.all(savePromises);
+        }
+    }
+    _isTargetMatch(target, object) {
+        if (!target.object) return true;
+        if (!object) return false;
+        return target.object === object;
+    }
+    async _sendQuestNotification(member, guild, guildQuest, guildQuestTarget) {
+        const description = guildQuest.getDescription(guildQuestTarget);
+        const imageURL = await this.client.functions.getEmojiURL(this.client, guildQuest.emoji);
+        
+        const container = new ContainerBuilder()
+            .addTextDisplayComponents([
+                new TextDisplayBuilder()
+                    .setContent(`-# ${this.client.language({ textId: "Сервер", guildId: guild.id })} ${guild.name}`)
+            ]);
+        
+        const content = [
+            `# ${guildQuest.name}`,
+            `## ${this.client.language({ textId: "Подзадача выполнена", guildId: guild.id })}`
+        ].join("\n");
+        
+        if (imageURL) {
+            container.addSectionComponents([
+                new SectionBuilder()
+                    .addTextDisplayComponents([new TextDisplayBuilder().setContent(content)])
+                    .setThumbnailAccessory(new ThumbnailBuilder().setURL(imageURL))
+            ]);
+        } else {
+            container.addTextDisplayComponents([new TextDisplayBuilder().setContent(content)]);
+        }
+        
+        container.addSeparatorComponents(new SeparatorBuilder())
+            .addTextDisplayComponents([new TextDisplayBuilder().setContent(description)])
+            .addSeparatorComponents(new SeparatorBuilder())
+            .addActionRowComponents([
+                new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setLabel(guild.name)
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(`https://discord.com/channels/${guild.id}`)
+                )
+            ]);
+        
+        member?.send({ components: [container], flags: [MessageFlags.IsComponentsV2] })
+            .catch(() => {});
+    }
+    async _processAchievementRewards(achievement, guild, member, settings, noLogs, noNotification) {
+        const rewardArray = [];
+        const rewardPromises = [];
+
+        for (const reward of achievement.rewards) {
+            switch (reward.type) {
+                case RewardType.Currency:
+                    rewardPromises.push(
+                        this.addCurrency({ amount: reward.amount, withoutAchievement: true, noLogs, noNotification })
+                            .then(() => rewardArray.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${reward.amount})`))
+                    );
+                    break;
+
+                case RewardType.Experience:
+                    rewardPromises.push(
+                        this.addXp({ amount: reward.amount, noLogs, noNotification })
+                            .then(() => rewardArray.push(`${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: guild.id })}** (${reward.amount})`))
+                    );
+                    break;
+
+                case RewardType.Reputation:
+                    rewardPromises.push(
+                        this.addRp({ amount: reward.amount, withoutAchievement: true, noLogs, noNotification })
+                            .then(() => rewardArray.push(`${this.client.config.emojis.RP}**${this.client.language({ textId: "Репутация", guildId: guild.id })}** (${reward.amount})`))
+                    );
+                    break;
+
+                case RewardType.Item:
+                    const rewardItem = this.client.cache.items.find(item => 
+                        item.itemID === reward.id && 
+                        item.guildID === guild.id && 
+                        !item.temp && 
+                        item.enabled
+                    );
+                    if (rewardItem) {
+                        rewardPromises.push(
+                            this.addItem({ itemID: reward.id, amount: reward.amount, withoutAchievement: true, noLogs, noNotification })
+                                .then(() => rewardArray.push(`> ${rewardItem.displayEmoji}**${rewardItem.name}** (${reward.amount})`))
+                        );
+                    }
+                    break;
+
+                case RewardType.Role:
+                    rewardPromises.push(
+                        this._processRoleReward(reward, guild, member, achievement, noLogs)
+                            .then(roleAdded => {
+                                if (roleAdded) rewardArray.push(`<@&${reward.id}>`);
+                            })
+                    );
+                    break;
+            }
+        }
+
+        await Promise.all(rewardPromises);
+        return rewardArray;
+    }
+    async _processRoleReward(reward, guild, member, achievement, noLogs) {
+        try {
+            const guild_role = await guild.roles.fetch(reward.id).catch(() => null);
+            if (!guild_role) return false;
+
+            const me = guild.members.me;
+            if (!me || me.roles.highest.position <= guild_role.position) return false;
+
+            await member.roles.add(reward.id);
+            
+            if (!noLogs) {
+                this.client.emit("economyLogCreate", this.guildID, 
+                    `${this.client.language({ textId: "Изменение ролей", guildId: guild.id })} (+<@&${reward.id}>) ${this.client.language({ textId: "для", guildId: guild.id })} <@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "за награду достижения", guildId: guild.id })} ${achievement.displayEmoji}${achievement.name} (${achievement.id})`
+                );
+            }
+            return true;
+        } catch (err) {
+            console.error(err);
+            if (!noLogs) {
+                this.client.emit("economyLogCreate", this.guildID, 
+                    `${this.client.language({ textId: "Не удалось добавить роль", guildId: guild.id })} (<@&${reward.id}>) ${this.client.language({ textId: "для", guildId: guild.id })} <@${this.userID}> (${member.user.username}) ${this.client.language({ textId: "за награду достижения", guildId: guild.id })} ${achievement.displayEmoji}${achievement.name} (${achievement.id}): ${err.message}`
+                );
+            }
+            return false;
+        }
+    }
+    async _checkGetAllAchievements(currentAchievement, noLogs, noNotification) {
+        const getAllAchievement = this.client.cache.achievements.find(e => 
+            e.guildID === this.guildID && 
+            e.type === AchievementType.GetAllAchievements && 
+            e.enabled
+        );
+
+        if (!getAllAchievement || currentAchievement.id === getAllAchievement.id) return;
+
+        const guildAchievements = this.client.cache.achievements.filter(e => 
+            e.guildID === this.guildID && 
+            e.id !== getAllAchievement.id
+        );
+
+        const hasAllAchievements = guildAchievements.size > 0 && 
+            Array.from(guildAchievements.values()).every(ach => 
+                this.achievements?.find(userAch => userAch.achievmentID === ach.id)
+            );
+
+        if (hasAllAchievements && 
+            !this.achievements.some(ach => ach.achievmentID === getAllAchievement.id) &&
+            !this.client.tempAchievements[this.userID]?.includes(getAllAchievement.id)) {
+            
+            this.client.tempAchievements[this.userID] = this.client.tempAchievements[this.userID] || [];
+            this.client.tempAchievements[this.userID].push(getAllAchievement.id);
+            
+            await this.addAchievement({ getAllAchievement, noLogs, noNotification });
+        }
+    }
+    async _sendAchievementNotification(member, guild, settings, achievement, rewardArray) {
+        try {
+            const channel = await guild.channels.fetch(settings.channels.achievmentsNotificationChannelId);
+            if (!channel) return;
+
+            const description = this.client.functions.getAchievementDescription(achievement, undefined, undefined, settings, { guildId: guild.id }, member);
+            
+            const newAchNotifEmbed = new EmbedBuilder()
+                .setColor(member.displayHexColor)
+                .setAuthor({ 
+                    name: `${member.displayName} ${this._getAchievementVerb()} ${this.client.language({ textId: "новое достижение", guildId: guild.id })}!`, 
+                    iconURL: member.displayAvatarURL() 
+                })
+                .addFields([{ 
+                    name: `${this.client.language({ textId: "Достижение", guildId: guild.id })}:`, 
+                    value: `${achievement.displayEmoji}${achievement.name} › ${description}${
+                        rewardArray.length ? `\n${this.client.language({ textId: "Награда", guildId: guild.id })}:\n${rewardArray.join('\n')}` : ''
+                    }` 
+                }]);
+
+            const content = this.achievementMention ? `<@${member.user.id}>` : ' ';
+            await channel.send({ content, embeds: [newAchNotifEmbed] });
+        } catch (error) {
+            console.error('Failed to send achievement notification:', error);
+        }
+    }
+    _getAchievementVerb() {
+        switch (this.sex) {
+            case "male": return this.client.language({ textId: "получил", guildId: this.guildID });
+            case "female": return this.client.language({ textId: "получила", guildId: this.guildID });
+            default: return this.client.language({ textId: "получил(-а)", guildId: this.guildID });
+        }
+    }
+    async _processRpAchievements(noLogs, noNotification) {
+        const achievements = this.client.cache.achievements.filter(achievement => 
+            achievement.guildID === this.guildID && 
+            achievement.type === AchievementType.Rp && 
+            achievement.enabled
+        );
+        
+        if (achievements.size === 0) return;
+        
+        const userAchievements = this.achievements || [];
+        const tempAchievements = this.client.tempAchievements[this.userID] || [];
+        
+        const achievementsToAdd = achievements.filter(achievement => {
+            if (userAchievements.some(ach => ach.achievmentID === achievement.id)) return false;
+            if (tempAchievements.includes(achievement.id)) return false;
+            
+            // Проверка условия достижения
+            return achievement.amount > 0 ? this.rp >= achievement.amount : this.rp <= achievement.amount;
+        });
+        
+        if (achievementsToAdd.length === 0) return;
+        
+        // Инициализируем временные достижения
+        if (!this.client.tempAchievements[this.userID]) {
+            this.client.tempAchievements[this.userID] = [];
+        }
+        
+        // Добавляем ID во временный список
+        achievementsToAdd.forEach(achievement => {
+            this.client.tempAchievements[this.userID].push(achievement.id);
+        });
+        
+        // Добавляем достижения параллельно
+        await Promise.all(
+            achievementsToAdd.map(achievement => 
+                this.addAchievement({ achievement, noLogs, noNotification })
+            )
+        );
+    }
+    async _processFirstItemRewards(item, noLogs, noNotification) {
+        const settings = this.client.cache.settings.find(s => s.guildID === this.guildID);
+        if (!settings) return;
+
+        const hasXpReward = settings.xpForFirstFoundItem && !this.blockActivities?.item?.XP;
+        const hasCurrencyReward = settings.curForFirstFoundItem && !this.blockActivities?.item?.CUR;
+        
+        if (!hasXpReward && !hasCurrencyReward) return;
+
+        const rewards = [];
+        const rewardPromises = [];
+
+        if (hasXpReward) {
+            rewardPromises.push(
+                this.addXp({ amount: settings.xpForFirstFoundItem, noLogs, noNotification })
+                    .then(() => rewards.push(`> ${this.client.config.emojis.XP}**${this.client.language({ textId: "Опыт", guildId: this.guildID })}** ${settings.xpForFirstFoundItem}`))
+            );
+        }
+
+        if (hasCurrencyReward) {
+            rewardPromises.push(
+                this.addCurrency({ amount: settings.curForFirstFoundItem, noLogs })
+                    .then(() => rewards.push(`> ${settings.displayCurrencyEmoji}**${settings.currencyName}** ${settings.curForFirstFoundItem}`))
+            );
+        }
+
+        await Promise.all(rewardPromises);
+
+        if (rewards.length > 0 && !noNotification) {
+            await this._sendFirstItemNotification(item, settings, rewards);
+        }
+    }
+    async _sendFirstItemNotification(item, settings, rewards) {
+        const guild = this.client.guilds.cache.get(this.guildID);
+        if (!guild) return;
+
+        const member = await guild.members.fetch(this.userID).catch(() => null);
+        if (!member || !settings.channels?.itemsNotificationChannelId) return;
+
+        const channel = await guild.channels.fetch(settings.channels.itemsNotificationChannelId).catch(() => null);
+        if (!channel || !channel.permissionsFor(guild.members.me)?.has("SendMessages")) return;
+
+        const embed = new EmbedBuilder()
+            .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL() })
+            .setColor(item.hex || "#2F3236")
+            .setDescription(
+                `${this.client.language({ textId: "За первое нахождение", guildId: this.guildID })} ${item.displayEmoji}**${item.name}** ${this.client.language({ textId: "ты", guildId: this.guildID })} ${this._getRewardVerb()}:\n${rewards.join("\n")}`
+            );
+
+        const content = this.itemMention ? `<@${member.user.id}>` : ' ';
+        channel.send({ content, embeds: [embed] }).catch(() => {});
+    }
+    async _processItemAchievements(itemID, noLogs, noNotification) {
+        const achievements = this.client.cache.achievements.filter(achievement => 
+            achievement.guildID === this.guildID && 
+            achievement.type === AchievementType.Item && 
+            achievement.enabled
+        );
+
+        const achievementsToAdd = achievements.filter(achievement => 
+            achievement.items.includes(itemID) &&
+            !this.achievements?.some(ach => ach.achievmentID === achievement.id) &&
+            !this.client.tempAchievements[this.userID]?.includes(achievement.id)
+        );
+
+        if (achievementsToAdd.length > 0) {
+            this.client.tempAchievements[this.userID] = this.client.tempAchievements[this.userID] || [];
+            
+            achievementsToAdd.forEach(achievement => {
+                this.client.tempAchievements[this.userID].push(achievement.id);
+            });
+
+            await Promise.all(
+                achievementsToAdd.map(achievement => 
+                    this.addAchievement({ achievement, noLogs, noNotification })
+                )
+            );
+        }
+
+        // Проверяем достижение "Все предметы"
+        await this._checkAllItemsAchievement(noLogs, noNotification);
+    }
+    async _checkAllItemsAchievement(noLogs, noNotification) {
+        const achievement = this.client.cache.achievements.find(e => 
+            e.guildID === this.guildID && 
+            e.type === AchievementType.Items && 
+            e.enabled
+        );
+        if (!achievement) return;
+
+        const items = this.client.cache.items.filter(item => 
+            item.guildID === this.guildID && 
+            item.enabled && 
+            !item.temp
+        );
+
+        const hasAllItems = items.size > 0 && 
+            Array.from(items.values()).every(item => 
+                this.inventory?.find(ui => ui.itemID === item.itemID)
+            );
+
+        if (hasAllItems && 
+            !this.achievements?.some(ach => ach.achievmentID === achievement.id) &&
+            !this.client.tempAchievements[this.userID]?.includes(achievement.id)) {
+            
+            this.client.tempAchievements[this.userID] = this.client.tempAchievements[this.userID] || [];
+            this.client.tempAchievements[this.userID].push(achievement.id);
+            
+            await this.addAchievement({ achievement, noLogs, noNotification });
+        }
+    }
+    async _processItemsReceivedAchievements(noLogs, noNotification) {
+        const achievements = this.client.cache.achievements.filter(achievement => 
+            achievement.guildID === this.guildID && 
+            achievement.type === AchievementType.ItemsReceived && 
+            achievement.enabled
+        );
+
+        const achievementsToAdd = achievements.filter(achievement => 
+            this.itemsReceived >= achievement.amount &&
+            !this.achievements?.some(ach => ach.achievmentID === achievement.id) &&
+            !this.client.tempAchievements[this.userID]?.includes(achievement.id)
+        );
+
+        if (achievementsToAdd.length > 0) {
+            this.client.tempAchievements[this.userID] = this.client.tempAchievements[this.userID] || [];
+            
+            achievementsToAdd.forEach(achievement => {
+                this.client.tempAchievements[this.userID].push(achievement.id);
+            });
+
+            await Promise.all(
+                achievementsToAdd.map(achievement => 
+                    this.addAchievement({ achievement, noLogs, noNotification })
+                )
+            );
+        }
+    }
+    _getRewardVerb() {
+        switch (this.sex) {
+            case "male": return this.client.language({ textId: "получил", guildId: this.guildID });
+            case "female": return this.client.language({ textId: "получила", guildId: this.guildID });
+            default: return this.client.language({ textId: "получил(-а)", guildId: this.guildID });
+        }
+    }
+    async _processLevelRoles() {
+        const settings = this.client.cache.settings.get(this.guildID)
+        const guild = this.client.guilds.cache.get(this.guildID);
+        const member = await guild.members.fetch(this.userID).catch(() => null);
+        if (!settings.levelsRoles?.length) return { added: [], removed: [] };
+
+        const rolesAdd = settings.levelsRoles.filter(role => 
+            this.level >= role.levelFrom && 
+            (!role.levelTo || role.levelTo > this.level) && 
+            !member.roles.cache.has(role.roleId)
+        );
+
+        const rolesRemove = settings.levelsRoles.filter(role => 
+            (role.levelTo <= this.level || role.levelFrom > this.level) && 
+            member.roles.cache.has(role.roleId)
+        );
+
+        const addedRoles = [];
+        const removedRoles = [];
+        
+        const me = guild.members.me;
+        if (!me) return { added: [], removed: [] };
+
+        // Параллельная обработка добавления ролей
+        const addPromises = rolesAdd.map(async (role) => {
+            const guildRole = await guild.roles.fetch(role.roleId).catch(() => null);
+            if (!guildRole || me.roles.highest.position <= guildRole.position) return;
+            
+            await member.roles.add(guildRole.id).catch(() => null);
+            addedRoles.push(guildRole);
+        });
+
+        // Параллельная обработка удаления ролей
+        const removePromises = rolesRemove.map(async (role) => {
+            const guildRole = await guild.roles.fetch(role.roleId).catch(() => null);
+            if (!guildRole || me.roles.highest.position <= guildRole.position) return;
+            
+            await member.roles.remove(guildRole.id).catch(() => null);
+            removedRoles.push(guildRole);
+        });
+
+        await Promise.all([...addPromises, ...removePromises]);
+
+        return { 
+            added: addedRoles, 
+            removed: removedRoles 
+        };
+    }
+    async _sendLevelNotification(roleChanges) {
+        const settings = this.client.cache.settings.get(this.guildID)
+        const guild = this.client.guilds.cache.get(this.guildID);
+        const member = await guild.members.fetch(this.userID).catch(() => null);
+        const { added, removed } = roleChanges;
+        const hasRoleChanges = added.length > 0 || removed.length > 0;
+        
+        const requiredXp = this.level * settings.levelfactor + 100;
+        const progressPercent = Math.floor((this.xp / requiredXp) * 100);
+        
+        const levelVerb = this._getLevelVerb();
+        
+        const embed = new EmbedBuilder()
+            .setColor(member.displayHexColor)
+            .setFooter({ 
+                text: `${this.client.language({ textId: "До следующего уровня", guildId: guild.id })} ⭐${this.xp.toFixed()}/${requiredXp} XP (${progressPercent}%)` 
+            });
+
+        if (hasRoleChanges) {
+            embed.setAuthor({ 
+                name: `${member.displayName} ${levelVerb} ${this.client.language({ textId: "уровень", guildId: guild.id })} 🎖${this.level}!`, 
+                iconURL: member.displayAvatarURL() 
+            });
+
+            if (added.length > 0) {
+                embed.addFields([{ 
+                    name: `${this.client.language({ textId: "Добавлены роли", guildId: guild.id })}:`, 
+                    value: added.map(role => `\n> <@&${role.id}>`).join('') 
+                }]);
+            }
+
+            if (removed.length > 0) {
+                embed.addFields([{ 
+                    name: `${this.client.language({ textId: "Удалены роли", guildId: guild.id })}:`, 
+                    value: removed.map(role => `\n> <@&${role.id}>`).join('') 
+                }]);
+            }
+        } else {
+            embed.setFooter({ 
+                text: `${member.displayName} ${levelVerb} ${this.client.language({ textId: "уровень", guildId: guild.id })} 🎖${this.level}!\n${this.client.language({ textId: "До следующего уровня", guildId: guild.id })} ⭐${this.xp.toFixed()}/${requiredXp} XP (${progressPercent}%)`, 
+                iconURL: member.displayAvatarURL() 
+            });
+        }
+
+        // Отправляем в канал если настроен
+        if (settings.channels?.levelNotificationChannelId) {
+            const channel = await guild.channels.fetch(settings.channels.levelNotificationChannelId).catch(() => null);
+            if (channel) {
+                const content = this.levelMention ? `<@${member.user.id}>` : ' ';
+                await channel.send({ content, embeds: [embed] }).catch(() => null);
+            }
+        }
+    }
+    async _sendSeasonLevelNotification() {
+        const settings = this.client.cache.settings.get(this.guildID)
+        const guild = this.client.guilds.cache.get(this.guildID);
+        const member = await guild.members.fetch(this.userID).catch(() => null);
+        const requiredXp = this.seasonLevel * settings.seasonLevelfactor + 100;
+        const progressPercent = Math.floor((this.seasonXp / requiredXp) * 100);
+        
+        const levelVerb = this._getLevelVerb();
+        
+        const embed = new EmbedBuilder()
+            .setColor(member.displayHexColor)
+            .setFooter({ 
+                text: `${this.client.language({ textId: "До следующего сезонного уровня", guildId: guild.id })} ⭐${this.seasonXp.toFixed()}/${requiredXp} XP (${progressPercent}%)` 
+            });
+
+        embed.setFooter({ 
+            text: `${member.displayName} ${levelVerb} ${this.client.language({ textId: "сезонный уровень", guildId: guild.id })} 🎖${this.seasonLevel}!\n${this.client.language({ textId: "До следующего сезонного уровня", guildId: guild.id })} ⭐${this.seasonXp.toFixed()}/${requiredXp} XP (${progressPercent}%)`, 
+            iconURL: member.displayAvatarURL() 
+        });
+
+        // Отправляем в канал если настроен
+        if (settings.channels?.levelNotificationChannelId) {
+            const channel = await guild.channels.fetch(settings.channels.levelNotificationChannelId).catch(() => null);
+            if (channel) {
+                const content = this.levelMention ? `<@${member.user.id}>` : ' ';
+                await channel.send({ content, embeds: [embed] }).catch(() => null);
+            }
+        }
+    }
+    async _processLevelAchievements(noNotification, noLogs) {
+        const achievements = this.client.cache.achievements.filter(achievement => 
+            achievement.guildID === this.guildID && 
+            achievement.type === AchievementType.Level && 
+            achievement.enabled
+        );
+
+        const achievementsToAdd = achievements.filter(achievement => 
+            this.level >= achievement.amount &&
+            !this.achievements?.some(ach => ach.achievmentID === achievement.id) &&
+            !this.client.tempAchievements[this.userID]?.includes(achievement.id)
+        );
+
+        if (achievementsToAdd.length > 0) {
+            this.client.tempAchievements[this.userID] = this.client.tempAchievements[this.userID] || [];
+            
+            achievementsToAdd.forEach(achievement => {
+                this.client.tempAchievements[this.userID].push(achievement.id);
+            });
+
+            await Promise.all(
+                achievementsToAdd.map(achievement => this.addAchievement({ achievement, noLogs, noNotification }))
+            );
+        }
+    }
+    _getLevelVerb() {
+        switch (this.sex) {
+            case "male": return this.client.language({ textId: "получил", guildId: this.guildID });
+            case "female": return this.client.language({ textId: "получила", guildId: this.guildID });
+            default: return this.client.language({ textId: "получил(-а)", guildId: this.guildID });
+        }
+    }
+    async _processSeasonLevelAchievements(noNotification, noLogs) {
         const guild = this.client.guilds.cache.get(this.guildID)
         if (guild) {
             const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.SeasonLevel && e.enabled)
@@ -1261,287 +3113,76 @@ class Profile {
                 if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && this.seasonLevel >= achievement.amount && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) { 
                     if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
                     this.client.tempAchievements[this.userID].push(achievement.id)
-                    await this.addAchievement(achievement)
+                    await this.addAchievement({ achievement, noNotification, noLogs })
                 }    
             }))
         }
     }
-    async subtractItem(itemID, amount, save) {
-        const userItem = this.inventory.find(e => e.itemID === itemID)
-        if (userItem) {
-            userItem.amount = +`${new Decimal(userItem.amount).minus(amount)}`
-        } else {
-            this.inventory.push({
-                itemID: itemID,
-                amount: amount * -1,    
-            })
-        }
-        if (save) await this.save()
-        return
-    }
-    async addLevel(amount, save, withoutNotification) {
-        const settings = this.client.cache.settings.find(settings => settings.guildID === this.guildID)
-        const oldLevel = this.level
-        const LEVEL_FACTOR = settings.levelfactor
-        const oldTotalXp = this.totalxp
-        let i = 0
-        while (this.level < (oldLevel + amount)) {
-            this.totalxp = this.level * LEVEL_FACTOR + 100
-            this.level++
-            i++
-            if (i > 1000000) throw new Error(`Бесконечный цикл: addLevel:1045, amount: ${amount}, LEVEL_FACTOR: ${LEVEL_FACTOR}, oldLevel: ${oldLevel}, oldTotalXp: ${oldTotalXp}`) 
-        }
-        const guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "level"))
-        if (guildQuests.size) await this.addQuestProgression("level", amount, undefined, false, withoutNotification)
-        if (!withoutNotification)await this.newLevelNotify()
-        await this.addSeasonLevel(amount, false, withoutNotification)
-        if (save) await this.save()
-        return
-    }
-    async setXp(amount, save) {
-        if (this.totalxp > amount) await this.subtractXp(this.totalxp - amount, save)
-        if (this.totalxp < amount) await this.addXp(amount - this.totalxp, save)
-        return
-    }
-    async setLevel(amount, save) {
-        if (this.level > amount) await this.subtractLevel(this.level - amount, save)
-        if (this.level < amount) await this.addLevel(amount - this.level, save)
-        return
-    }
-    async addSeasonLevel(amount, save, withoutNotification) {
-        const settings = this.client.cache.settings.find(settings => settings.guildID === this.guildID)
-        const oldSeasonLevel = this.seasonLevel
-        const LEVEL_FACTOR = settings.seasonLevelfactor
-        let i = 0
-        while (this.seasonLevel < (oldSeasonLevel + amount)) {
-            this.seasonLevel++
-            this.seasonTotalXp += this.seasonLevel * LEVEL_FACTOR + 100
-            i++
-            if (i > 100000) throw new Error(`Бесконечный цикл: addSeasonLevel:1073, amount: ${amount}, LEVEL_FACTOR: ${LEVEL_FACTOR}, oldSeasonLevel: ${oldSeasonLevel}`)
-        }
-        const guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "seasonLevel"))
-        if (guildQuests.size) await this.addQuestProgression("seasonLevel", amount, undefined, false, withoutNotification)
-        if (!withoutNotification) await this.newSeasonLevelNotify()
-        if (save) await this.save()
-        return
-    }
-    async setSeasonLevel(amount, save) {
-        if (this.seasonLevel > amount) return await this.subtractSeasonLevel(this.seasonLevel - amount, save)
-        if (this.seasonLevel < amount) return await this.addSeasonLevel(amount - this.seasonLevel, save)
-        return
-    }
-    async subtractLevel(amount, save) {
-        const settings = this.client.cache.settings.find(settings => settings.guildID === this.guildID)
-        const LEVEL_FACTOR = settings.levelfactor
-        const oldLevel = this.level
-        const oldTotalXp = this.totalxp
-        let i = 0
-        while (this.level > (oldLevel - amount)) {
-            this.level--
-            this.totalxp = this.totalxp - (this.level * LEVEL_FACTOR + 100) - this.totalxp
-            if (this.xp > 0) this.xp = this.level * LEVEL_FACTOR + 100 - Math.abs(this.xp - (this.level * LEVEL_FACTOR + 100))
-            i++
-            if (i > 100000) throw new Error(`Бесконечный цикл: subtractLevel:1097, amount: ${amount}, LEVEL_FACTOR: ${LEVEL_FACTOR}, oldLevel: ${oldLevel}, oldTotalXp: ${oldTotalXp}`) 
-        }
-        await this.newLevelNotify()
-        if (save) await this.save()
-        return
-    }
-    async addBump(save) {
-        const achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.type === AchievementType.Bump && e.enabled)
-        this.bumps = 1
-        const guildQuests = this.client.cache.quests.filter(quest => quest.guildID === this.guildID && quest.isEnabled && quest.targets.some(target => target.type === "bump"))
-        if (guildQuests.size) await this.addQuestProgression("bump", 1)
-        await Promise.all(achievements.map(async achievement => {
-            if (!this.achievements?.some(ach => ach.achievmentID === achievement.id) && this.bumps >= achievement.amount && !this.client.tempAchievements[this.userID]?.includes(achievement.id)) { 
-                if (!this.client.tempAchievements[this.userID]) this.client.tempAchievements[this.userID] = []
-                this.client.tempAchievements[this.userID].push(achievement.id)
-                await this.addAchievement(achievement)
-            }        
-        }))
-        if (save) await this.save()
-        return
-    }
-    async subtractSeasonLevel(amount, save) {
-        const settings = this.client.cache.settings.find(settings => settings.guildID === this.guildID)
-        const LEVEL_FACTOR = settings.seasonLevelfactor
-        const oldSeasonLevel = this.seasonLevel
-        let i = 0
-        while (this.seasonLevel > (oldSeasonLevel - amount)) {
-            this.seasonTotalXp -= this.seasonLevel * LEVEL_FACTOR + 100
-            this.seasonXp = Math.abs(this.seasonXp - this.seasonLevel * LEVEL_FACTOR + 100)
-            this.seasonLevel--
-            i++
-            if (i > 100000) throw new Error(`Бесконечный цикл: subtractSeasonLevel:1128, amount: ${amount}, LEVEL_FACTOR: ${LEVEL_FACTOR}, oldSeasonLevel: ${oldSeasonLevel}`)
-        }
-        await this.newSeasonLevelNotify()
-        if (save) await this.save()
-        return
-    }
-    getXpBoost(sum) {
-        const settings = this.client.cache.settings.get(this.guildID)
-        let booster = 0
-        const profile_booster = (this.multiplyXPTime < new Date() || !this.multiplyXPTime) ? 0 : this.multiplyXP || 0
-        const global_booster = settings.xp_booster ? !settings.xp_booster.until ? settings.xp_booster.multiplier || 0 : settings.xp_booster.until < new Date() ? 0 : settings.xp_booster.multiplier || 0 : 0
+    _getBoost(type, sum) {
+        const settings = this.client.cache.settings.get(this.guildID);
+        if (!settings) return 0;
+
+        const now = Date.now();
+        const typeMap = {
+            xp: { profile: 'multiplyXP', time: 'multiplyXPTime', global: 'xp_booster' },
+            cur: { profile: 'multiplyCUR', time: 'multiplyCURTime', global: 'cur_booster' },
+            rp: { profile: 'multiplyRP', time: 'multiplyRPTime', global: 'rp_booster' },
+            luck: { profile: 'multiplyLuck', time: 'multiplyLuckTime', global: 'luck_booster' }
+        };
+
+        const { profile: profileProp, time: timeProp, global: globalProp } = typeMap[type];
+        
+        // Профильный бустер
+        const profileTime = this[timeProp];
+        const profileBooster = (profileTime && new Date(profileTime).getTime() > now) ? (this[profileProp] || 0) : 0;
+        
+        // Глобальный бустер
+        const globalBooster = settings[globalProp];
+        const globalValue = (globalBooster && (!globalBooster.until || new Date(globalBooster.until).getTime() > now)) 
+            ? (globalBooster.multiplier || 0) 
+            : 0;
+
         if (!settings.global_boosters_stacking) {
-            booster = Math.max(...[profile_booster, global_booster, sum || 0])    
+            return Math.max(profileBooster, globalValue, sum || 0);
         } else {
-            booster = +`${new Decimal(booster).plus(profile_booster).plus(global_booster)}`
-            if (sum) booster = +`${new Decimal(booster).plus(sum)}`
+            let booster = profileBooster + globalValue;
+            if (sum) booster += sum;
+            return booster;
         }
-        return booster
     }
-    getCurBoost(sum) {
-        const settings = this.client.cache.settings.get(this.guildID)
-        let booster = 0
-        const profile_booster = (this.multiplyCURTime < new Date() || !this.multiplyCURTime) ? 0 : this.multiplyCUR || 0
-        const global_booster = settings.cur_booster ? !settings.cur_booster.until ? settings.cur_booster.multiplier || 0 : settings.cur_booster.until < new Date() ? 0 : settings.cur_booster.multiplier || 0 : 0
+    _getBoostTime(type) {
+        const settings = this.client.cache.settings.get(this.guildID);
+        if (!settings) return undefined;
+
+        const now = Date.now();
+        const typeMap = {
+            xp: { profile: 'multiplyXP', time: 'multiplyXPTime', global: 'xp_booster' },
+            cur: { profile: 'multiplyCUR', time: 'multiplyCURTime', global: 'cur_booster' },
+            rp: { profile: 'multiplyRP', time: 'multiplyRPTime', global: 'rp_booster' },
+            luck: { profile: 'multiplyLuck', time: 'multiplyLuckTime', global: 'luck_booster' }
+        };
+
+        const { profile: profileProp, time: timeProp, global: globalProp } = typeMap[type];
+        
+        const profileTime = this[timeProp] ? new Date(this[timeProp]).getTime() : 0;
+        const globalTime = settings[globalProp]?.until ? new Date(settings[globalProp].until).getTime() : 0;
+        
+        const profileBooster = (profileTime > now) ? (this[profileProp] || 0) : 0;
+        const globalBooster = (globalTime > now) ? (settings[globalProp]?.multiplier || 0) : 0;
+
         if (!settings.global_boosters_stacking) {
-            booster = Math.max(...[profile_booster, global_booster, sum || 0])    
-        } else {
-            booster = +`${new Decimal(booster).plus(profile_booster).plus(global_booster)}`
-            if (sum) booster = +`${new Decimal(booster).plus(sum)}`
-        }
-        return booster
-    }
-    getRpBoost(sum) {
-        const settings = this.client.cache.settings.get(this.guildID)
-        let booster = 0
-        const profile_booster = (this.multiplyRPTime < new Date() || !this.multiplyRPTime) ? 0 : this.multiplyRP || 0
-        const global_booster = settings.rp_booster ? !settings.rp_booster.until ? settings.rp_booster.multiplier || 0 : settings.rp_booster.until < new Date() ? 0 : settings.rp_booster.multiplier || 0 : 0
-        if (!settings.global_boosters_stacking) {
-            booster = Math.max(...[profile_booster, global_booster, sum || 0])    
-        } else {
-            booster = +`${new Decimal(booster).plus(profile_booster).plus(global_booster)}`
-            if (sum) booster = +`${new Decimal(booster).plus(sum)}`
-        }
-        return booster
-    }
-    getLuckBoost(sum) {
-        const settings = this.client.cache.settings.get(this.guildID)
-        let booster = 0
-        const profile_booster = (this.multiplyLuckTime < new Date() || !this.multiplyLuckTime) ? 0 : this.multiplyLuck || 0
-        const global_booster = settings.luck_booster ? !settings.luck_booster.until ? settings.luck_booster.multiplier || 0 : settings.luck_booster.until < new Date() ? 0 : settings.luck_booster.multiplier || 0 : 0
-        if (!settings.global_boosters_stacking) {
-            booster = Math.max(...[profile_booster, global_booster, sum || 0])    
-        } else {
-            booster = +`${new Decimal(booster).plus(profile_booster).plus(global_booster)}`
-            if (sum) booster = +`${new Decimal(booster).plus(sum)}`
-        }
-        return booster
-    }
-    
-    getXpBoostTime() {
-        const settings = this.client.cache.settings.get(this.guildID)
-        const profile_booster = (this.multiplyXPTime < new Date() || !this.multiplyXPTime) ? 0 : this.multiplyXP || 0
-        const global_booster = settings.xp_booster ? !settings.xp_booster.until ? settings.xp_booster.multiplier || 0 : settings.xp_booster.until < new Date() ? 0 : settings.xp_booster.multiplier || 0 : 0
-        if (!settings.global_boosters_stacking) {
-            if (profile_booster > global_booster && this.multiplyXPTime > new Date()) return this.multiplyXPTime.valueOf()
-            else return settings.xp_booster.until?.valueOf() || undefined
-        } else {
-            let sum = [this.multiplyXPTime > new Date() ? this.multiplyXPTime.valueOf() : 0, settings.xp_booster?.until > new Date() ? settings.xp_booster.until?.valueOf() : 0]
-            sum = sum.filter(e => e !== 0)
-            if (!sum.length) return undefined
-            return Math.min(...sum)
-        }
-    }
-    getCurBoostTime() {
-        const settings = this.client.cache.settings.get(this.guildID)
-        const profile_booster = (this.multiplyCURTime < new Date() || !this.multiplyCURTime) ? 0 : this.multiplyCUR || 0
-        const global_booster = settings.cur_booster ? !settings.cur_booster.until ? settings.cur_booster.multiplier || 0 : settings.cur_booster.until < new Date() ? 0 : settings.cur_booster.multiplier || 0 : 0
-        if (!settings.global_boosters_stacking) {
-            if (profile_booster > global_booster && this.multiplyCURTime > new Date()) return this.multiplyCURTime.valueOf()
-            else return settings.cur_booster?.until?.valueOf() || undefined
-        } else {
-            let sum = [this.multiplyCURTime > new Date() ? this.multiplyCURTime.valueOf() : 0, settings.cur_booster?.until > new Date() ? settings.cur_booster.until?.valueOf() : 0]
-            sum = sum.filter(e => e !== 0)
-            if (!sum.length) return undefined
-            return Math.min(...sum)
-        }
-    }
-    getRpBoostTime() {
-        const settings = this.client.cache.settings.get(this.guildID)
-        const profile_booster = (this.multiplyRPTime < new Date() || !this.multiplyRPTime) ? 0 : this.multiplyRP || 0
-        const global_booster = settings.rp_booster ? !settings.rp_booster.until ? settings.rp_booster.multiplier || 0 : settings.rp_booster.until < new Date() ? 0 : settings.rp_booster.multiplier || 0 : 0
-        if (!settings.global_boosters_stacking) {
-            if (profile_booster > global_booster && this.multiplyRPTime > new Date()) return this.multiplyRPTime.valueOf()
-            else return settings.rp_booster.until?.valueOf() || undefined
-        } else {
-            let sum = [this.multiplyRPTime > new Date() ? this.multiplyRPTime.valueOf() : 0, settings.rp_booster?.until > new Date() ? settings.rp_booster.until?.valueOf() : 0]
-            sum = sum.filter(e => e !== 0)
-            if (!sum.length) return undefined
-            return Math.min(...sum)
-        }
-    }
-    getLuckBoostTime() {
-        const settings = this.client.cache.settings.get(this.guildID)
-        const profile_booster = (this.multiplyLuckTime < new Date() || !this.multiplyLuckTime) ? 0 : this.multiplyLuck || 0
-        const global_booster = settings.luck_booster ? !settings.luck_booster.until ? settings.luck_booster.multiplier || 0 : settings.luck_booster.until < new Date() ? 0 : settings.luck_booster.multiplier || 0 : 0
-        if (!settings.global_boosters_stacking) {
-            if (profile_booster > global_booster && this.multiplyLuckTime > new Date()) return this.multiplyLuckTime.valueOf()
-            else return settings.luck_booster.until?.valueOf() || undefined
-        } else {
-            let sum = [this.multiplyLuckTime > new Date() ? this.multiplyLuckTime.valueOf() : 0, settings.luck_booster?.until > new Date() ? settings.luck_booster.until?.valueOf() : 0]
-            sum = sum.filter(e => e !== 0)
-            if (!sum.length) return undefined
-            return Math.min(...sum)
-        }
-    }
-    async addQuest(quest, save) {
-        if (quest.community && (this.quests?.findIndex(e => e.questID === quest.questID) || -1) < 0) {
-            if (!this.quests) this.quests = []
-            this.quests.push({
-                questID: quest.questID,
-            })
-        } else if (!quest.community) {
-            const indexOfMyQuest = this.quests ? this.quests.findIndex(e => e.questID === quest.questID) : -1
-            if (indexOfMyQuest >= 0) {
-                this.quests[indexOfMyQuest].finished = false
-                this.quests[indexOfMyQuest].finishedDate = undefined
-                this.quests[indexOfMyQuest].targets.forEach(target => {
-                    target.reached = 0
-                    target.finished = false
-                })
-            } else {
-                if (!this.quests) this.quests = []
-                this.quests.push({
-                    questID: quest.questID,
-                    targets: quest.targets.map(target => {
-                        return {
-                            targetID: target.targetID,
-                            reached: 0,
-                            finished: false,
-                        }
-                    }),
-                    finished: false
-                })    
+            if (profileBooster > globalBooster && profileTime > now) {
+                return profileTime;
+            } else if (globalTime > now) {
+                return globalTime;
             }
-        }
-        if (save) await this.save()
-        return
-    }
-    async delQuest(quest, save) {
-        if (!this.quests?.length) return
-        this.quests = this.quests.filter(e => e.questID !== quest.questID)
-        if (this.quests.length === 0) this.quests = undefined
-        if (save) await this.save()
-        return
-    }
-    addRole(id, amount, ms) {
-        if (!this.inventoryRoles) this.inventoryRoles = []
-        const inventoryRole = this.inventoryRoles.find(e => { return e.id === id && e.ms === ms })
-        if (inventoryRole) inventoryRole.amount += amount
-        else this.inventoryRoles.push({ id, amount, ms, uniqId: uniqid.time() })
-    }
-    subtractRole(id, amount, ms) {
-        if (!this.inventoryRoles?.length) return
-        const inventoryRole = this.inventoryRoles.find(e => { return e.id === id && e.ms === ms })
-        if (inventoryRole) {
-            inventoryRole.amount -= amount
-            if (inventoryRole.amount === 0) {
-                this.inventoryRoles.splice(this.inventoryRoles.findIndex(e => e.id === id && e.ms === ms), 1)
-                if (this.inventoryRoles.length === 0) this.inventoryRoles = undefined
-            }
+            return undefined;
+        } else {
+            const times = [];
+            if (profileTime > now) times.push(profileTime);
+            if (globalTime > now) times.push(globalTime);
+            
+            return times.length > 0 ? Math.min(...times) : undefined;
         }
     }
 }

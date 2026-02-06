@@ -38,16 +38,16 @@ module.exports = {
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
         if (!interaction.isChatInputCommand() && !interaction.isContextMenuCommand() && UserRegexp.exec(interaction.customId)) {
-            if (interaction.user.id !== UserRegexp.exec(interaction.customId)[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)[1]) return interaction.deferUpdate().catch(() => null)
         }
         const flags = []
         if (interaction.customId?.includes("eph") || interaction.values?.[0].includes("eph")) flags.push("Ephemeral")
         let member
-        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(e => null)
-        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(() => null)
+        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         else if (interaction.isStringSelectMenu() && (MemberRegexp.exec(interaction.customId) || MemberRegexp.exec(interaction.values[0]))) {
-            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(e => null)
-            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(() => null)
+            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         }
         else member = interaction.member
         if (!member) {
@@ -73,7 +73,7 @@ module.exports = {
                 if (temporaryRole) {
                     profile.roles = profile.roles.filter(r => r.id !== temporaryRole.id)
                 }
-                profile.addRole(role.id, 1, temporaryRole?.until ? temporaryRole.until.getTime() - Date.now() : undefined)
+                profile.addRole({ id: role.id, amount: 1, ms: temporaryRole?.until ? temporaryRole.until.getTime() - Date.now() : undefined })
                 await profile.save()
             } else
             if (interaction.customId.includes("wear")) {
@@ -89,7 +89,7 @@ module.exports = {
                     return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: `В инвентаре нет такой роли`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 }
                 await interaction.member.roles.add(role.id)
-                profile.subtractRole(role.id, 1, inventoryRole.ms)
+                profile.subtractRole({ id: role.id, amount: 1, ms: inventoryRole.ms })
                 if (inventoryRole.ms) {
                     if (!profile.roles) profile.roles = []
                     profile.roles.push({ id: role.id, until: new Date(Date.now() + inventoryRole.ms) })

@@ -16,40 +16,40 @@ module.exports = {
                     const quest = quests.get(userQuest.questID)
                     if (!quest) return undefined
                     return (userQuest && userQuest.targets?.every(element => element.finished === true) && !userQuest.finished && !quest.community) || (userQuest && quest.community && !userQuest.finished && quest.targets.every(element => element.finished === true))
-                }).filter(e => e)) {
+                }).filter(Boolean)) {
                     index++
                     const quest = quests.get(userQuest.questID)
                     const rewards = []
                     for (const element of quest.rewards) {
                         if (element.type === RewardType.Currency) {
                             rewards.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${element.amount})`)
-                            await profile.addCurrency(element.amount)
+                            await profile.addCurrency({ amount: element.amount })
                         } else if (element.type === RewardType.Experience) {
                             rewards.push(`${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${element.amount})`)
-                            await profile.addXp(element.amount)
+                            await profile.addXp({ amount: element.amount })
                         } else if (element.type === RewardType.Reputation) {
                             rewards.push(`${client.config.emojis.RP}**${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${element.amount})`)
-                            await profile.addRp(element.amount)
+                            await profile.addRp({ amount: element.amount })
                         } else if (element.type === RewardType.Item) {
                             const rewardItem = client.cache.items.find(i => i.itemID === element.id && !i.temp && i.enabled)
                             if (rewardItem) {
                                 rewards.push(`${rewardItem.displayEmoji}**${rewardItem.name}** (${element.amount})`)
-                                await profile.addItem(element.id, element.amount)
+                                await profile.addItem({ itemID: element.id, amount: element.amount })
                             }
                         } else if (element.type === RewardType.Role) {
                             rewards.push(`<@&${element.id}>${element.ms ? ` [${client.functions.transformSecs(client, element.ms, interaction.guildId, interaction.locale)}]` : ``} (${element.amount})`)
-                            profile.addRole(element.id, element.amount, element.ms)
+                            profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
                         }
                     }
                     userQuest = profile.quests?.find(e => { return e.questID === quest.questID })
                     userQuest.finished = true
                     userQuest.finishedDate = new Date()
-                    profile.doneQuests = 1
-                    await profile.addQuestProgression("quests", 1, quest.questID)
+                    profile.doneQuests += 1
+                    await profile.addQuestProgression({ type: "quests", amount: 1, object: quest.questID })
                     const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.type === AchievementType.Quests && e.enabled)
                     await Promise.all(achievements.map(async achievement => {
                         if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.doneQuests >= achievement.amount) {
-                            await profile.addAchievement(achievement)
+                            await profile.addAchievement({ achievement })
                         }
                     }))
                     await profile.save()
@@ -120,38 +120,38 @@ module.exports = {
         }
         userQuest.finished = true
         userQuest.finishedDate = new Date()
-        profile.doneQuests = 1
+        profile.doneQuests += 1
         const rewards = []
         for (const reward of quest.rewards) {
             if (reward.type === RewardType.Currency) {
-                await profile.addCurrency(reward.amount)
+                await profile.addCurrency({ amount: reward.amount })
                 rewards.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${reward.amount})`)
             }
             if (reward.type === RewardType.Experience) {
-                await profile.addXp(reward.amount)
+                await profile.addXp({ amount: rewards.amount })
                 rewards.push(`${client.config.emojis.XP}**${client.language({ textId: `Опыт`, guildId: interaction.guildId, locale: interaction.locale })}** (${reward.amount})`)
             }
             if (reward.type === RewardType.Reputation) {
-                await profile.addRp(reward.amount)
+                await profile.addRp({ amount: reward.amount })
                 rewards.push(`${client.config.emojis.RP}**${client.language({ textId: `Репутация`, guildId: interaction.guildId, locale: interaction.locale })}** (${reward.amount})`)
             }
             if (reward.type === RewardType.Item) {
                 const rewardItem = client.cache.items.find(i => i.itemID === reward.id && !i.temp && i.enabled)
                 if (rewardItem) {
-                    await profile.addItem(rewardItem.itemID, reward.amount)
+                    await profile.addItem({ itemID: rewardItem.itemID, amount: reward.amount })
                     rewards.push(`${rewardItem.displayEmoji}**${rewardItem.name}** (${reward.amount})`)
                 }
             }
             if (reward.type === RewardType.Role) {
-                profile.addRole(reward.id, reward.amount, reward.ms)
+                profile.addRole({ id: reward.id, amount: reward.amount, ms: reward.ms })
                 rewards.push(`<@&${reward.id}>${reward.ms ? ` [${client.functions.transformSecs(client, reward.ms, interaction.guildId, interaction.locale)}]` : ``} (${reward.amount})`)
             }
         }
-        await profile.addQuestProgression("quests", 1, quest.questID)
+        await profile.addQuestProgression({ type: "quests", amount: 1, object: quest.questID })
         const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.type === AchievementType.Quests && e.enabled)
         await Promise.all(achievements.map(async achievement => {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.doneQuests >= achievement.amount) {
-                await profile.addAchievement(achievement)
+                await profile.addAchievement({ achievement })
             }
         }))
         await profile.save()

@@ -54,7 +54,7 @@ module.exports = async function (client) {
     })
     async function bumpReward(userID, message, timeout, cmd, rewardXP, rewardCUR, rewardRP, settings) {
         if (!client.blacklist(userID, "full_ban", "users")) {
-            const member = await message.guild.members.fetch(userID).catch(e => null)
+            const member = await message.guild.members.fetch(userID).catch(() => null)
             const profile = await client.functions.fetchProfile(client, userID, message.guild.id)
             await profile.addBump(client)
             let rewards = ""
@@ -66,7 +66,7 @@ module.exports = async function (client) {
                     cur_multiplier_for_channel = channelMultipliers.cur_multiplier
                 }
                 rewardCUR = rewardCUR + (rewardCUR * profile.getCurBoost(cur_multiplier_for_channel))
-                await profile.addCurrency(rewardCUR)
+                await profile.addCurrency({ amount: rewardCUR })
                 rewards += `\n${settings.displayCurrencyEmoji}**${settings.currencyName}** (${rewardCUR.toFixed()})`
             }
             if (rewardXP && !profile.blockActivities?.bump?.XP) {
@@ -77,7 +77,7 @@ module.exports = async function (client) {
                     xp_multiplier_for_channel = channelMultipliers.xp_multiplier
                 }
                 rewardXP = rewardXP + (rewardXP * profile.getXpBoost(xp_multiplier_for_channel))
-                await profile.addXp(rewardXP)
+                await profile.addXp({ amount: rewardXP })
                 rewards += `\n${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: message.guild.id })}** (${rewardXP.toFixed()})`
             }
             if (rewardRP && !profile.blockActivities?.bump?.RP) {
@@ -88,7 +88,7 @@ module.exports = async function (client) {
                     rp_multiplier_for_channel = channelMultipliers.rp_multiplier
                 }
                 rewardRP = rewardRP + (rewardRP * profile.getRpBoost(rp_multiplier_for_channel))
-                await profile.addRp(rewardRP)
+                await profile.addRp({ amount: rewardRP })
                 rewards += `\n${client.config.emojis.RP}**${client.language({ textId: "Репутация", guildId: message.guild.id })}** (${rewardRP})`
             }
             if (!profile.blockActivities?.bump?.items) {
@@ -123,12 +123,12 @@ module.exports = async function (client) {
                         const isPassing = permission.for(profile, member, message.channel)
                         if (isPassing.value === true) {
                             const amount = client.functions.getRandomNumber(item.activities.bump.amountFrom, item.activities.bump.amountTo)
-                            await profile.addItem(item.itemID, amount)
+                            await profile.addItem({ itemID: item.itemID, amount })
                             rewards += `\n${item.displayEmoji}**${item.name}** (${amount})` 
                         }
                     } else {
                         const amount = client.functions.getRandomNumber(item.activities.bump.amountFrom, item.activities.bump.amountTo)
-                        await profile.addItem(item.itemID, amount)
+                        await profile.addItem({ itemID: item.itemID, amount })
                         rewards += `\n${item.displayEmoji}**${item.name}** (${amount})` 
                     }
                 }))
@@ -154,8 +154,8 @@ module.exports = async function (client) {
                     content: settings.roles?.bumpNotification ? `<@&${settings.roles.bumpNotification}>` : " ", 
                     embeds: [embed],
 					enforceNonce: true, nonce: nonce,
-                }).catch(e => null)
-            }, timeout)  
+                }).catch(() => null)
+            }, timeout);  
         }
     }
 }

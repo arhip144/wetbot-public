@@ -76,7 +76,7 @@ module.exports = {
                 await profile.save()
                 return
             }
-            const member = await interaction.guild.members.fetch(profile.userID).catch(e => null)
+            const member = await interaction.guild.members.fetch(profile.userID).catch(() => null)
             if (member) {
                 let { channel } = member.voice
                 if (member.voice.channelId !== null && channel?.members.filter(member => !member.user.bot && !member.voice.mute).size > 1 && settings.channels.mutedChannels.includes(member.voice.channelId) === false) {
@@ -148,13 +148,13 @@ module.exports = {
                                 }
                             }
                             const guildQuests = client.cache.quests.filter(quest => quest.guildID === interaction.guildId && quest.isEnabled && quest.targets.some(target => target.type === "voice"))
-                            if (guildQuests.size) await profile.addQuestProgression("voice", hours*60, channel?.id)
+                            if (guildQuests.size) await profile.addQuestProgression({ type: "voice", amount: hours*60, object: channel?.id })
                             let achievements = client.cache.achievements.filter(e => e.guildID === guild.id && e.enabled && e.type === AchievementType.DailyHours)
                             await Promise.all(achievements.map(async achievement => {
                                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.hoursSession >= achievement.amount && !client.tempAchievements[member.user.id]?.includes(achievement.id)) { 
                                     if (!client.tempAchievements[profile.userID]) client.tempAchievements[member.user.id] = []
                                     client.tempAchievements[member.user.id].push(achievement.id)
-                                    await profile.addAchievement(achievement)
+                                    await profile.addAchievement({ achievement })
                                 }    
                             }))
                             achievements = client.cache.achievements.filter(e => e.guildID === guild.id && e.enabled && e.type === AchievementType.Voice)
@@ -162,21 +162,21 @@ module.exports = {
                                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.hours >= achievement.amount && !client.tempAchievements[member.user.id]?.includes(achievement.id)) {
                                     if (!client.tempAchievements[profile.userID]) client.tempAchievements[member.user.id] = []
                                     client.tempAchievements[member.user.id].push(achievement.id)
-                                    await profile.addAchievement(achievement)
+                                    await profile.addAchievement({ achievement })
                                 }        
                             }))
                         }
                         if (rewards.xp > 1000000000000) rewards.xp = 1000000000000
-                        profile.hours = hours
+                        profile.hours += hours
                         profile.hoursSession += hours
                         profile.xpSession += rewards.xp
                         profile.rpSession += rewards.rp
                         profile.currencySession += rewards.currency
-                        profile.currency = rewards.currency
+                        profile.currency += rewards.currency
                         profile.startTime = newDate
-                        if (rewards.xp) await profile.addXp(rewards.xp)
-                        if (rewards.rp) await profile.addRp(rewards.rp)
-                        if (rewards.currency > 0) await profile.addCurrency(rewards.currency)
+                        if (rewards.xp) await profile.addXp({ amount: rewards.xp })
+                        if (rewards.rp) await profile.addRp({ amount: rewards.rp })
+                        if (rewards.currency > 0) await profile.addCurrency({ amount: rewards.currency })
                         if (!member.roles.cache.hasAny(...settings.roles?.mutedRoles) && !profile.blockActivities?.voice?.items) {
                             let luck_multiplier_for_channel = 0
                             let luck_multiplier_for_members = 0
@@ -229,7 +229,7 @@ module.exports = {
                                     const item = drop(items, base_chance)
                                     if (item) {
                                         const amount = client.functions.getRandomNumber(item.activities.voice.amountFrom, item.activities.voice.amountTo)
-                                        await profile.addItem(item.itemID, amount)
+                                        await profile.addItem({ itemID: item.itemID, amount })
                                         const received_item = received_items.find(e => { return e.itemID === item.itemID })
                                         if (received_item) received_item.amount += amount
                                         else {
@@ -259,13 +259,13 @@ module.exports = {
                                         index++
                                     }
                                     if (settings.channels.itemsNotificationChannelId) {
-                                        const channel = await guild.channels.fetch(settings.channels.itemsNotificationChannelId).catch(e => null)
+                                        const channel = await guild.channels.fetch(settings.channels.itemsNotificationChannelId).catch(() => null)
                                         if (channel && channel.permissionsFor(guild.members.me).has("SendMessages")) {
                                             const embed2 = new EmbedBuilder()
                                                 .setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL() })
                                                 .setDescription(`${client.language({ textId: "Нашел", guildId: guild.id })}:\n${received_items.join("\n")}`)
                                                 .setColor("#2F3236")
-                                            channel.send({ content: profile.itemMention ? `<@${member.user.id}>` : ` `, embeds: [embed2] }).catch(e => null)
+                                            channel.send({ content: profile.itemMention ? `<@${member.user.id}>` : ` `, embeds: [embed2] }).catch(() => null)
                                         }
                                     }
                                 }	

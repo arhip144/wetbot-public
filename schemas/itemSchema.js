@@ -154,7 +154,7 @@ const itemSchema = new Schema({
         max_use: { type: Number, default: 1000 },
         cooldown_open: { type: Number },
         min_open: { type: Number, default: 1 },
-        max_open: { type: Number, default: 1000 },
+        max_open: { type: Number, default: 100000 },
         cooldown_sell: { type: Number },
         min_sell: { type: Number, default: 0.01 },
         max_sell: { type: Number },

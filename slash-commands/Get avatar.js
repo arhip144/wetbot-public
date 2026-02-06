@@ -20,11 +20,11 @@ module.exports = {
     cooldowns: new Collection(),
     run: async (client, interaction) => {
         const embed = new EmbedBuilder()
-        const member = await interaction.guild.members.fetch(interaction.targetId).catch(e => null)
+        const member = await interaction.guild.members.fetch(interaction.targetId).catch(() => null)
         if (!member) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Пользователь с ID", guildId: interaction.guildId, locale: interaction.locale })} **${interaction.targetId}** ${client.language({ textId: "не найден на сервере", guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
         embed.setDescription(`<@${member.user.id}>`)
         embed.setImage(member.displayAvatarURL({ size: 4096 }))
-        interaction.member.send({ embeds: [embed] }).catch(e => null)
+        interaction.member.send({ embeds: [embed] }).catch(() => null)
         interaction.reply({ embeds: [embed], flags: ["Ephemeral"] })
     }   
 }

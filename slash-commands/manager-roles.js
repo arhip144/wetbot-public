@@ -404,14 +404,16 @@ module.exports = {
                                         const element = incomeRole.items.find(e => { return e.itemID === searchedItem.itemID })
                                         if (element) {
                                             element.amount = +modalArgs.amount
-                                        }
-                                        else if (incomeRole.items.length < 10) {
+                                            await interaction.followUp({ content: `${client.config.emojis.YES} ${client.language({ textId: "Предмет", guildId: interaction.guildId, locale: interaction.locale })} ${searchedItem.displayEmoji}${searchedItem.name} (${modalArgs.amount}) ${client.language({ textId: "добавлен в доходную роль", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })   
+                                        } else if (incomeRole.items.length < 10) {
                                             incomeRole.items.push({
                                                 itemID: searchedItem.itemID,
                                                 amount: +modalArgs.amount
-                                            })    
+                                            })
+                                            await interaction.followUp({ content: `${client.config.emojis.YES} ${client.language({ textId: "Предмет", guildId: interaction.guildId, locale: interaction.locale })} ${searchedItem.displayEmoji}${searchedItem.name} (${modalArgs.amount}) ${client.language({ textId: "добавлен в доходную роль", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })   
+                                        } else {
+                                            await interaction.followUp({ content: `${client.config.emojis.YES} ${client.language({ textId: "Предмет", guildId: interaction.guildId, locale: interaction.locale })} ${searchedItem.displayEmoji}${searchedItem.name} (${modalArgs.amount}) ${client.language({ textId: "не был добавлен в доходную роль, лимит - 10 предметов", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })  
                                         }
-                                        await interaction.followUp({ content: `${client.config.emojis.YES} ${client.language({ textId: "Предмет", guildId: interaction.guildId, locale: interaction.locale })} ${searchedItem.displayEmoji}${searchedItem.name} (${modalArgs.amount}) ${client.language({ textId: "добавлен в доходную роль", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })   
                                     }
                                     await incomeRole.save()
                                 }
@@ -506,7 +508,7 @@ module.exports = {
                 }
             }
         }
-        const guildRole = await interaction.guild.roles.fetch(incomeRole.id).catch(e => null)
+        const guildRole = await interaction.guild.roles.fetch(incomeRole.id).catch(() => null)
         if (!guildRole) {
             await incomeRole.delete()
             if (interaction.replied || interaction.deferred) return interaction.editReply({ content: `${client.language({ textId: `Такой роли не существует`, guildId: interaction.guildId, locale: interaction.locale })}`, embeds: [], components: [] })
@@ -521,7 +523,7 @@ module.exports = {
             `${client.config.emojis.XP}${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}: ${incomeRole.xp}${incomeRole.type === "static" ? `` : `%`}`,
             `${settings.displayCurrencyEmoji}${settings.currencyName}: ${incomeRole.cur}${incomeRole.type === "static" ? `` : `%`}`,
             `${client.config.emojis.RP}${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}: ${incomeRole.rp}${incomeRole.type === "static" ? `` : `%`}`,
-        ].filter(e => e)
+        ].filter(Boolean)
         if (incomeRole.items.length) {
             description.push(`${client.config.emojis.box}${client.language({ textId: "**Предметы**", guildId: interaction.guildId, locale: interaction.locale })}:\n\`•\`${incomeRole.items.map(a => {
                 const item = client.cache.items.find(e => e.itemID === a.itemID && !e.temp)
@@ -542,7 +544,7 @@ module.exports = {
                     { label: `${client.language({ textId: "Право", guildId: interaction.guildId, locale: interaction.locale })}`, value: `permission`, description: client.cache.permissions.find(e => e.id === incomeRole.permission)?.name || undefined, emoji: client.config.emojis.crown },
                     incomeRole.type === "static" ? { label: `${client.language({ textId: "Уведомление", guildId: interaction.guildId, locale: interaction.locale })}: ${client.language({ textId: `${incomeRole.notification ? `Включено` : `Выключено`}`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `notification`, emoji: client.config.emojis.ring } : undefined,
                     { label: incomeRole.enabled ? `${client.language({ textId: "Выключить", guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: "Включить", guildId: interaction.guildId, locale: interaction.locale })}`, value: `enable`, emoji: incomeRole.enabled ? client.config.emojis.off : client.config.emojis.on },
-                ].filter(e => e))
+                ].filter(Boolean))
                 .setPlaceholder(`${client.language({ textId: `Действия`, guildId: interaction.guildId, locale: interaction.locale })}...`)
         ])
         const row2 = new ActionRowBuilder().addComponents([

@@ -1,4 +1,4 @@
-const { ChannelType, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Collection, InteractionType, PermissionFlagsBits, RoleSelectMenuBuilder, ChannelSelectMenuBuilder, LabelBuilder } = require("discord.js")
+const { ChannelType, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Collection, InteractionType, PermissionFlagsBits, RoleSelectMenuBuilder, ChannelSelectMenuBuilder, LabelBuilder, FileUploadBuilder } = require("discord.js");
 const UserRegexp = /usr{(.*?)}/
 const TitleRegexp = /title{(.*?)}/
 const MarkRegexp = /mark{(.*?)}/
@@ -58,12 +58,12 @@ module.exports = {
             { emoji: client.config.emojis.coin, label: `${client.language({ textId: `Валюта сервера`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `currency`},
             { emoji: client.config.emojis.giveaway, label: `${client.language({ textId: `Ежедневные награды`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `dailyRewards`},
             { emoji: client.config.emojis.top, label: `${client.language({ textId: `Роли за уровни`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `levelRoles`},
-            { emoji: client.config.emojis.premium, label: `${client.language({ textId: `Отчеты о топ лидерах`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `topLeaders`},
+            { emoji: client.config.emojis.top, label: `${client.language({ textId: `Отчеты о топ лидерах`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `topLeaders`},
             { emoji: client.config.emojis.XP, label: `${client.language({ textId: `Получения валюты, опыта, репутации`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `activities`},
-            { emoji: client.config.emojis.premium, label: `${client.language({ textId: `Логи`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `logs`},
+            { emoji: client.config.emojis.recipe, label: `${client.language({ textId: `Логи`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `logs`},
             { emoji: client.config.emojis.giveaway, label: `${client.language({ textId: `Стартовый набор`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `startKit` },
             { emoji: client.config.emojis.seasonLevel, label: `${client.language({ textId: `Сезонные уровни`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `seasonLevels` },
-            { emoji: client.config.emojis.premium, label: `${client.language({ textId: `Кастомные роли`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `customRoles` },
+            { emoji: client.config.emojis.roles, label: `${client.language({ textId: `Кастомные роли`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `customRoles` },
             { emoji: client.config.emojis.shop, label: `${client.language({ textId: `Настройки маркета`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `marketSettings` },
             { emoji: client.config.emojis.XP100Booster, label: `${client.language({ textId: `Бустеры`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `boosters` },
             { emoji: client.config.emojis.auction, label: `${client.language({ textId: `Аукционы`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `auctions` },
@@ -83,46 +83,72 @@ module.exports = {
             if (interaction.values?.[0].includes("customization") || interaction.customId.includes("customization")) {
                 if (interaction.isStringSelectMenu()) {
                     if (interaction.values[0] === "avatar") {
-                        if (!interaction.channel.permissionsFor(interaction.guild.members.me).has("ViewChannel") || !interaction.channel.permissionsFor(interaction.guild.members.me).has("ReadMessageHistory")) {
-                            return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня нет прав для канала`, guildId: interaction.guildId, locale: interaction.locale })} <#${interaction.channel.id}>\n${client.language({ textId: `Мне нужны следующие права`, guildId: interaction.guildId, locale: interaction.locale })}:\n1. ${client.language({ textId: `Просмотр канала`, guildId: interaction.guildId, locale: interaction.locale })}\n2. ${client.language({ textId: `Читать историю сообщений`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                        }
-                        const components = JSON.parse(JSON.stringify(interaction.message.components))
-                        await interaction.update({ embeds: interaction.message.embeds, components: [] })
-                        const filter = m => m.author.id == interaction.user.id && m.channel.id == interaction.channel.id
-                        const message1 = await interaction.followUp({ content: `${client.config.emojis.exc} ${client.language({ textId: `Отправь изображение`, guildId: interaction.guildId, locale: interaction.locale })}. ${client.language({ textId: `Для отмены напиши`, guildId: interaction.guildId, locale: interaction.locale })}: cancel` })
-                        const attachment = await waitingForAttachment(client, interaction, filter)
-                        message1.delete().catch(e => null)
-                        if (attachment) {
+                        const modal = new ModalBuilder()
+                            .setCustomId(`avatar_${interaction.id}`)
+                            .setTitle(`${client.language({ textId: `Аватар`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                            .setLabelComponents([
+                                new LabelBuilder()
+                                    .setLabel(`${client.language({ textId: `Аватар`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                                    .setFileUploadComponent(
+                                        new FileUploadBuilder()
+                                            .setCustomId("avatar")
+                                            .setMaxValues(1)
+                                            .setRequired(true)
+                                    )
+                            ])
+                        await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
+                        const filter = (i) => i.customId === `avatar_${interaction.id}` && i.user.id === interaction.user.id;
+                        interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(e => interaction)
+                        if (interaction && interaction.type === InteractionType.ModalSubmit) {
+                            const attachment = interaction.fields.getField("avatar").attachments.first()
+                            if (!attachment.contentType.includes("image")) {
+                                return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Вложение должно быть изображением`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+                            }
                             const fetch = require("node-fetch")
                             const res = await fetch(attachment.url)
                             const buffer = await res.buffer()
-                            await interaction.guild.members.editMe({
-                                avatar: buffer
-                            }).catch(error => {
-                                interaction.followUp({ content: `${client.config.emojis.NO}${error.message}`, flags: ["Ephemeral"] })
-                            })
-                        } else return interaction.editReply({ embeds: interaction.message.embeds, components: components })
+                            try {
+                                await interaction.guild.members.editMe({
+                                    avatar: buffer
+                                }) 
+                            } catch (err) {
+                                return interaction.reply({ content: `${client.config.emojis.NO}${err.message}`, flags: ["Ephemeral"] })
+                            }
+                        }
                     } else
                     if (interaction.values[0] === "banner") {
-                        if (!interaction.channel.permissionsFor(interaction.guild.members.me).has("ViewChannel") || !interaction.channel.permissionsFor(interaction.guild.members.me).has("ReadMessageHistory")) {
-                            return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня нет прав для канала`, guildId: interaction.guildId, locale: interaction.locale })} <#${interaction.channel.id}>\n${client.language({ textId: `Мне нужны следующие права`, guildId: interaction.guildId, locale: interaction.locale })}:\n1. ${client.language({ textId: `Просмотр канала`, guildId: interaction.guildId, locale: interaction.locale })}\n2. ${client.language({ textId: `Читать историю сообщений`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                        }
-                        const components = JSON.parse(JSON.stringify(interaction.message.components))
-                        await interaction.update({ embeds: interaction.message.embeds, components: [] })
-                        const filter = m => m.author.id == interaction.user.id && m.channel.id == interaction.channel.id
-                        const message1 = await interaction.followUp({ content: `${client.config.emojis.exc} ${client.language({ textId: `Отправь изображение`, guildId: interaction.guildId, locale: interaction.locale })}. ${client.language({ textId: `Для отмены напиши`, guildId: interaction.guildId, locale: interaction.locale })}: cancel` })
-                        const attachment = await waitingForAttachment(client, interaction, filter)
-                        message1.delete().catch(e => null)
-                        if (attachment) {
+                        const modal = new ModalBuilder()
+                            .setCustomId(`banner_${interaction.id}`)
+                            .setTitle(`${client.language({ textId: `Баннер`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                            .setLabelComponents([
+                                new LabelBuilder()
+                                    .setLabel(`${client.language({ textId: `Баннер`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                                    .setFileUploadComponent(
+                                        new FileUploadBuilder()
+                                            .setCustomId("banner")
+                                            .setMaxValues(1)
+                                            .setRequired(true)
+                                    )
+                            ])
+                        await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
+                        const filter = (i) => i.customId === `banner_${interaction.id}` && i.user.id === interaction.user.id;
+                        interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(e => interaction)
+                        if (interaction && interaction.type === InteractionType.ModalSubmit) {
+                            const attachment = interaction.fields.getField("banner").attachments.first()
+                            if (!attachment.contentType.includes("image")) {
+                                return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Вложение должно быть изображением`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+                            }
                             const fetch = require("node-fetch")
                             const res = await fetch(attachment.url)
                             const buffer = await res.buffer()
-                            await interaction.guild.members.editMe({
-                                banner: buffer
-                            }).catch(error => {
-                                interaction.followUp({ content: `${client.config.emojis.NO}${error.message}`, flags: ["Ephemeral"] })
-                            })
-                        } else return interaction.editReply({ embeds: interaction.message.embeds, components: components })
+                            try {
+                                await interaction.guild.members.editMe({
+                                    banner: buffer
+                                }) 
+                            } catch (err) {
+                                return interaction.reply({ content: `${client.config.emojis.NO}${err.message}`, flags: ["Ephemeral"] })
+                            }
+                        }
                     } else
                     if (interaction.values[0] === "bio") {
                         const modal = new ModalBuilder()
@@ -404,8 +430,8 @@ module.exports = {
                             ],
                             flags: ["Ephemeral"]
                         })
-                        const filter = (i) => i.customId.includes(`add`) && i.user.id === interaction.user.id
-                        let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                        const filter = (i) => i.customId.includes(`add`) && i.user.id === interaction.user.id;
+                        let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                         if (interaction2 && interaction2.customId.includes("add")) {
                             if (interaction2.customId.includes("cancel")) {
                                 interaction2.update({ content: `${client.config.emojis.YES} ${client.language({ textId: `Выбор отменён`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [] })
@@ -552,8 +578,8 @@ module.exports = {
                                     ),
                             ])
                         await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                        const filter = (i) => i.customId === `customRoleMinimumMinutes_${interaction.id}` && i.user.id === interaction.user.id
-                        interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId === `customRoleMinimumMinutes_${interaction.id}` && i.user.id === interaction.user.id;
+                        interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                         if (interaction && interaction.isModalSubmit()) {
                             const modalArgs = {}
                             interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -615,8 +641,8 @@ module.exports = {
                             ],
                             flags: ["Ephemeral"]
                         })
-                        const filter = (i) => i.customId.includes(`add`) && i.user.id === interaction.user.id
-                        let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                        const filter = (i) => i.customId.includes(`add`) && i.user.id === interaction.user.id;
+                        let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                         if (interaction2 && interaction2.customId.includes("add")) {
                             if (interaction2.customId.includes("cancel")) {
                                 interaction2.update({ content: `${client.config.emojis.YES} ${client.language({ textId: `Выбор отменён`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [] })
@@ -759,8 +785,8 @@ module.exports = {
                                     ),
                             ])
 						await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `customRoleCreationLimit_${interaction.id}` && i.user.id === interaction.user.id
-						interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
+						const filter = (i) => i.customId === `customRoleCreationLimit_${interaction.id}` && i.user.id === interaction.user.id;
+						interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
 						if (interaction && interaction.type === InteractionType.ModalSubmit) {
 							const modalArgs = {}
 							interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -862,7 +888,7 @@ module.exports = {
                             }
                         })).then(array => array.join(", "))
                     } : undefined
-                ].filter(e => e))
+                ].filter(Boolean))
                 const menu = new StringSelectMenuBuilder().setCustomId(`cmd{manager-settings}title{customRoles}usr{${interaction.user.id}}`).setOptions([
                     {
                         label: `${client.language({ textId: `Канал для модерации кастомных ролей`, guildId: interaction.guildId, locale: interaction.locale })}`,
@@ -900,7 +926,7 @@ module.exports = {
                         label: `${client.language({ textId: `Лимит создания кастомных ролей`, guildId: interaction.guildId, locale: interaction.locale })}`,
                         value: `customRoleCreationLimit`
                     },
-                ].filter(e => e))
+                ].filter(Boolean))
                 const menu2 = new StringSelectMenuBuilder().setCustomId(`cmd{manager-settings}title{customRoles}usr{${interaction.user.id}}properties`).setOptions([
                     {
                         label: `${client.language({ textId: `canUnwear`, guildId: interaction.guildId, locale: interaction.locale })}`,
@@ -1080,7 +1106,7 @@ module.exports = {
                         const filteredItems = client.cache.items.filter(e => e.guildID === interaction.guildId && !e.temp && e.name.toLowerCase().includes(modalArgs.item.toLowerCase()))
                         const itemID = filteredItems.some(e => e.name.toLowerCase() === modalArgs.item.toLowerCase()) ? filteredItems.find(e => e.name.toLowerCase() === modalArgs.item.toLowerCase())?.itemID : filteredItems.first()?.itemID
                         if (!itemID) {
-                            if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                            if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                             return interaction.followUp({ content: `${client.language({ textId: `Предмета с названием`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.item}** ${client.language({ textId: `не существует`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                         } else {
                             if (!+modalArgs.amount) {
@@ -1096,7 +1122,7 @@ module.exports = {
                                             amount: +modalArgs.amount
                                         })    
                                     } else {
-                                        if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                        if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                         return interaction.followUp({ content: `${client.language({ textId: `Максимальное кол-во предметов в наборе - 5`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                                     }
                                 }
@@ -1197,13 +1223,13 @@ module.exports = {
                             const filteredItems = client.cache.items.filter(e => e.guildID === interaction.guildId && !e.temp && e.name.toLowerCase().includes(modalArgs.bait.toLowerCase()))
                             const itemID = filteredItems.some(e => e.name.toLowerCase() === modalArgs.bait.toLowerCase()) ? filteredItems.find(e => e.name.toLowerCase() === modalArgs.bait.toLowerCase())?.itemID : filteredItems.first()?.itemID
                             if (!itemID) {
-                                if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                 interaction.followUp({ content: `${client.language({ textId: `Предмета с названием`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.bait}** ${client.language({ textId: `не существует`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                             } else settings.baitCurrency = itemID
                         }
                         if (+modalArgs.amount < 0) modalArgs.amount = 0
                         if (Number.isNaN(+modalArgs.amount)) {
-                            if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                            if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                             interaction.followUp({ content: `**${modalArgs.amount}** ${client.language({ textId: `не является числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                         } else settings.baitPrice = +modalArgs.amount
                         if (modalArgs.name) settings.fishingName = modalArgs.name
@@ -1213,7 +1239,7 @@ module.exports = {
                             const image = await isImageURL(modalArgs.url)
                             if (image) settings.fishingIcon = modalArgs.url
                             else {
-                                if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                 interaction.followUp({ content: `${client.language({ textId: `Строка`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.url}** ${client.language({ textId: `не является прямой ссылкой на изображение`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                             }
                         } else settings.fishingIcon = undefined
@@ -1297,13 +1323,13 @@ module.exports = {
                             const filteredItems = client.cache.items.filter(e => e.guildID === interaction.guildId && !e.temp && e.name.toLowerCase().includes(modalArgs.tool.toLowerCase()))
                             const itemID = filteredItems.some(e => e.name.toLowerCase() === modalArgs.tool.toLowerCase()) ? filteredItems.find(e => e.name.toLowerCase() === modalArgs.tool.toLowerCase())?.itemID : filteredItems.first()?.itemID
                             if (!itemID) {
-                                if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                 interaction.followUp({ content: `${client.language({ textId: `Предмета с названием`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.tool}** ${client.language({ textId: `не существует`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                             } else settings.miningTool = itemID
                         }
                         if (+modalArgs.amount < 0) modalArgs.amount = 0
                         if (Number.isNaN(+modalArgs.amount)) {
-                            if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                            if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                             interaction.followUp({ content: `**${modalArgs.amount}** ${client.language({ textId: `не является числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                         } else settings.miningPrice = +modalArgs.amount
                         if (modalArgs.name) settings.miningName = modalArgs.name
@@ -1313,7 +1339,7 @@ module.exports = {
                             const image = await isImageURL(modalArgs.url)
                             if (image) settings.miningIcon = modalArgs.url
                             else {
-                                if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                 interaction.followUp({ content: `${client.language({ textId: `Строка`, guildId: interaction.guildId, locale: interaction.locale })} **${modalArgs.url}** ${client.language({ textId: `не является прямой ссылкой на изображение`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                             }
                         } else settings.miningIcon = undefined
@@ -1511,8 +1537,8 @@ module.exports = {
                         ],
                         flags: ["Ephemeral"]
                     })    
-                    const filter = (i) => i.customId.includes(`channel`) && i.user.id === interaction.user.id
-                    let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                    const filter = (i) => i.customId.includes(`channel`) && i.user.id === interaction.user.id;
+                    let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                     if (interaction2 && interaction2.customId.includes("channel")) {
                         if (interaction2.customId === "channel") {
                             const channel = interaction2.channels.first()
@@ -1987,7 +2013,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Напиши в чат название магазина`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                         const collected = await waitingForShopName(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             settings.shopName = collected
                             await settings.save()
@@ -1997,7 +2023,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Напиши в чат сообщение для магазина`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.\n> ${client.language({ textId: `Можете употреблять переменные`, guildId: interaction.guildId, locale: interaction.locale })}: **{member}** - ${client.language({ textId: `имя пользователя`, guildId: interaction.guildId, locale: interaction.locale })}, **{currency}** - ${client.language({ textId: `кол-во валюты у пользователя`, guildId: interaction.guildId, locale: interaction.locale })}, **{guild}** - ${client.language({ textId: `название сервера`, guildId: interaction.guildId, locale: interaction.locale })}\n> ${client.language({ textId: `Для удаления всех сообщений`, guildId: interaction.guildId, locale: interaction.locale })}: clear.` })
                         const collected = await waitingForShopMessage(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             if (collected == "clear") {
                                 settings.shopMessages = []
@@ -2020,7 +2046,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Напиши в чат прямую ссылку на изображение для магазина`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.\n> ${client.language({ textId: `Для удаления введи`, guildId: interaction.guildId, locale: interaction.locale })}: delete.` })
                         const collected = await waitingForShopThumbnail(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             if (collected == "delete") {
                                 settings.shopThumbnail = null
@@ -2057,7 +2083,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Пингани в чат каналы или напиши их ID через пробел для добавления или удаления из исключенных каналов. Напр.`, guildId: interaction.guildId, locale: interaction.locale })}: #${client.language({ textId: `канал`, guildId: interaction.guildId, locale: interaction.locale })}1 #${client.language({ textId: `канал`, guildId: interaction.guildId, locale: interaction.locale })}2 801818825795305539 802882544969318420.**\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                         const collected = await waitingForMutedChannel(client, interaction, filter, settings)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected.length) {
                             for (let channel of collected) {
                                 if (settings.channels?.mutedChannels.includes(channel)) {
@@ -2074,7 +2100,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Пингани в чат канал где будут появляться уведомления от`, guildId: interaction.guildId, locale: interaction.locale })} ${client.user.username}.**\n> ${client.language({ textId: `Для удаления введи`, guildId: interaction.guildId, locale: interaction.locale })}: delete.\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                         const collected = await waitingForChannelId(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             if (collected == "delete") {
                                 settings.channels.botChannelId = undefined
@@ -2089,7 +2115,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Пингани в чат канал где будут появляться уведомления о новых уровнях`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.language({ textId: `Для удаления введи`, guildId: interaction.guildId, locale: interaction.locale })}: delete.\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                         const collected = await waitingForChannelId(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             if (collected == "delete") {
                                 settings.channels.levelNotificationChannelId = undefined
@@ -2104,7 +2130,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Пингани в чат канал где будут появляться уведомления о найденных предметах`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.language({ textId: `Для удаления введи`, guildId: interaction.guildId, locale: interaction.locale })}: delete.\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                         const collected = await waitingForChannelId(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             if (collected == "delete") {
                                 settings.channels.itemsNotificationChannelId = undefined
@@ -2119,7 +2145,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Пингани в чат канал где будут появляться уведомления о полученных достижениях`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.language({ textId: `Для удаления введи`, guildId: interaction.guildId, locale: interaction.locale })}: delete.\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                         const collected = await waitingForChannelId(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             if (collected == "delete") {
                                 settings.channels.achievmentsNotificationChannelId = undefined
@@ -2134,7 +2160,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Пингани в чат общий канал для общения`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.language({ textId: `Для удаления введи`, guildId: interaction.guildId, locale: interaction.locale })}: delete.\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                         const collected = await waitingForChannelId(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             if (collected == "delete") {
                                 settings.channels.generalChannelId = undefined
@@ -2176,7 +2202,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Пингани в чат роли или напиши их ID через пробел для добавления или удаления из исключенных ролей. Напр.`, guildId: interaction.guildId, locale: interaction.locale })}: @${client.language({ textId: `роль`, guildId: interaction.guildId, locale: interaction.locale })}1 @${client.language({ textId: `роль`, guildId: interaction.guildId, locale: interaction.locale })}2 801818825795305539 802882544969318420.**\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                         const collected = await waitingForMutedRoles(client, interaction, filter, settings)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected.length) {
                             for (let role of collected) {
                                 if (settings.roles?.mutedRoles.includes(role)) {
@@ -2193,7 +2219,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `**${client.language({ textId: `Пингани в чат роли или напиши их ID через пробел для добавления или удаления из списка ролей для новых пользователей. Напр.`, guildId: interaction.guildId, locale: interaction.locale })}: @${client.language({ textId: `роль`, guildId: interaction.guildId, locale: interaction.locale })}1 @${client.language({ textId: `роль`, guildId: interaction.guildId, locale: interaction.locale })}2 801818825795305539 802882544969318420.**\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                         const collected = await waitingForRolesToNewMember(client, interaction, filter, settings)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected.length) {
                             for (let role of collected) {
                                 if (settings.roles?.rolesToNewMember.includes(role)) {
@@ -2214,7 +2240,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `${client.language({ textId: `Пингани в чат роль для уведомления о червоточине`, guildId: interaction.guildId, locale: interaction.locale })}.\n> ${client.language({ textId: `Для удаления введи`, guildId: interaction.guildId, locale: interaction.locale })}: **delete**\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: **cancel**` })
                         const collected = await waitingForRoleId(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             if (collected == "delete") {
                                 settings.roles.wormholesNotification = undefined
@@ -2229,7 +2255,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `${client.language({ textId: `Пингани в чат роль для уведомления о бампе`, guildId: interaction.guildId, locale: interaction.locale })}.\n> ${client.language({ textId: `Для удаления введи`, guildId: interaction.guildId, locale: interaction.locale })}: **delete**\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: **cancel**` })
                         const collected = await waitingForRoleId(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected) {
                             if (collected == "delete") {
                                 settings.roles.bumpNotification = undefined
@@ -2287,11 +2313,11 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         let message = await interaction.followUp({ content: `<@${interaction.user.id}>, ${client.language({ textId: `напиши в чат минимальное количество`, guildId: interaction.guildId, locale: interaction.locale })} XP.\n> **cancel** - ${client.language({ textId: `отмена`, guildId: interaction.guildId, locale: interaction.locale })}` })
                         const collected = await waitingForAmount(client, interaction, filter, interaction.values[0])
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected !== false) {
                             message = await interaction.followUp({ content: `<@${interaction.user.id}>, ${client.language({ textId: `напиши в чат максимальное количество`, guildId: interaction.guildId, locale: interaction.locale })} XP.\n> **cancel** - ${client.language({ textId: `отмена`, guildId: interaction.guildId, locale: interaction.locale })}` })
                             const collected1 = await waitingForAmount(client, interaction, filter, interaction.values[0], collected)
-                            message.delete().catch(e => null)
+                            message.delete().catch(() => null)
                             if (collected1 !== false) {
                                 const reward = settings.daily[`day${dayMark}`].find(e => { return e.itemID === "xp" })
                                 if (!reward) {
@@ -2314,11 +2340,11 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         let message = await interaction.followUp({ content: `<@${interaction.user.id}>, ${client.language({ textId: `напиши в чат минимальное количество`, guildId: interaction.guildId, locale: interaction.locale })} RP.\n> **cancel** - ${client.language({ textId: `отмена`, guildId: interaction.guildId, locale: interaction.locale })}` })
                         const collected = await waitingForAmount(client, interaction, filter, interaction.values[0])
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected !== false) {
                             message = await interaction.followUp({ content: `<@${interaction.user.id}>, ${client.language({ textId: `напиши в чат максимальное количество`, guildId: interaction.guildId, locale: interaction.locale })} RP.\n> **cancel** - ${client.language({ textId: `отмена`, guildId: interaction.guildId, locale: interaction.locale })}` })
                             const collected1 = await waitingForAmount(client, interaction, filter, interaction.values[0], collected)
-                            message.delete().catch(e => null)
+                            message.delete().catch(() => null)
                             if (collected1 !== false) {
                                 const reward = settings.daily[`day${dayMark}`].find(e => { return e.itemID === "rp" })
                                 if (!reward) {
@@ -2341,11 +2367,11 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         let message = await interaction.followUp({ content: `<@${interaction.user.id}>, ${client.language({ textId: `напиши в чат минимальное количество`, guildId: interaction.guildId, locale: interaction.locale })}.\n> **cancel** - ${client.language({ textId: `отмена`, guildId: interaction.guildId, locale: interaction.locale })}` })
                         const collected = await waitingForAmount(client, interaction, filter, interaction.values[0])
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected !== false) {
                             message = await interaction.followUp({ content: `<@${interaction.user.id}>, ${client.language({ textId: `напиши в чат максимальное количество валюты`, guildId: interaction.guildId, locale: interaction.locale })}.\n> **cancel** - ${client.language({ textId: `отмена`, guildId: interaction.guildId, locale: interaction.locale })}` })
                             const collected1 = await waitingForAmount(client, interaction, filter, interaction.values[0], collected)
-                            message.delete().catch(e => null)
+                            message.delete().catch(() => null)
                             if (collected1 !== false) {
                                 const reward = settings.daily[`day${dayMark}`].find(e => { return e.itemID === "currency" })
                                 if (!reward) {
@@ -2380,7 +2406,7 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         const message = await interaction.followUp({ content: `<@${interaction.user.id}>, ${client.language({ textId: `напиши в чат максимальный множитель бонуса`, guildId: interaction.guildId, locale: interaction.locale })}.\n> **0** - ${client.language({ textId: `неограниченно`, guildId: interaction.guildId, locale: interaction.locale })}\n> **cancel** - ${client.language({ textId: `отмена`, guildId: interaction.guildId, locale: interaction.locale })}` })
                         const collected = await waitingForMaxBonus(client, interaction, filter)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (collected !== false) {
                             settings.weekMaxBonus = collected
                             await settings.save()
@@ -2457,15 +2483,15 @@ module.exports = {
                         await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                         let message = await interaction.followUp({ content: `\`\`\`${client.language({ textId: `Пингани в чат роль или напиши ее ID`, guildId: interaction.guildId, locale: interaction.locale })}.\`\`\`\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: **cancel**` })
                         const role_guild = await waitingForRoleToAdd(client, interaction, filter, settings)
-                        message.delete().catch(e => null)
+                        message.delete().catch(() => null)
                         if (role_guild) {
                             message = await interaction.followUp({ content: `\`\`\`${client.language({ textId: `Напиши в чат с какого уровня выдавать`, guildId: interaction.guildId, locale: interaction.locale })} ${role_guild.name}.\`\`\`\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: **cancel**` })
                             const levelFrom = await waitingForLevelFrom(client, interaction, filter)
-                            message.delete().catch(e => null)
+                            message.delete().catch(() => null)
                             if (levelFrom) {
                                 message = await interaction.followUp({ content: `\`\`\`${client.language({ textId: `Уровень получения`, guildId: interaction.guildId, locale: interaction.locale })} ${role_guild.name}: ${levelFrom}.\n${client.language({ textId: `Напиши в чат с какого уровня забирать`, guildId: interaction.guildId, locale: interaction.locale })} ${role_guild.name}.\`\`\`\n> ${client.language({ textId: `Для пропуска введи`, guildId: interaction.guildId, locale: interaction.locale })}: **skip**\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: **cancel**` })
                                 const levelTo = await waitingForLevelTo(client, interaction, filter, levelFrom)
-                                message.delete().catch(e => null)
+                                message.delete().catch(() => null)
                                 if (levelTo !== false) {
                                     if (settings.levelsRoles.length < 80) {
                                         if (!settings.levelsRoles.includes(e => e.roleId == role_guild.id)) {
@@ -2487,7 +2513,7 @@ module.exports = {
                     await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                     const message = await interaction.followUp({ content: `\`\`\`${client.language({ textId: `Пингани в чат роли или напиши их ID через пробел для удаления их из ролей за уровни`, guildId: interaction.guildId, locale: interaction.locale })}.\n${client.language({ textId: `Напр.`, guildId: interaction.guildId, locale: interaction.locale })}: #${client.language({ textId: `роль`, guildId: interaction.guildId, locale: interaction.locale })}1 #${client.language({ textId: `роль`, guildId: interaction.guildId, locale: interaction.locale })}1 801818825795305539 802882544969318420.\`\`\`\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: **cancel**` })
                     const collected = await waitingForRolesToDelete(client, interaction, filter, settings)
-                    message.delete().catch(e => null)
+                    message.delete().catch(() => null)
                     if (collected.length) {
                         for (let role of collected) {
                             settings.levelsRoles = settings.levelsRoles.filter(e => e.roleId !== role)
@@ -2517,7 +2543,7 @@ module.exports = {
                 return interaction.editReply({ content: " ", embeds: [embed], components: [first_row, second_row] })
             }
             if (interaction.values?.[0].includes("topLeaders") || interaction.customId.includes("topLeaders")) {
-                embed.setTitle(`${client.config.emojis.premium}${title.label}`)
+                embed.setTitle(`${client.config.emojis.top}${title.label}`)
                 const types = ["daily", "weekly", "monthly", "yearly", "channel"]
                 if (types.includes(interaction.values[0])) {
                     if (interaction.values[0] == "channel") {
@@ -2545,7 +2571,7 @@ module.exports = {
                     { emoji: settings.top_report.weekly ? `🟢` : `🔴`, label: `${client.language({ textId: `Еженедельный отчет`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.weekly ? `${client.language({ textId: `Выключить`, guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: `Включить`, guildId: interaction.guildId, locale: interaction.locale })}`}`, value: `weekly` },
                     { emoji: settings.top_report.monthly ? `🟢` : `🔴`, label: `${client.language({ textId: `Ежемесячный отчет`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.monthly ? `${client.language({ textId: `Выключить`, guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: `Включить`, guildId: interaction.guildId, locale: interaction.locale })}`}`, value: `monthly` },
                     { emoji: settings.top_report.yearly ? `🟢` : `🔴`, label: `${client.language({ textId: `Ежегодный отчет`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.yearly ? `${client.language({ textId: `Выключить`, guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: `Включить`, guildId: interaction.guildId, locale: interaction.locale })}`}`, value: `yearly` },
-                    { emoji: `📄`, label: `${client.language({ textId: `Канал для отчетов`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.channelId ? `${interaction.guild.channels.cache.has(settings.top_report.channelId) ? `${await interaction.guild.channels.fetch(settings.top_report.channelId).then(channel => channel.name).catch(e => null)}` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}`, value: `channel` },
+                    { emoji: `📄`, label: `${client.language({ textId: `Канал для отчетов`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.channelId ? `${interaction.guild.channels.cache.has(settings.top_report.channelId) ? `${await interaction.guild.channels.fetch(settings.top_report.channelId).then(channel => channel.name).catch(() => null)}` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}`, value: `channel` },
                 ]
                 const text = [
                     `${client.language({ textId: `Бот может публиковать таблицу лидеров за отчетный период`, guildId: interaction.guildId, locale: interaction.locale })}`,
@@ -2553,7 +2579,7 @@ module.exports = {
                     `> ${client.language({ textId: `Еженедельный отчет`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.weekly ? `🟢${client.language({ textId: `ВКЛЮЧЕН`, guildId: interaction.guildId, locale: interaction.locale })}` : `🔴${client.language({ textId: `ВЫКЛЮЧЕН`, guildId: interaction.guildId, locale: interaction.locale })}`}`,
                     `> ${client.language({ textId: `Ежемесячный отчет`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.monthly ? `🟢${client.language({ textId: `ВКЛЮЧЕН`, guildId: interaction.guildId, locale: interaction.locale })}` : `🔴${client.language({ textId: `ВЫКЛЮЧЕН`, guildId: interaction.guildId, locale: interaction.locale })}`}`,
                     `> ${client.language({ textId: `Ежегодный отчет`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.yearly ? `🟢${client.language({ textId: `ВКЛЮЧЕН`, guildId: interaction.guildId, locale: interaction.locale })}` : `🔴${client.language({ textId: `ВЫКЛЮЧЕН`, guildId: interaction.guildId, locale: interaction.locale })}`}`,
-                    `> ${client.language({ textId: `Канал для отчетов`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.channelId ? `${interaction.guild.channels.cache.has(settings.top_report.channelId) ? `<#${await interaction.guild.channels.fetch(settings.top_report.channelId).then(channel => channel.id).catch(e => null)}>` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}`
+                    `> ${client.language({ textId: `Канал для отчетов`, guildId: interaction.guildId, locale: interaction.locale })}: ${settings.top_report.channelId ? `${interaction.guild.channels.cache.has(settings.top_report.channelId) ? `<#${await interaction.guild.channels.fetch(settings.top_report.channelId).then(channel => channel.id).catch(() => null)}>` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}` : `${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`}`
                 ]
                 embed.setDescription(text.join("\n"))
                 const second_row = new ActionRowBuilder().addComponents([new StringSelectMenuBuilder().setCustomId(`cmd{manager-settings} title{topLeaders} usr{${interaction.user.id}}`).addOptions(topLeaders_options).setPlaceholder(`${client.language({ textId: `Выбери для изменения`, guildId: interaction.guildId, locale: interaction.locale })}`)])
@@ -2571,7 +2597,7 @@ module.exports = {
                     await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                     const message = await interaction.followUp({ content: `${client.language({ textId: `Напиши в чат количество`, guildId: interaction.guildId, locale: interaction.locale })}. ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                     const collected = await waitingForAmount2(client, interaction, filter, interaction.values[0])
-                    message.delete().catch(e => null)
+                    message.delete().catch(() => null)
                     if (!Number.isNaN(collected)) {
                         settings[interaction.values[0]] = +collected
                         await settings.save()
@@ -2622,7 +2648,7 @@ module.exports = {
                     await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                     const message = await interaction.followUp({ content: `${client.language({ textId: `Напиши в чат level factor (Увеличение кол-ва необходимого опыта для следующего уровня)`, guildId: interaction.guildId, locale: interaction.locale })}. ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                     const collected = await waitingForLevelFactor(client, interaction, filter)
-                    message.delete().catch(e => null)
+                    message.delete().catch(() => null)
                     if (collected) {
                         await interaction.editReply({ content: interaction.message.content || " ", embeds: interaction.message.embeds, components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setEmoji("⏳").setStyle(ButtonStyle.Secondary).setCustomId(`0`).setDisabled(true))]})
                         settings.levelfactor = +collected
@@ -2639,21 +2665,21 @@ module.exports = {
                                 if (i > 100000) throw new Error(`Бесконечный цикл: manager-settings:2254, oldLevel: ${oldLevel}, profile.totalxp: ${profile.totalxp}, settings.levelfactor: ${settings.levelfactor}`)
                             }
                             if (oldLevel !== profile.level) {
-                                const member = await interaction.guild.members.fetch(profile.userID).catch(e => null)
+                                const member = await interaction.guild.members.fetch(profile.userID).catch(() => null)
                                 if (member) {
                                     if (settings.levelsRoles.length > 0) {
                                         const rolesAdd = settings.levelsRoles.filter(e => profile.level >= e.levelFrom && (!e.levelTo || e.levelTo > profile.level) && !member.roles.cache.has(e.roleId))
                                         for (const role of rolesAdd) {
-                                            const guild_role = await interaction.guild.roles.fetch(role.roleId).catch(e => null)
+                                            const guild_role = await interaction.guild.roles.fetch(role.roleId).catch(() => null)
                                             if (guild_role && interaction.guild.members.me.roles.highest.position > guild_role.position) {
-                                                await member.roles.add(guild_role.id).catch(e => null)
+                                                await member.roles.add(guild_role.id).catch(() => null)
                                             }
                                         }
                                         const rolesRemove = settings.levelsRoles.filter(e => (e.levelTo <= profile.level || e.levelFrom > profile.level) && member.roles.cache.has(e.roleId))
                                         for (const role of rolesRemove) {
-                                            const guild_role = await interaction.guild.roles.fetch(role.roleId).catch(e => null)
+                                            const guild_role = await interaction.guild.roles.fetch(role.roleId).catch(() => null)
                                             if (guild_role && interaction.guild.members.me.roles.highest.position > guild_role.position) {
-                                                await member.roles.remove(guild_role.id).catch(e => null) 
+                                                await member.roles.remove(guild_role.id).catch(() => null) 
                                             }
                                         }
                                     }
@@ -2699,7 +2725,7 @@ module.exports = {
                         value: `**${client.language({ textId: `Присуждается с одно приглашение на сервер`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.config.emojis.XP}**${client.language({ textId: `Опыт`, guildId: interaction.guildId, locale: interaction.locale })}:** ${settings.xpForInvite}\n> ${settings.displayCurrencyEmoji}**${settings.currencyName}:** ${settings.curForInvite}\n> ${client.config.emojis.RP}**${client.language({ textId: `Репутация`, guildId: interaction.guildId, locale: interaction.locale })}:** ${settings.rpForInvite}`,
                     },
                     {
-                        name: `${client.config.emojis.premium} ${client.config.emojis.bump} ${client.language({ textId: `За бамп`, guildId: interaction.guildId, locale: interaction.locale })}:`, 
+                        name: `${client.config.emojis.bump} ${client.config.emojis.bump} ${client.language({ textId: `За бамп`, guildId: interaction.guildId, locale: interaction.locale })}:`, 
                         value: `**${client.language({ textId: `Присуждается за один бамп сервера с помощью команд других ботов. Напр.`, guildId: interaction.guildId, locale: interaction.locale })} /bump, /up, /like**\n> ${client.config.emojis.XP}**${client.language({ textId: `Опыт`, guildId: interaction.guildId, locale: interaction.locale })}:** ${settings.xpForBump}\n> ${settings.displayCurrencyEmoji}**${settings.currencyName}:** ${settings.curForBump}\n> ${client.config.emojis.RP}**${client.language({ textId: `Репутация`, guildId: interaction.guildId, locale: interaction.locale })}:** ${settings.rpForBump}`,
                     },
                     {
@@ -2738,7 +2764,7 @@ module.exports = {
                 })
             }
             if (interaction.values?.[0].includes("logs") || interaction.customId.includes("logs")) {
-                embed.setTitle(`${client.config.emojis.premium}${title.label}`)
+                embed.setTitle(`${client.config.emojis.recipe}${title.label}`)
                 if (interaction.customId.includes("editPreferences")) {
                     for (const value of interaction.values) {
                         if (settings.logs[value]) settings.logs[value] = undefined
@@ -2750,7 +2776,7 @@ module.exports = {
                     await interaction.editReply({ embeds: interaction.message.embeds, components: [] })
                     const message = await interaction.followUp({ content: `**${client.language({ textId: `Вставь в чат ссылку вебхука, где будут публиковаться логи`, guildId: interaction.guildId, locale: interaction.locale })}.**\n> ${client.language({ textId: `Для удаления введи`, guildId: interaction.guildId, locale: interaction.locale })}: delete.\n> ${client.language({ textId: `Для отмены введи`, guildId: interaction.guildId, locale: interaction.locale })}: cancel.` })
                     const collected = await waitingForWebhook(client, interaction, filter)
-                    message.delete().catch(e => null)
+                    message.delete().catch(() => null)
                     if (collected) {
                         if (collected == "delete") {
                             settings.logs.webhook = undefined
@@ -3150,36 +3176,36 @@ async function waitingForAmount(client, interaction, filter, value, min) {
         if (!isNaN(collected.first().content)) {
             if (value?.includes("rp")) {
                 if (collected.first().content <= 0 || collected.first().content > 1000) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Количество не должно быть`, guildId: interaction.guildId, locale: interaction.locale })} <= 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 1000`, flags: ["Ephemeral"] })
                 } else if (min !== undefined && +collected.first().content < min) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Максимальное значение не должно быть меньше минимального`, guildId: interaction.guildId, locale: interaction.locale })} (${min})`, flags: ["Ephemeral"] })
                 } else {
-                    collected.first().delete().catch(e => null) 
+                    collected.first().delete().catch(() => null) 
                     return +collected.first().content   
                 }
             } else {
                 if (collected.first().content <= 0 || collected.first().content > 100000000 ) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Количество не должно быть`, guildId: interaction.guildId, locale: interaction.locale })} <= 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 100000000`, flags: ["Ephemeral"] })
                 } else if (collected.first().content < min) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Максимальное значение не должно быть меньше минимального`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 } else if (min == 0 && +collected.first().content == 0) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Максимальное значение не должно быть равно нулю`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 } else {
-                    collected.first().delete().catch(e => null) 
+                    collected.first().delete().catch(() => null) 
                     return +collected.first().content   
                 }
             }
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${collected.first().content}** ${client.language({ textId: `не является числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     }
@@ -3191,36 +3217,36 @@ async function waitingForAmount2(client, interaction, filter, value, min) {
         if (!Number.isInteger(collected.first().content)) {
             if (value?.includes("rp")) {
                 if (collected.first().content < 0 || collected.first().content > 1000) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Количество не должно быть`, guildId: interaction.guildId, locale: interaction.locale })} < 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 1000`, flags: ["Ephemeral"] })
                 } else if (min !== undefined && +collected.first().content < min) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Максимальное значение не должно быть меньше минимального`, guildId: interaction.guildId, locale: interaction.locale })} (${min})`, flags: ["Ephemeral"] })
                 } else {
-                    collected.first().delete().catch(e => null) 
+                    collected.first().delete().catch(() => null) 
                     return +collected.first().content   
                 }
             } else {
                 if (collected.first().content < 0 || collected.first().content > 100000000 ) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Количество не должно быть`, guildId: interaction.guildId, locale: interaction.locale })} < 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 100000000`, flags: ["Ephemeral"] })
                 } else if (collected.first().content < min) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Максимальное значение не должно быть меньше минимального`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 } else if (min == 0 && +collected.first().content == 0) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Максимальное значение не должно быть равно нулю`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 } else {
-                    collected.first().delete().catch(e => null) 
+                    collected.first().delete().catch(() => null) 
                     return +collected.first().content   
                 }
             }
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${collected.first().content}** ${client.language({ textId: `не является числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     }
@@ -3231,18 +3257,18 @@ async function waitingForLevelFactor(client, interaction, filter) {
         if (!collected.size) return false
         if (!Number.isInteger(collected.first().content)) {
             if (collected.first().content < 10 || collected.first().content > 5000 ) {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Максимальное значение не должно быть равно нулю`, guildId: interaction.guildId, locale: interaction.locale })} < 10 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 5000`, flags: ["Ephemeral"] })
             } else {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return +collected.first().content   
             }
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${collected.first().content}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     }
@@ -3252,14 +3278,14 @@ async function waitingForShopName(client, interaction, filter) {
         const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000 })
         if (!collected.size) return false
         if (collected.first().content.toLowerCase() == "cancel") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return false
         }
         if (collected.first().content.length <= 0 || collected.first().content.length > 20 ) {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Длина название магазина не должна быть`, guildId: interaction.guildId, locale: interaction.locale })} <= 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 20`, flags: ["Ephemeral"] })
         } else {
-            collected.first().delete().catch(e => null) 
+            collected.first().delete().catch(() => null) 
             return collected.first().content   
         }
     }
@@ -3270,20 +3296,20 @@ async function waitingForShopThumbnail(client, interaction, filter) {
         const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000 })
         if (!collected.size) return false
         if (collected.first().content == "delete") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return "delete"
         }
         if (collected.first().content) {
             const image = await isImageURL(collected.first().content)
             if (image) {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return collected.first().content
             } else {
                 if (collected.first().content.toLowerCase() == "cancel") {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     return false
                 }
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO}${client.language({ textId: `Строка`, guildId: interaction.guildId, locale: interaction.locale })} **${collected.first().content}** ${client.language({ textId: `не является прямой ссылкой на изображение`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             }    
         } else interaction.followUp({ content: `${client.language({ textId: `Введена пустая строка`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
@@ -3294,14 +3320,14 @@ async function waitingForShopMessage(client, interaction, filter) {
         const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000 })
         if (!collected.size) return false
         if (collected.first().content.toLowerCase() == "cancel") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return false
         }
         if (collected.first().content <= 0 || collected.first().content > 50 ) {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Длина сообщения магазина не должна быть`, guildId: interaction.guildId, locale: interaction.locale })} <= 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 50`, flags: ["Ephemeral"] })
         } else {
-            collected.first().delete().catch(e => null) 
+            collected.first().delete().catch(() => null) 
             return collected.first().content   
         }
     }
@@ -3312,18 +3338,18 @@ async function waitingForMaxBonus(client, interaction, filter) {
         if (!collected.size) return false
         if (Number.isInteger(+collected.first().content)) {
             if (collected.first().content < 0 || collected.first().content > 5000 ) {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Число не должно быть`, guildId: interaction.guildId, locale: interaction.locale })} < 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 5000`, flags: ["Ephemeral"] })
             } else {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return +collected.first().content   
             }
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${collected.first().content}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     }
@@ -3334,18 +3360,18 @@ async function waitingForLevelFrom(client, interaction, filter) {
         if (!collected.size) return false
         if (!isNaN(collected.first().content)) {
             if (collected.first().content <= 0 || collected.first().content > 9999) {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: `Уровень не должен быть`, guildId: interaction.guildId, locale: interaction.locale })} <= 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 9999**`, flags: ["Ephemeral"] })
             } else {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return +collected.first().content   
             }
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${collected.first().content}** ${client.language({ textId: `не является числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     }
@@ -3357,20 +3383,20 @@ async function waitingForLevelTo(client, interaction, filter, levelFrom) {
         if (!isNaN(collected.first().content)) {
             if (collected.first().content > levelFrom) {
                 if (collected.first().content > 0 && collected.first().content <= 9999) {
-                    collected.first().delete().catch(e => null) 
+                    collected.first().delete().catch(() => null) 
                     return +collected.first().content  
                 } interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: `Уровень не должен быть`, guildId: interaction.guildId, locale: interaction.locale })} <= 0 ${client.language({ textId: `или`, guildId: interaction.guildId, locale: interaction.locale })} > 9999**`, flags: ["Ephemeral"] })
             } else interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: `Уровень сдачи роли не должен быть меньше или равен уровню получения роль`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
             if (collected.first().content.toLowerCase() == "skip") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return undefined
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${collected.first().content}** ${client.language({ textId: `не является числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     }
@@ -3380,14 +3406,14 @@ async function waitingForMutedChannel(client, interaction, filter, settings) {
         let collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000 })
         if (!collected.size) return false
         if (collected.first().content.toLowerCase() == "cancel") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return false
         } else {
             let channels_string = collected.first().content.replace(/<|#|>/g, "")
             const channels_array = channels_string.split(" ")
             const filtered_channels = []
             for (let chan of channels_array) {
-                const channel = await interaction.guild.channels.fetch(chan).catch(e => null)
+                const channel = await interaction.guild.channels.fetch(chan).catch(() => null)
                 if (channel || settings.channels?.mutedChannels.includes(chan)) {
                     if (channel && channel.permissionsFor(interaction.guild.members.me).has("ViewChannel") || settings.channels?.mutedChannels.includes(chan)) {
                         filtered_channels.push(chan)
@@ -3398,7 +3424,7 @@ async function waitingForMutedChannel(client, interaction, filter, settings) {
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Канал`, guildId: interaction.guildId, locale: interaction.locale })} "${chan}" ${client.language({ textId: `не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 }    
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return filtered_channels
         }
     } 
@@ -3408,21 +3434,21 @@ async function waitingForMutedRoles(client, interaction, filter, settings) {
         let collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000 })
         if (!collected.size) return false
         if (collected.first().content.toLowerCase() == "cancel") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return false
         } else {
             let roles_string = collected.first().content.replace(/<|@&|>/g, "")
             const roles_array = roles_string.split(" ")
             const filtered_roles = []
             for (let role of roles_array) {
-                const guildRole = await interaction.guild.roles.fetch(role).catch(e => null)
+                const guildRole = await interaction.guild.roles.fetch(role).catch(() => null)
                 if (guildRole || settings.roles?.mutedRoles.includes(role)) {
                     filtered_roles.push(role)
                 } else {
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Роль c ID`, guildId: interaction.guildId, locale: interaction.locale })} **${role}** ${client.language({ textId: `не найдена`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 }    
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return filtered_roles
         }
     } 
@@ -3432,21 +3458,21 @@ async function waitingForRolesToNewMember(client, interaction, filter, settings)
         let collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000 })
         if (!collected.size) return false
         if (collected.first().content.toLowerCase() == "cancel") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return false
         } else {
             let roles_string = collected.first().content.replace(/<|@&|>/g, "")
             const roles_array = roles_string.split(" ")
             const filtered_roles = []
             for (let role of roles_array) {
-                const guildRole = await interaction.guild.roles.fetch(role).catch(e => null)
+                const guildRole = await interaction.guild.roles.fetch(role).catch(() => null)
                 if (guildRole || settings.roles?.rolesToNewMember.includes(role)) {
                     filtered_roles.push(role)
                 } else {
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Роль c ID`, guildId: interaction.guildId, locale: interaction.locale })} **${role}** ${client.language({ textId: `не найдена`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 }    
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return filtered_roles
         }
     } 
@@ -3456,7 +3482,7 @@ async function waitingForRolesToDelete(client, interaction, filter, settings) {
         let collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000 })
         if (!collected.size) return false
         if (collected.first().content.toLowerCase() == "cancel") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return false
         } else {
             let roles_string = collected.first().content.replace(/<|@|&|>/g, "")
@@ -3469,7 +3495,7 @@ async function waitingForRolesToDelete(client, interaction, filter, settings) {
                     interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} **${role}** ${client.language({ textId: `не найдена`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 }    
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return filtered_roles
         }
     } 
@@ -3479,20 +3505,20 @@ async function waitingForRoleToAdd(client, interaction, filter, settings) {
         let collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000 })
         if (!collected.size) return false
         if (collected.first().content.toLowerCase() == "cancel") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return false
         } else {
             let role_id = collected.first().content.replace(/<|@|&|>/g, "")
-            const guild_role = await interaction.guild.roles.fetch(role_id).catch(e => null)
+            const guild_role = await interaction.guild.roles.fetch(role_id).catch(() => null)
             if (guild_role) {
                 if (!settings.levelsRoles.some(e => e.roleId == guild_role.id)) {
                     if (interaction.guild.members.me.roles.highest.position > guild_role.position) {
-                        collected.first().delete().catch(e => null)
+                        collected.first().delete().catch(() => null)
                         return guild_role
                     } else interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: `Я не могу управлять ролью`, guildId: interaction.guildId, locale: interaction.locale })} ${guild_role.name}, ${client.language({ textId: `т.к. моя роль ниже роли, которую вы пытаетесь добавить. Переместите мою роль в самый верх списка`, guildId: interaction.guildId, locale: interaction.locale })}.**`, flags: ["Ephemeral"] })
                 } else interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} ${guild_role.name} ${client.language({ textId: `уже есть в списке ролей за уровни`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })  
             } else interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} **${role_id}** ${client.language({ textId: `не найдена`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
         }
     } 
 }
@@ -3501,18 +3527,18 @@ async function waitingForRole(client, interaction, filter) {
         let collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000 })
         if (!collected.size) return false
         if (collected.first().content.toLowerCase() == "cancel") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return false
         } else {
             let role_id = collected.first().content.replace(/<|@|&|>/g, "")
-            const guild_role = await interaction.guild.roles.fetch(role_id).catch(e => null)
+            const guild_role = await interaction.guild.roles.fetch(role_id).catch(() => null)
             if (guild_role) {
                 if (interaction.guild.members.me.roles.highest.position > guild_role.position) {
-                    collected.first().delete().catch(e => null)
+                    collected.first().delete().catch(() => null)
                     return guild_role
                 } else interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: `Я не могу управлять ролью`, guildId: interaction.guildId, locale: interaction.locale })} ${guild_role.name}, ${client.language({ textId: `т.к. моя роль ниже роли, которую вы пытаетесь добавить. Переместите мою роль в самый верх списка`, guildId: interaction.guildId, locale: interaction.locale })}.**`, flags: ["Ephemeral"] })
             } else interaction.followUp({ content: `${client.config.emojis.NO} Роль **${role_id}** ${client.language({ textId: `не найдена`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
         }
     } 
 }
@@ -3520,25 +3546,25 @@ async function waitingForJoinToCreateChannel(client, interaction, filter, settin
     while (true) {
         const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 30000 })
         if (!collected.size) return false
-        const channel = await interaction.guild.channels.fetch(collected.first().content.replace(/<|#|>/g, "")).catch(e => null)
+        const channel = await interaction.guild.channels.fetch(collected.first().content.replace(/<|#|>/g, "")).catch(() => null)
         if (channel?.type === ChannelType.GuildVoice) {
             if (channel.permissionsFor(interaction.guild.members.me).has("MoveMembers") && channel.permissionsFor(interaction.guild.members.me).has("ManageChannels")) {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return channel    
             } else {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня нет прав для канала`, guildId: interaction.guildId, locale: interaction.locale })} <#${channel.id}>\n${client.language({ textId: `Мне нужны следующие права`, guildId: interaction.guildId, locale: interaction.locale })}:\n> 1. ${client.language({ textId: `Перемещать участников`, guildId: interaction.guildId, locale: interaction.locale })}\n> 2. ${client.language({ textId: `Управлять каналами`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             }
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
             if (collected.first().content.toLowerCase() == "delete") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return "delete"
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: `Голосовой канал не найден`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
         }
     } 
@@ -3547,25 +3573,25 @@ async function waitingForJoinToCreateCategory(client, interaction, filter, setti
     while (true) {
         const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 30000 })
         if (!collected.size) return false
-        const channel = await interaction.guild.channels.fetch(collected.first().content.replace(/<|#|>/g, "")).catch(e => null)
+        const channel = await interaction.guild.channels.fetch(collected.first().content.replace(/<|#|>/g, "")).catch(() => null)
         if (channel?.type === ChannelType.GuildCategory) {
             if (channel.permissionsFor(interaction.guild.members.me).has("MoveMembers") && channel.permissionsFor(interaction.guild.members.me).has("ManageChannels")) {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return channel
             } else {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня нет прав для категории`, guildId: interaction.guildId, locale: interaction.locale })} <#${channel.id}>\n${client.language({ textId: `Мне нужны следующие права`, guildId: interaction.guildId, locale: interaction.locale })}:\n> 1. ${client.language({ textId: `Перемещать участников`, guildId: interaction.guildId, locale: interaction.locale })}\n> 2. ${client.language({ textId: `Управлять каналами`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             }
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
             if (collected.first().content.toLowerCase() == "delete") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return "delete"
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: `Категория не найдена`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
         }
     } 
@@ -3574,25 +3600,25 @@ async function waitingForChannelId(client, interaction, filter) {
     while (true) {
         const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 30000 })
         if (!collected.size) return false
-        const channel = await interaction.guild.channels.fetch(collected.first().content.replace(/<|#|>/g, "")).catch(e => null)
+        const channel = await interaction.guild.channels.fetch(collected.first().content.replace(/<|#|>/g, "")).catch(() => null)
         if (channel?.type === ChannelType.GuildText || channel?.type === ChannelType.PublicThread || channel?.type === ChannelType.PrivateThread) {
             if (channel.permissionsFor(interaction.guild.members.me).has("ViewChannel") && channel.permissionsFor(interaction.guild.members.me).has("SendMessages")) {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return channel
             } else {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня нет прав для канала`, guildId: interaction.guildId, locale: interaction.locale })} <#${channel.id}>\n${client.language({ textId: `Мне нужны следующие права`, guildId: interaction.guildId, locale: interaction.locale })}:\n1. ${client.language({ textId: `Просмотр канала`, guildId: interaction.guildId, locale: interaction.locale })}\n2. ${client.language({ textId: `Отправлять сообщения`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             }
         } else {
             if (collected.first().content.toLowerCase() === "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
             if (collected.first().content.toLowerCase() === "delete") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return "delete"
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Текстовый канал не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     } 
@@ -3602,14 +3628,14 @@ async function waitingForWebhook(client, interaction, filter) {
         const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 30000 })
         if (!collected.size) return false
         if (collected.first().content.toLowerCase() == "cancel") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return false
         }
         if (collected.first().content.toLowerCase() == "delete") {
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             return "delete"
         }    
-        collected.first().delete().catch(e => null) 
+        collected.first().delete().catch(() => null) 
         return collected.first().content
     } 
 }
@@ -3617,20 +3643,20 @@ async function waitingForRoleId(client, interaction, filter) {
     while (true) {
         const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 30000 })
         if (!collected.size) return false
-        const role = await interaction.guild.roles.fetch(collected.first().content.replace(/<|@&|>/g, "")).catch(e => null)
+        const role = await interaction.guild.roles.fetch(collected.first().content.replace(/<|@&|>/g, "")).catch(() => null)
         if (role) {
-            collected.first().delete().catch(e => null) 
+            collected.first().delete().catch(() => null) 
             return role
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
             if (collected.first().content.toLowerCase() == "delete") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return "delete"
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Роль не найдена`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     } 
@@ -3639,52 +3665,26 @@ async function waitingForMemesChannelId(client, interaction, filter) {
     while (true) {
         const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 30000 })
         if (!collected.size) return false
-        const channel = await interaction.guild.channels.fetch(collected.first().content.replace(/<|#|>/g, "")).catch(e => null)
+        const channel = await interaction.guild.channels.fetch(collected.first().content.replace(/<|#|>/g, "")).catch(() => null)
         if (channel?.type === ChannelType.GuildText || channel?.type === ChannelType.PublicThread) {
             if (channel.permissionsFor(interaction.guild.members.me).has("ViewChannel") && channel.permissionsFor(interaction.guild.members.me).has("AddReactions") && channel.permissionsFor(interaction.guild.members.me).has("ReadMessageHistory")) {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return channel
             } else {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня нет прав для канала`, guildId: interaction.guildId, locale: interaction.locale })} <#${channel.id}>\n${client.language({ textId: `Мне нужны следующие права`, guildId: interaction.guildId, locale: interaction.locale })}:\n1. ${client.language({ textId: `Просмотр канала`, guildId: interaction.guildId, locale: interaction.locale })}\n2. ${client.language({ textId: `AddReactions`, guildId: interaction.guildId, locale: interaction.locale })}\n3. ${client.language({ textId: `Читать историю сообщений`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             }
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
             if (collected.first().content.toLowerCase() == "delete") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return "delete"
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Текстовый канал не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-        }
-    } 
-}
-async function waitingForAttachment(client, interaction, filter) {
-    while (true) {
-        const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 30000 })
-        if (!collected.size) return false
-        if (collected.first().attachments.first()) {
-            if (collected.first().attachments.first().contentType.includes("image")) {
-                if (collected.first().attachments.first().size <= 8388608) {
-                    return collected.first().attachments.first()
-                } else {
-                    collected.first().delete().catch(e => null)
-                    interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Размер вложения не должен превышать 8МБ`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                }
-            } else {
-                collected.first().delete().catch(e => null)
-                interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Вложение должно быть изображением`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-            }
-        } else {
-            if (collected.first().content.toLowerCase() == `cancel`) {
-                collected.first().delete().catch(e => null)
-                return false
-            }
-            collected.first().delete().catch(e => null)
-            interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Нет вложения`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     } 
 }

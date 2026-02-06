@@ -14,14 +14,14 @@ client.on(Events.MessageReactionAdd, async (reaction) => {
             const profile = await client.functions.fetchProfile(client, giveaway.creator, guild.id)
             for (const element of giveaway.rewards) {
                 if (element.type === RewardType.Currency) {
-                    profile.currency = element.amount
+                    profile.currency += element.amount
                 }
                 else if (element.type === RewardType.Item) {
                     const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-                    if (item) await profile.addItem(element.id, element.amount)
+                    if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
                 } else if (element.type === RewardType.Role) {
                     const role = guild.roles.cache.get(element.id)
-                    if (role) profile.addRole(element.id, element.amount, element.ms)
+                    if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
                 }
                 await profile.save()
             }

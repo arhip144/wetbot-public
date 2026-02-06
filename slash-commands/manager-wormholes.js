@@ -3,7 +3,9 @@ const WormholeRegexp = /wormhole{(.*?)}/
 const uniqid = require('uniqid')
 const Wormhole = require("../classes/wormhole.js")
 const limRegexp = /lim{(.*?)}/
-const Cron = require("croner")
+const Cron = require("croner");
+const CronTranslator = require("../classes/CronTranslator.js")
+const axios = require('axios');
 module.exports = {
     name: 'manager-wormholes',
     nameLocalizations: {
@@ -416,8 +418,8 @@ module.exports = {
                 }))
                 await interaction.update({ components: interaction.message.components })
                 await interaction.followUp({ components: [new ActionRowBuilder().addComponents(addItemBTN, addCurBTN, addXPBTN, addRPBTN), new ActionRowBuilder().addComponents(cancelBTN)], flags: ["Ephemeral"] })
-                const filter = (i) => i.customId.includes(`addItem`) && i.user.id === interaction.user.id
-                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`addItem`) && i.user.id === interaction.user.id;
+                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                 if (interaction2) {
                     if (interaction2.customId === "addItem_item") {
                         const modal = new ModalBuilder()
@@ -611,16 +613,16 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })    
-                const filter = (i) => i.customId.includes(`wormholeCreateWebhook`) && i.user.id === interaction.user.id
-                channelSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`wormholeCreateWebhook`) && i.user.id === interaction.user.id;
+                channelSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                 if (channelSelectMenuInteraction && channelSelectMenuInteraction.customId === "wormholeCreateWebhook") {
                     await channelSelectMenuInteraction.deferUpdate()
                     if (wormhole.webhookId) {
                         const webhook = client.cache.webhooks.get(wormhole.webhookId)
                         if (webhook) {
-                            webhook.delete().catch(e => null)
+                            webhook.delete().catch(() => null)
                             client.cache.webhooks.delete(wormhole.webhookId)
-                        } else await client.fetchWebhook(wormhole.webhookId).then(webhook => webhook.delete()).catch(e => null)
+                        } else await client.fetchWebhook(wormhole.webhookId).then(webhook => webhook.delete()).catch(() => null)
                     }
                     const webhook = await channelSelectMenuInteraction.channels.first().createWebhook({
                         name: wormhole.name,
@@ -698,8 +700,15 @@ module.exports = {
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
                     interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
+                    modalArgs.pattern = modalArgs.pattern
+                        .replace("@yearly", "0 0 1 1 *")
+                        .replace("@annually", "0 0 1 1 *")
+                        .replace("@monthly", "0 0 1 * *")
+                        .replace("@weekly", "0 0 * * 0")
+                        .replace("@daily", "0 0 * * *")
+                        .replace("@hourly", "0 * * * *")
                     try {
-                        const job = Cron(modalArgs.pattern, { timezone: "Atlantic/Azores", interval: 60, paused: true }, () => {} )
+                        const job = Cron(modalArgs.pattern, { timezone: "UTC", interval: 60, paused: true }, () => {} )
                         job.stop()
                     } catch (err) {
                         await interaction.deferUpdate()
@@ -761,7 +770,7 @@ module.exports = {
             if (wormhole.webhookId) {
                 webhook = client.cache.webhooks.get(wormhole.webhookId)
                 if (!webhook) {
-                    webhook = await client.fetchWebhook(wormhole.webhookId).catch(e => null)
+                    webhook = await client.fetchWebhook(wormhole.webhookId).catch(() => null)
                     if (webhook instanceof Webhook) client.cache.webhooks.set(webhook.id, webhook)
                 }    
             }
@@ -793,8 +802,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })    
-                const filter = (i) => i.customId.includes(`wormholeThread`) && i.user.id === interaction.user.id
-                channelSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`wormholeThread`) && i.user.id === interaction.user.id;
+                channelSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                 if (channelSelectMenuInteraction && channelSelectMenuInteraction.customId.includes("wormholeThread")) {
                     await channelSelectMenuInteraction.deferUpdate()
                     if (channelSelectMenuInteraction.customId === "wormholeThread") {
@@ -836,7 +845,7 @@ module.exports = {
                 }
                 let webhook = client.cache.webhooks.get(wormhole.webhookId)
                 if (!webhook) {
-                    webhook = await client.fetchWebhook(wormhole.webhookId).catch(e => null)
+                    webhook = await client.fetchWebhook(wormhole.webhookId).catch(() => null)
                     if (webhook instanceof Webhook) client.cache.webhooks.set(webhook.id, webhook)
                 }
                 if (!webhook) {
@@ -849,7 +858,7 @@ module.exports = {
         if (wormhole.webhookId) {
             webhook = client.cache.webhooks.get(wormhole.webhookId)
             if (!webhook) {
-                webhook = await client.fetchWebhook(wormhole.webhookId).catch(e => null)
+                webhook = await client.fetchWebhook(wormhole.webhookId).catch(() => null)
                 if (webhook instanceof Webhook) client.cache.webhooks.set(webhook.id, webhook)
             }    
         }
@@ -866,7 +875,7 @@ module.exports = {
             .setDescription([
                 `${client.language({ textId: `Предмет`, guildId: interaction.guildId, locale: interaction.locale })}: ${item ? `${emoji}${item.name}` : wormhole.itemID == "currency" ? `${emoji}${settings.currencyName}` : wormhole.itemID == "xp" ? `${emoji}XP` : wormhole.itemID == "rp" ? `${emoji}RP` : `${client.language({ textId: `Требуется выбрать`, guildId: interaction.guildId, locale: interaction.locale })}`}`,
                 `${client.language({ textId: `Шанс`, guildId: interaction.guildId, locale: interaction.locale })}: ${wormhole.chance ? `${wormhole.chance}%`: `${client.language({ textId: `Требуется выбрать`, guildId: interaction.guildId, locale: interaction.locale })}`}`,
-                `${client.language({ textId: `Cron-паттерн`, guildId: interaction.guildId, locale: interaction.locale })}: ${wormhole.cronPattern ? `${wormhole.cronPattern}`: `${client.language({ textId: `Требуется выбрать`, guildId: interaction.guildId, locale: interaction.locale })}`} ([${client.language({ textId: `Что это?`, guildId: interaction.guildId, locale: interaction.locale })}](https://docs.wetbot.space/guide/cron-patterns))`,
+                `${client.language({ textId: `Cron-паттерн`, guildId: interaction.guildId, locale: interaction.locale })}: ${wormhole.cronPattern ? `${await translateText(new CronTranslator().translate(wormhole.cronPattern), interaction.locale)} [\`${wormhole.cronPattern}\`]`: `${client.language({ textId: `Требуется выбрать`, guildId: interaction.guildId, locale: interaction.locale })}`} ([${client.language({ textId: `Что это?`, guildId: interaction.guildId, locale: interaction.locale })}](https://docs.wetbot.space/guide/cron-patterns))`,
                 `${client.language({ textId: `Количество выпадения`, guildId: interaction.guildId, locale: interaction.locale })}: ${wormhole.amountFrom && wormhole.amountTo ? wormhole.amountFrom == wormhole.amountTo ? `${wormhole.amountFrom} ${client.language({ textId: `шт`, guildId: interaction.guildId, locale: interaction.locale })}.` : `${client.language({ textId: `от`, guildId: interaction.guildId, locale: interaction.locale })} ${wormhole.amountFrom} ${client.language({ textId: `до`, guildId: interaction.guildId, locale: interaction.locale })} ${wormhole.amountTo} ${client.language({ textId: `шт`, guildId: interaction.guildId, locale: interaction.locale })}.` : `${client.language({ textId: `Требуется выбрать`, guildId: interaction.guildId, locale: interaction.locale })}`}`,
                 `${client.language({ textId: `Время жизни`, guildId: interaction.guildId, locale: interaction.locale })}: ${wormhole.deleteTimeOut === undefined ? `${client.language({ textId: `Требуется выбрать`, guildId: interaction.guildId, locale: interaction.locale })}` : wormhole.deleteTimeOut === 0 ? `${client.language({ textId: `Бесконечно`, guildId: interaction.guildId, locale: interaction.locale })}` : `${wormhole.deleteTimeOut / 1000} c.`}`,
                 `${client.language({ textId: `Сообщение удаляется после сбора`, guildId: interaction.guildId, locale: interaction.locale })}: ${wormhole.deleteAfterTouch ? client.config.emojis.YES : client.config.emojis.NO}`,
@@ -994,5 +1003,27 @@ module.exports = {
         const firstRow = new ActionRowBuilder().addComponents([stringSelectMenu])
         if (interaction.replied || interaction.deferred) return interaction.editReply({ content: " ", embeds: [embed], components: [styleRow, firstRow] })
         else return interaction.update({ content: " ", embeds: [embed], components: [styleRow, firstRow] })
+    }
+}
+async function translateText(text, targetLang, sourceLang = "ru") {
+    if (targetLang === sourceLang) return text
+    try {
+    // Используем бесплатный Google Translate API
+    const response = await axios.get('https://translate.googleapis.com/translate_a/single', {
+        params: {
+        client: 'gtx',
+        sl: sourceLang,
+        tl: targetLang,
+        dt: 't',
+        q: text
+        }
+    });
+
+    // Извлекаем переведенный текст из ответа
+    const translatedText = response.data[0][0][0];
+    return translatedText;
+    } catch (error) {
+    console.error(`❌ Ошибка перевода "${text}" на ${targetLang}:`, error.message);
+    return text;
     }
 }

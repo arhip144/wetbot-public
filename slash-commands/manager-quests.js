@@ -312,7 +312,6 @@ module.exports = {
             if (interaction.isChatInputCommand()) await interaction.deferReply({ flags: ["Ephemeral"] })
             if (args?.Subcommand === "create") {
                 const quests = client.cache.quests.filter(e => e.guildID === interaction.guildId)
-                if (quests.size >= settings.max_quests) return interaction.editReply({ content: `${client.language({ textId: `Достигнуто максимум квестов:`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.max_quests}`, flags: ["Ephemeral"] })
                 if (quests.some(e => e.name.toLowerCase() === args.name.toLowerCase())) {
                     return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Квест с названием`, guildId: interaction.guildId, locale: interaction.locale })} <${args.name}> ${client.language({ textId: `уже существует, выбери другое название`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 }
@@ -331,8 +330,6 @@ module.exports = {
                 if (!quest) return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Квест с названием`, guildId: interaction.guildId, locale: interaction.locale })} <${args.name}> ${client.language({ textId: `не существует`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
             } else
             if (args?.Subcommand === "copy") {
-                const quests = client.cache.quests.filter(e => e.guildID === interaction.guildId)
-                if (quests.size >= settings.max_quests) return interaction.reply({ content: `${client.language({ textId: `Достигнуто максимум квестов:`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.max_quests}`, flags: ["Ephemeral"] })
                 let originalQuest = client.cache.quests.find(e => e.name.toLowerCase() === args.quest.toLowerCase() && e.guildID === interaction.guildId)
                 if (!originalQuest) return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Квест с названием`, guildId: interaction.guildId, locale: interaction.locale })}: <${args.name}> ${client.language({ textId: `не найден`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 if (client.cache.quests.some(e => e.name.toLowerCase() === args.name.toLowerCase() && e.guildID === interaction.guildId)) {
@@ -368,7 +365,7 @@ module.exports = {
                 }
                 let index = 0
                 const embed = new EmbedBuilder()
-                    .setTitle(`${client.language({ textId: `Менеджер квестов`, guildId: interaction.guildId, locale: interaction.locale })} (${quests.size}/${settings.max_quests})`)
+                    .setTitle(`${client.language({ textId: `Менеджер квестов`, guildId: interaction.guildId, locale: interaction.locale })} (${quests.size})`)
                     .setColor(3093046)
                     .setDescription(quests.size ? quests.map((quest) => { 
                         return `${index++}. ${quest.enable ? "🟢": "🔴"}${quest.displayEmoji}${quest.name}`
@@ -377,7 +374,7 @@ module.exports = {
                     embed,
                     new EmbedBuilder()
                         .setColor(3093046)
-                        .setDescription(`${client.config.emojis.plus}${client.language({ textId: `Создать квест`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-quests create:1150455842294988944>\n${client.config.emojis.edit}${client.language({ textId: `Изменить квест`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-quests edit:1150455842294988944>\n${client.config.emojis.copy}${client.language({ textId: `Скопировать квест`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-quests copy:1150455842294988944>\n${client.config.emojis.trash}${client.language({ textId: `Удалить квест`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-quests delete:1150455842294988944>`)
+                        .setDescription(`<:PLUS:1012990107143385159>${client.language({ textId: `Создать квест`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-quests create:1150455842294988944>\n<:pen:1012990423171600404>${client.language({ textId: `Изменить квест`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-quests edit:1150455842294988944>\n<:activities:1005856343141384264>${client.language({ textId: `Скопировать квест`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-quests copy:1150455842294988944>\n<:block:1005859695619215370>${client.language({ textId: `Удалить квест`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-quests delete:1150455842294988944>`)
                 ]
                 const components = [
                     new ActionRowBuilder()
@@ -510,8 +507,8 @@ module.exports = {
                                 )
                         ])
                     await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                    const filter = (i) => i.customId === `name, description, image, color_${interaction.id}` && i.user.id === interaction.user.id
-                    interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(e => null)
+                    const filter = (i) => i.customId === `name, description, image, color_${interaction.id}` && i.user.id === interaction.user.id;
+                    interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(() => null)
                     if (interaction && interaction.type === InteractionType.ModalSubmit) {
                         const modalArgs = {}
                         interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -616,7 +613,7 @@ module.exports = {
                         flags: ["Ephemeral"]
                     })
                     const filter = (i) => i.customId.includes(`add`) || i.customId === "cancel" && i.user.id === interaction.user.id;
-                    let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                    let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                     if (interaction2 && interaction2.customId.includes("add")) {
                         let id
                         let type
@@ -640,7 +637,7 @@ module.exports = {
                                         .setStyle(TextInputStyle.Short)
                                 )
                             : undefined
-                        ].filter(e => e)
+                        ].filter(Boolean)
                         if (interaction2.customId.includes("item")) {
                             type = RewardType.Item
                             modalComponents.unshift(
@@ -687,7 +684,7 @@ module.exports = {
                             .setTitle(`${client.language({ textId: `Добавить награду`, guildId: interaction.guildId, locale: interaction.locale })}`)
                             .setLabelComponents(modalComponents)
                         await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                        const filter = (i) => i.customId === `manager-quests_addRewardAmount_${interaction2.id}` && i.user.id === interaction.user.id
+                        const filter = (i) => i.customId === `manager-quests_addRewardAmount_${interaction2.id}` && i.user.id === interaction.user.id;
                         interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction2)
                         if (interaction2 && interaction2.isModalSubmit()) {
                             const modalArgs = {}
@@ -799,8 +796,8 @@ module.exports = {
                                         .setLabel(`${client.language({ textId: `ОТМЕНА`, guildId: interaction.guildId, locale: interaction.locale })}`)
                                         .setStyle(ButtonStyle.Danger))
                             ], flags: ["Ephemeral"] })    
-                        const filter = (i) => i.customId.includes(`delete quest from profile`) && i.user.id === interaction.user.id
-                        buttonInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId.includes(`delete quest from profile`) && i.user.id === interaction.user.id;
+                        buttonInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
                         if (buttonInteraction) {
                             if (buttonInteraction.customId.includes("confirm")) {
                                 client.cache.profiles.filter(profile => profile.guildID === buttonInteraction.guildId && profile.quests?.some(q => q.questID === quest.questID)).forEach(profile => {
@@ -943,8 +940,8 @@ module.exports = {
                         if (!interaction.replied && !interaction.deferred) await interaction.deferUpdate()
                         await interaction.followUp({ content: `${client.language({ textId: `Выбери задачу`, guildId: interaction.guildId, locale: interaction.locale })}:`, components: [row, row1], flags: ["Ephemeral"] })
                     }
-                    const filter = (i) => i.customId.includes(`submit target ${interaction.id}`) && i.user.id === interaction.user.id
-                    const selectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+                    const filter = (i) => i.customId.includes(`submit target ${interaction.id}`) && i.user.id === interaction.user.id;
+                    const selectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
                     if (selectMenuInteraction) {
                         const type = selectMenuInteraction.values[0]
                         const components = []
@@ -1036,8 +1033,8 @@ module.exports = {
                             .setTitle(getQuestContext(type))
                             .setLabelComponents(components)
                         await selectMenuInteraction.showModal(modal);delete client.globalCooldown[`${selectMenuInteraction.guildId}_${selectMenuInteraction.user.id}`]
-                        const filter = (i) => i.customId === `addTarget_${type}` && i.user.id === interaction.user.id
-                        const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(e => null)
+                        const filter = (i) => i.customId === `addTarget_${type}` && i.user.id === interaction.user.id;
+                        const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(() => null)
                         if (modalInteraction && modalInteraction.type === InteractionType.ModalSubmit) {
                             const modalArgs = {}
                             modalInteraction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -1076,7 +1073,7 @@ module.exports = {
                                     }
                                 }
                                 await quest.save()
-                                await modalInteraction.deferUpdate().catch(e => null)
+                                await modalInteraction.deferUpdate().catch(() => null)
                                 await modalInteraction.editReply({ content: `${client.config.emojis.YES} ${client.language({ textId: `Задача добавлена`, guildId: selectMenuInteraction.guildId, locale: selectMenuInteraction.locale })}`, components: [] })    
                             }
                         } else return
@@ -1097,8 +1094,8 @@ module.exports = {
                                         .setLabel(`${client.language({ textId: `ОТМЕНА`, guildId: interaction.guildId, locale: interaction.locale })}`)
                                         .setStyle(ButtonStyle.Danger))
                             ], flags: ["Ephemeral"] })    
-                        const filter = (i) => i.customId.includes(`delete quest from profile`) && i.user.id === interaction.user.id
-                        buttonInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId.includes(`delete quest from profile`) && i.user.id === interaction.user.id;
+                        buttonInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
                         if (buttonInteraction) {
                             if (buttonInteraction.customId.includes("confirm")) {
                                 client.cache.profiles.filter(profile => profile.guildID === buttonInteraction.guildId && profile.quests?.some(q => q.questID === quest.questID)).forEach(profile => {
@@ -1127,8 +1124,8 @@ module.exports = {
                         await interaction.deferUpdate()
                         await interaction.followUp({ content: `${client.language({ textId: `Выбери задачу`, guildId: interaction.guildId, locale: interaction.locale })}:`, components: [row], flags: ["Ephemeral"] })
                     }
-                    const filter = (i) => i.customId === `submit editTarget ${interaction.id}` && i.user.id === interaction.user.id
-                    const selectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+                    const filter = (i) => i.customId === `submit editTarget ${interaction.id}` && i.user.id === interaction.user.id;
+                    const selectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
                     if (selectMenuInteraction) {
                         const target = quest.targets.find(e => { return e.targetID === selectMenuInteraction.values[0] })
                         const components = []
@@ -1222,8 +1219,8 @@ module.exports = {
                             .setTitle(getQuestContext(target.type, target.amount))
                             .setLabelComponents(components)
                         await selectMenuInteraction.showModal(modal);delete client.globalCooldown[`${selectMenuInteraction.guildId}_${selectMenuInteraction.user.id}`]
-                        const filter = (i) => i.customId === `editTarget_${target.targetID}` && i.user.id === interaction.user.id
-                        const modalInteraction = await selectMenuInteraction.awaitModalSubmit({ filter, time: 180000 }).catch(e => null)
+                        const filter = (i) => i.customId === `editTarget_${target.targetID}` && i.user.id === interaction.user.id;
+                        const modalInteraction = await selectMenuInteraction.awaitModalSubmit({ filter, time: 180000 }).catch(() => null)
                         if (modalInteraction && modalInteraction.type === InteractionType.ModalSubmit) {
                             const modalArgs = {}
                             modalInteraction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -1254,7 +1251,7 @@ module.exports = {
                                 quest.enable = false
                             }
                             await quest.save()
-                            await modalInteraction.deferUpdate().catch(e => null)
+                            await modalInteraction.deferUpdate().catch(() => null)
                             await modalInteraction.editReply({ content: `${client.config.emojis.YES} ${client.language({ textId: `Задача была обновлена`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [] })
                         } else return
                     } else return
@@ -1278,8 +1275,8 @@ module.exports = {
                                 ),
                         ])
                     await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                    const filter = (i) => i.customId === `manager-quests_permissions_${value}_${interaction.id}` && i.user.id === interaction.user.id
-                    interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
+                    const filter = (i) => i.customId === `manager-quests_permissions_${value}_${interaction.id}` && i.user.id === interaction.user.id;
+                    interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
                     if (interaction && interaction.type === InteractionType.ModalSubmit) {
                         const modalArgs = {}
                         interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -1335,7 +1332,7 @@ module.exports = {
                     if (interaction.values[0] === "addMembers") {
                         let totalMembers = 0
                         if (quest.community) {
-                            await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && !profile.quests?.some(q => q.questID === quest.questID) && (profile.quests?.length || 0) < settings.max_quests).map(async profile => {
+                            await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && !profile.quests?.some(q => q.questID === quest.questID)).map(async profile => {
                                 if (!profile.quests) profile.quests = []
                                 profile.quests.push({
                                     questID: quest.questID
@@ -1344,7 +1341,7 @@ module.exports = {
                                 totalMembers++
                             }))
                         } else {
-                            await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && !profile.quests?.some(q => q.questID === quest.questID) && (profile.quests?.length || 0) < settings.max_quests).map(async profile => {
+                            await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && !profile.quests?.some(q => q.questID === quest.questID)).map(async profile => {
                                 if (!profile.quests) profile.quests = []
                                 profile.quests.push({
                                     questID: quest.questID,
@@ -1379,14 +1376,14 @@ module.exports = {
                             ])
                         await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
                         const filter = (i) => i.customId === `addToMember_${interaction.id}` && i.user.id === interaction.user.id;
-                        interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(e => null)
+                        interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(() => null)
                         if (interaction && interaction.type === InteractionType.ModalSubmit) {
                             const modalArgs = {}
                             interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
                             const users = interaction.fields.getSelectedUsers("users").map(user => user.id)
                             const addedToUsers = []
                             if (quest.community) {
-                                await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && users.includes(profile.userID) && !profile.quests?.some(q => q.questID === quest.questID) && (profile.quests?.length || 0) < settings.max_quests).map(async profile => {
+                                await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && users.includes(profile.userID) && !profile.quests?.some(q => q.questID === quest.questID)).map(async profile => {
                                     if (!profile.quests) profile.quests = []
                                     profile.quests.push({
                                         questID: quest.questID
@@ -1395,7 +1392,7 @@ module.exports = {
                                     addedToUsers.push(profile.userID)
                                 }))
                             } else {
-                                await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && users.includes(profile.userID) && !profile.quests?.some(q => q.questID === quest.questID) && (profile.quests?.length || 0) < settings.max_quests).map(async profile => {
+                                await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && users.includes(profile.userID) && !profile.quests?.some(q => q.questID === quest.questID)).map(async profile => {
                                     if (!profile.quests) profile.quests = []
                                     profile.quests.push({
                                         questID: quest.questID,
@@ -1445,7 +1442,7 @@ module.exports = {
                             ])
                         await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
                         const filter = (i) => i.customId === `delFromMember_${interaction.id}` && i.user.id === interaction.user.id;
-                        interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(e => null)
+                        interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(() => null)
                         if (interaction && interaction.type === InteractionType.ModalSubmit) {
                             const modalArgs = {}
                             interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -1511,7 +1508,7 @@ module.exports = {
                             ])
                         await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
                         const filter = (i) => i.customId === `clearProgress_member_${interaction.id}` && i.user.id === interaction.user.id;
-                        interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(e => null)
+                        interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(() => null)
                         if (interaction && interaction.type === InteractionType.ModalSubmit) {
                             const modalArgs = {}
                             interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -1581,7 +1578,7 @@ module.exports = {
                         ])
                     await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
                     const filter = (i) => i.customId === `manager-quests_nextQuests_${interaction.id}` && i.user.id === interaction.user.id;
-                    interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
+                    interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
                     if (interaction && interaction.type === InteractionType.ModalSubmit) {
                         const modalArgs = {}
                         interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -1665,7 +1662,7 @@ module.exports = {
                         ])
                     await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
                     const filter = (i) => i.customId === `manager-quests_delReward_${interaction.id}` && i.user.id === interaction.user.id;
-                    interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
+                    interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
                     if (interaction && interaction.type === InteractionType.ModalSubmit) {
                         const modalArgs = {}
                         interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -1694,7 +1691,7 @@ module.exports = {
                                         .setStyle(ButtonStyle.Danger))
                             ], flags: ["Ephemeral"] })
                         const filter = (i) => i.customId.includes(`delete quest from profile`) && i.user.id === interaction.user.id;
-                        buttonInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+                        buttonInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
                         if (buttonInteraction) {
                             if (buttonInteraction.customId.includes("confirm")) {
                                 client.cache.profiles.filter(profile => profile.guildID === buttonInteraction.guildId && profile.quests?.some(q => q.questID === quest.questID)).forEach(profile => {
@@ -1730,8 +1727,8 @@ module.exports = {
                     filter = (i) => i.customId === `manager-quests_delTarget_${interaction.id}` && i.user.id === interaction.user.id;
                     let modalSubmitInteraction
                     if (usersWithThisQuest) {
-                        modalSubmitInteraction = await buttonInteraction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
-                    } else modalSubmitInteraction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
+                        modalSubmitInteraction = await buttonInteraction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
+                    } else modalSubmitInteraction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
                     if (modalSubmitInteraction && modalSubmitInteraction.type === InteractionType.ModalSubmit) {
                         const modalArgs = {}
                         modalSubmitInteraction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -1808,7 +1805,7 @@ module.exports = {
                         flags: ["Ephemeral"]
                     })
                     const filter = (i) => i.customId.includes(`add`) || i.customId === "cancel" && i.user.id === interaction.user.id;
-                    let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                    let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                     if (interaction2 && interaction2.customId.includes("add")) {
                         let id = undefined
                         let type
@@ -1832,7 +1829,7 @@ module.exports = {
                                         .setStyle(TextInputStyle.Short)
                                 )
                             : undefined
-                        ].filter(e => e)
+                        ].filter(Boolean)
                         if (interaction2.customId.includes("item")) {
                             type = RewardType.Item
                             modalComponents.unshift(
@@ -2080,7 +2077,7 @@ module.exports = {
                     }
                     return `${name} ${reward.amount ? `(${reward.amount.toLocaleString()})` : ""}`
                 }).join(", ")}` : ""}`
-            ].filter(e => e).join("\n"))
+            ].filter(Boolean).join("\n"))
             targetIndex++
         }
         for (const element of quest.rewards) {
@@ -2129,7 +2126,7 @@ module.exports = {
                     const nq = client.cache.quests.get(nextQuest)
                     if (nq) return `${nq.displayEmoji}${nq.name}`
                     else return nextQuest
-                }).filter(e => e).join(", ")
+                }).filter(Boolean).join(", ")
             }
         ])
         }
@@ -2321,7 +2318,7 @@ module.exports = {
                 case "itemsBoughtInShop":
                     return `${client.language({ textId: `Купить предметы в магазине`, guildId: interaction.guildId, locale: interaction.locale })} ${amount || "N"} ${client.language({ textId: `раз(а)`, guildId: interaction.guildId, locale: interaction.locale })}`
                 case "itemsBoughtOnMarket":
-                    return `${client.language({ textId: `Купить предметы в магазине`, guildId: interaction.guildId, locale: interaction.locale })} ${amount || "N"} ${client.language({ textId: `раз(а)`, guildId: interaction.guildId, locale: interaction.locale })}`
+                    return `${client.language({ textId: `Купить предметы на маркете`, guildId: interaction.guildId, locale: interaction.locale })} ${amount || "N"} ${client.language({ textId: `раз(а)`, guildId: interaction.guildId, locale: interaction.locale })}`
                 case "itemsSold":
                     return `${client.language({ textId: `Продать предметы`, guildId: interaction.guildId, locale: interaction.locale })} ${amount || "N"} ${client.language({ textId: `раз(а)`, guildId: interaction.guildId, locale: interaction.locale })}`
                 case "level":

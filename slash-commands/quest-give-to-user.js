@@ -66,7 +66,7 @@ module.exports = {
             args.quest = questRegexp.exec(interaction.customId)[1]
             await interaction.deferReply({ flags: ["Ephemeral"] })
         } else await interaction.deferReply()
-        const member = interaction.isButton() ? interaction.member : await interaction.guild.members.fetch(args.user).catch(e => null)
+        const member = interaction.isButton() ? interaction.member : await interaction.guild.members.fetch(args.user).catch(() => null)
         if (!member) {
             return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Пользователь с ID", guildId: interaction.guildId, locale: interaction.locale })} **${args.user}** ${client.language({ textId: "не найден на сервере", guildId: interaction.guildId, locale: interaction.locale })}.` })
         }
@@ -131,7 +131,7 @@ module.exports = {
             const userDailyQuests = profile.quests?.filter(userQuest => {
                 const quest = quests.find(e => e.questID === userQuest.questID)
                 if (quest?.daily) return userQuest
-            }).filter(e => e) || []
+            }).filter(Boolean) || []
             if (userDailyQuests.length >= settings.maxDailyQuests) {
                 return interaction.editReply({ content: `${client.config.emojis.NO} **${client.language({ textId: "Достигнут максимум взятых ежедневных квестов", guildId: interaction.guildId, locale: interaction.locale })}: ${settings.maxDailyQuests}**` })
             }
@@ -164,7 +164,7 @@ module.exports = {
             const userWeeklyQuests = profile.quests?.filter(userQuest => {
                 const quest = quests.find(e => e.questID === userQuest.questID)
                 if (quest?.weekly) return userQuest
-            }).filter(e => e) || []
+            }).filter(Boolean) || []
             if (userWeeklyQuests.length >= settings.maxWeeklyQuests) {
                 return interaction.editReply({ content: `${client.config.emojis.NO} **${client.language({ textId: "Достигнут максимум взятых еженедельных квестов", guildId: interaction.guildId, locale: interaction.locale })}: ${settings.maxWeeklyQuests}**` })
             }

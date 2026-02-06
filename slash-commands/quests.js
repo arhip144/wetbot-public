@@ -175,12 +175,12 @@ module.exports = {
                 userQuest = profile.quests?.find(e => { return e.questID === quest.questID })
                 userQuest.finished = true
                 userQuest.finishedDate = new Date()
-                profile.doneQuests = 1
-                await profile.addQuestProgression("quests", 1, quest.questID)
+                profile.doneQuests += 1
+                await profile.addQuestProgression({ type: "quests", amount: 1, object: quest.questID })
                 const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Quests)
                 await Promise.all(achievements.map(async achievement => {
                     if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.doneQuests >= achievement.amount) {
-                        await profile.addAchievement(achievement)
+                        await profile.addAchievement({ achievement })
                     }    
                 }))
                 await profile.save()
@@ -233,7 +233,7 @@ module.exports = {
                     needed = questTarget.amount - userTarget.reached
                 }
                 const ableToGive = inventoryItem.amount >= needed ? needed : Math.floor(inventoryItem.amount)
-                await profile.subtractItem(item.itemID, ableToGive)
+                await profile.subtractItem({ itemID: item.itemID, amount: ableToGive })
                 if (quest.community) {
                     questTarget.reached += ableToGive
                     if (questTarget.reached >= questTarget.amount) {
@@ -341,7 +341,7 @@ module.exports = {
                                             }
                                             return `${name} ${reward.amount ? `(${reward.amount.toLocaleString()})` : ""}`
                                         }).join(", ")}` : ""}`
-                                    ].filter(e => e).join("\n"))
+                                    ].filter(Boolean).join("\n"))
                             ])
                             .setButtonAccessory(
                                 new ButtonBuilder()
@@ -376,7 +376,7 @@ module.exports = {
                                     }
                                     return `${name} ${reward.amount ? `(${reward.amount.toLocaleString()})` : ""}`
                                 }).join(", ")}` : ""}`    
-                            ].filter(e => e).join("\n"))
+                            ].filter(Boolean).join("\n"))
                     ])
                 }
                 targetIndex++
@@ -472,17 +472,17 @@ module.exports = {
         let min = 0
         let max = itemsPerPage
         if (!interaction.isChatInputCommand()) {
-            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
             max = +limitRegexp.exec(interaction.customId)?.[1]
             if (!max) max = itemsPerPage
             min = max - itemsPerPage
         }
         let member
-        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(e => null)
-        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(() => null)
+        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         else if (interaction.isStringSelectMenu() && (MemberRegexp.exec(interaction.customId) || MemberRegexp.exec(interaction.values[0]))) {
-            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(e => null)
-            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(() => null)
+            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         }
         else member = interaction.member
         if (!member) {
@@ -624,12 +624,12 @@ module.exports = {
                         userQuest = profile.quests?.find(e => { return e.questID === quest.questID })
                         userQuest.finished = true
                         userQuest.finishedDate = new Date()
-                        profile.doneQuests = 1
-                        await profile.addQuestProgression("quests", 1, quest.questID)
+                        profile.doneQuests += 1
+                        await profile.addQuestProgression({ type: "quests", amount: 1, object: quest.questID })
                         const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Quests)
                         await Promise.all(achievements.map(async achievement => {
                             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.doneQuests >= achievement.amount) {
-                                await profile.addAchievement(achievement)
+                                await profile.addAchievement({ achievement })
                             }    
                         }))
                         await profile.save()
@@ -713,7 +713,7 @@ module.exports = {
                         const quest = quests.find(quest => quest.questID === userQuest.questID)
                         if (!quest) return false
                         if (quest.daily) return userQuest
-                    }).filter(e => e) || []
+                    }).filter(Boolean) || []
                     if (userDailyQuests.length >= settings.maxDailyQuests) {
                         interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: "Достигнут максимум взятых ежедневных квестов", guildId: interaction.guildId, locale: interaction.locale })}: ${settings.maxDailyQuests}**`, flags: ["Ephemeral"] })
                     } else {
@@ -747,7 +747,7 @@ module.exports = {
                         const quest = quests.find(quest => quest.questID === userQuest.questID)
                         if (!quest) return false
                         if (quest.weekly) return userQuest
-                    }).filter(e => e) || []
+                    }).filter(Boolean) || []
                     if (userWeeklyQuests.length >= settings.maxWeeklyQuests) {
                         interaction.followUp({ content: `${client.config.emojis.NO} **${client.language({ textId: "Достигнут максимум взятых еженедельных квестов", guildId: interaction.guildId, locale: interaction.locale })}: ${settings.maxWeeklyQuests}**`, flags: ["Ephemeral"] })
                     } else {
@@ -797,7 +797,7 @@ module.exports = {
                             } else return pValue
                         }, 0) || ""})`
                     }
-                }).filter(e => e).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                }).filter(Boolean).join("\n").slice(0, 1024) || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
                 inline: true
             }, 
             {
@@ -807,7 +807,7 @@ module.exports = {
                     if (!guildQuest) return false
                     const index = finishedQuests.findIndex(e => e.questID === userQuest.questID) + 1
                     return `${index}. ${guildQuest.displayEmoji}**${guildQuest.name}**`
-                }).filter(e => e).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                }).filter(Boolean).join("\n").slice(0, 1024)  || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
                 inline: true
             },
             {
@@ -815,7 +815,7 @@ module.exports = {
                 value: !unacceptedQuestsLength ? `${client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale })}` : (unacceptedQuestsSliced || unacceptedQuests).map((quest) => {
                     const index = unacceptedQuests.findIndex(e => e.questID === quest.questID) + 1
                     return `${index}. ${quest.displayEmoji}**${quest.name}**`
-                }).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                }).join("\n").slice(0, 1024)  || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
                 inline: true
             },
             {
@@ -823,7 +823,7 @@ module.exports = {
                 value: !dailyQuestsLength ? `${client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale })}` : (dailyQuestsSliced || dailyQuests).map((quest) => {
                     const index = dailyQuests.findIndex(e => e.questID === quest.questID) + 1
                     return `${index}. ${quest.displayEmoji}**${quest.name}**`
-                }).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                }).join("\n").slice(0, 1024)  || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
                 inline: true
             },
             {
@@ -831,7 +831,7 @@ module.exports = {
                 value: !weeklyQuestsLength ? `${client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale })}` : (weeklyQuestsSliced || weeklyQuests).map((quest) => {
                     const index = weeklyQuests.findIndex(e => e.questID === quest.questID) + 1
                     return `${index}. ${quest.displayEmoji}**${quest.name}**`
-                }).join("\n") || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
+                }).join("\n").slice(0, 1024)  || client.language({ textId: `Квестов нет`, guildId: interaction.guildId, locale: interaction.locale }),
                 inline: true
             }
         ])
@@ -888,12 +888,12 @@ module.exports = {
             const quest = quests.find(quest => quest.questID === userQuest.questID)
             if (!quest) return false
             if (quest.daily) return userQuest
-        }).filter(e => e) || []
+        }).filter(Boolean) || []
         const userWeeklyQuests = profile.quests?.filter(userQuest => {
             const quest = quests.find(quest => quest.questID === userQuest.questID)
             if (!quest) return false
             if (quest.weekly) return userQuest
-        }).filter(e => e) || []
+        }).filter(Boolean) || []
         const acceptDailyQuestBtn = new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
             .setLabel(`${client.language({ textId: `Взять ежедневный квест`, guildId: interaction.guildId, locale: interaction.locale })} (${settings.maxDailyQuests - userDailyQuests.length <= 0 ? 0 : settings.maxDailyQuests - userDailyQuests.length})`)

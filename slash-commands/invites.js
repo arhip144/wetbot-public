@@ -53,16 +53,16 @@ module.exports = {
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
         if (!interaction.isChatInputCommand()) {
-            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
         }
         const flags = []
         if (interaction.customId?.includes("eph") || interaction.values?.[0].includes("eph") || args?.ephemeral) flags.push("Ephemeral")
         let min = 0
         let limit = 10
         let member
-        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(e => null)
-        else if (interaction.isButton()) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)?.[1]).catch(e => null)
-        else if (interaction.isStringSelectMenu()) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(e => null)
+        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(() => null)
+        else if (interaction.isButton()) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)?.[1]).catch(() => null)
+        else if (interaction.isStringSelectMenu()) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(() => null)
         else member = interaction.member
         if (!member) {
             return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, flags})
@@ -175,18 +175,18 @@ async function waitingForPage(client, interaction, filter, length) {
         if (!collected.size) return false
         if (!isNaN(collected.first().content) && Number.isInteger(+collected.first().content)) {
             if (collected.first().content <= 0 || collected.first().content > (length + (length % 10 == 0 ? 0 : 10 - (length % 10)))/10) {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Такой страницы не существует`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             } else {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return collected.first()
             }
         } else {
             if (collected.first().content.toLowerCase() == "cancel") {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${collected.first().content}** ${client.language({ textId: `не целым является числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     } 

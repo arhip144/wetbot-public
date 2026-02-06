@@ -18,7 +18,7 @@ module.exports = {
     group: `inventory-group`,
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
-        if (interaction.isButton() && interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+        if (interaction.isButton() && interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
         const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
         if (interaction.isChatInputCommand()) await interaction.deferReply()
         else {
@@ -43,8 +43,6 @@ module.exports = {
                 flags: [MessageFlags.IsComponentsV2]
             })
         }
-        let max = 100
-        let totalLength = 0
         let message
         const container = new ContainerBuilder()
             .addSectionComponents([
@@ -53,22 +51,21 @@ module.exports = {
                     .setThumbnailAccessory(new ThumbnailBuilder().setURL(member.displayAvatarURL()))
             ])
             .addSeparatorComponents(new SeparatorBuilder())
-            .addTextDisplayComponents([
-                new TextDisplayBuilder()
-                    .setContent(`${Object.keys(income).map((key, index) => {
-                        if (income[key].cooldown) return `\`${index+1 < 10 ? 0 : ""}${index+1}\` — <@&${key}>: ${client.language({ textId: "следующий доход", guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(income[key].cooldown / 1000)}:R>`
-                        else return `\`${index+1 < 10 ? 0 : ""}${index+1}\` — <@&${key}>: ${client.language({ textId: "следующий доход", guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(profile.roleIncomeCooldowns.get(key) / 1000)}:R>\n${Object.values(income[key]).join("\n")}`
-                    }).map((value, index) => {
-                        if (totalLength < 4096) {
-                            totalLength += value.length
-                        }
-                        if (totalLength > 4096) {
-                            totalLength = 4096
-                            max = index - 1
-                        }
-                        return value
-                    }).slice(0, max).join("\n")}${Object.keys(income).length > max ? `\n ${client.language({ textId: "и еще", guildId: interaction.guildId, locale: interaction.locale })} ${Object.keys(income).length - max}...` : ""}`.slice(0, 4096))
-            ])
+        let totalIncomeSection = ''
+        if (totalIncome.length) {
+            totalIncomeSection = `## ${client.language({ textId: "Всего получено", guildId: interaction.guildId, locale: interaction.locale })}\n${totalIncome.join("\n")}`
+        }
+
+        const BASE_CONTENT_LENGTH = `## ${member.displayName}\n## ${client.language({ textId: "Доход от ролей", guildId: interaction.guildId, locale: interaction.locale })}`.length
+        const TOTAL_INCOME_LENGTH = totalIncomeSection.length
+        const SEPARATORS_LENGTH = 100
+        const MAX_INCOME_LENGTH = 4000 - BASE_CONTENT_LENGTH - TOTAL_INCOME_LENGTH - SEPARATORS_LENGTH
+
+        const incomeContent = createIncomeContent(interaction, income, profile, MAX_INCOME_LENGTH)
+
+        container.addTextDisplayComponents([
+            new TextDisplayBuilder().setContent(incomeContent)
+        ])
         if (totalIncome.length) {
             container
                 .addSeparatorComponents(new SeparatorBuilder())
@@ -106,7 +103,62 @@ module.exports = {
                 flags: [MessageFlags.IsComponentsV2],
                 allowedMentions: profile.roleIncomeMention ? { users: [member.user.id] } : { parse: [] },
                 enforceNonce: true, nonce: nonce,
-            }).catch(e => null)
+            }).catch(() => null)
         }, Math.min.apply(null, Array.from(profile.roleIncomeCooldowns.values()).map(value => value - Date.now()).filter(value => value > 0)))
+    }
+}
+function createIncomeContent(interaction, income, profile, maxLength) {
+    let result = ''
+    const incomeKeys = Object.keys(income)
+    let displayedRoles = 0
+    let remainingRoles = 0
+    
+    for (let i = 0; i < incomeKeys.length; i++) {
+        const key = incomeKeys[i]
+        const index = i
+        
+        let roleEntry = ''
+        if (income[key].cooldown) {
+            roleEntry = `\`${index + 1 < 10 ? "0" : ""}${index + 1}\` — <@&${key}>: ${interaction.client.language({ textId: "следующий доход", guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(income[key].cooldown / 1000)}:R>`
+        } else {
+            const incomeLines = []
+            
+            if (income[key].cur) incomeLines.push(income[key].cur)
+            if (income[key].rp) incomeLines.push(income[key].rp)
+            if (income[key].xp) incomeLines.push(income[key].xp)
+            if (income[key].items && income[key].items.length > 0) {
+                incomeLines.push(...income[key].items)
+            }
+            
+            roleEntry = `\`${index + 1 < 10 ? "0" : ""}${index + 1}\` — <@&${key}>: ${interaction.client.language({ textId: "следующий доход", guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(profile.roleIncomeCooldowns.get(key) / 1000)}:R>\n${incomeLines.join(", ")}`
+        }
+        
+        const potentialContent = result + (result ? '\n' : '') + roleEntry
+        const remainingText = `\n\n*${interaction.client.language({ textId: "и ещё", guildId: interaction.guildId, locale: interaction.locale })} ${incomeKeys.length - i} ${interaction.client.language({ textId: getRoleWord(incomeKeys.length - i), guildId: interaction.guildId, locale: interaction.locale })}*`
+        if (potentialContent.length + remainingText.length <= maxLength) {
+            result = potentialContent
+            displayedRoles++
+        } else {
+            remainingRoles = incomeKeys.length - i
+            if (result.length + remainingText.length <= maxLength) {
+                result += remainingText
+            }
+            break
+        }
+        if (displayedRoles === incomeKeys.length) {
+            displayedRoles = incomeKeys.length
+            remainingRoles = 0
+        }
+    }
+    
+    return result
+}
+function getRoleWord(count) {
+    if (count % 10 === 1 && count % 100 !== 11) {
+        return 'роль'
+    } else if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
+        return 'роли'
+    } else {
+        return 'ролей'
     }
 }

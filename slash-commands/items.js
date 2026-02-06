@@ -52,7 +52,7 @@ module.exports = {
         let min = 0
         let max = 25
         if (!interaction.isChatInputCommand()) {
-            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
             max = +limitRegexp.exec(interaction.customId)?.[1]
             if (!max) max = 25
             min = max - 25
@@ -401,7 +401,7 @@ module.exports = {
                                 item.shop.autodelivery?.daily.amount > 0 ? `${client.language({ textId: `Каждый день`, guildId: interaction.guildId, locale: interaction.locale })}: ${item.shop.autodelivery.daily.type === "increase" ? `${client.language({ textId: `увеличивает текущее количество на`, guildId: interaction.guildId, locale: interaction.locale })} ${item.shop.autodelivery.daily.amount}` : `${client.language({ textId: `устанавливает текущее количество на`, guildId: interaction.guildId, locale: interaction.locale })} ${item.shop.autodelivery.daily.amount}`}` : undefined,
                                 item.shop.autodelivery?.weekly.amount > 0 ? `${client.language({ textId: `Каждую неделю`, guildId: interaction.guildId, locale: interaction.locale })}: ${item.shop.autodelivery.weekly.type === "increase" ? `${client.language({ textId: `увеличивает текущее количество на`, guildId: interaction.guildId, locale: interaction.locale })} ${item.shop.autodelivery.weekly.amount}` : `${client.language({ textId: `устанавливает текущее количество на`, guildId: interaction.guildId, locale: interaction.locale })} ${item.shop.autodelivery.weekly.amount}`}` : undefined,
                                 item.shop.autodelivery?.monthly.amount > 0 ? `${client.language({ textId: `Каждый месяц`, guildId: interaction.guildId, locale: interaction.locale })}: ${item.shop.autodelivery.monthly.type === "increase" ? `${client.language({ textId: `увеличивает текущее количество на`, guildId: interaction.guildId, locale: interaction.locale })} ${item.shop.autodelivery.monthly.amount}` : `${client.language({ textId: `устанавливает текущее количество на`, guildId: interaction.guildId, locale: interaction.locale })} ${item.shop.autodelivery.monthly.amount}`}` : undefined
-                            ].filter(e => e).join("\n")
+                            ].filter(Boolean).join("\n")
                         })
                     }
                     embed.setFields(fields)

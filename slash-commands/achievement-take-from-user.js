@@ -59,7 +59,7 @@ module.exports = {
      */
     run: async (client, interaction, args) => {
         await interaction.deferReply({ flags: ["Ephemeral"] })
-        const member = await interaction.guild.members.fetch(args.user).catch(e => null)
+        const member = await interaction.guild.members.fetch(args.user).catch(() => null)
         if (!member) {
             return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Пользователь с ID", guildId: interaction.guildId, locale: interaction.locale })} **${args.user}** ${client.language({ textId: "не найден на сервере", guildId: interaction.guildId, locale: interaction.locale })}.` })
         }
@@ -72,7 +72,7 @@ module.exports = {
             return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Достижение с именем или ID", guildId: interaction.guildId, locale: interaction.locale })} **${args.achievement}** ${client.language({ textId: "не найдено", guildId: interaction.guildId, locale: interaction.locale })}.`})
         }
         if (!profile.achievements?.find(e => e.achievmentID == achievement.id)) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: "У пользователя не было найдено достижение", guildId: interaction.guildId, locale: interaction.locale })}: ${achievement.displayEmoji}**${achievement.name}**`})
-        await profile.delAchievement(achievement, true)
+        await profile.delAchievement({ achievement, save: true })
         delete client.tempAchievements[args.user]
         return interaction.editReply({ content: `${client.config.emojis.DONE} ${client.language({ textId: "У пользователя удалено достижение", guildId: interaction.guildId, locale: interaction.locale })}: ${achievement.displayEmoji}**${achievement.name}**`})
     }

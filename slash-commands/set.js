@@ -60,8 +60,7 @@ module.exports = {
                     },
                     type: ApplicationCommandOptionType.Integer,
                     required: true,
-                    min_value: 1,
-                    max_value: 1000
+                    min_value: 1
                 }
             ]
         },
@@ -111,8 +110,7 @@ module.exports = {
                     },
                     type: ApplicationCommandOptionType.Integer,
                     required: true,
-                    min_value: 1,
-                    max_value: 1000
+                    min_value: 1
                 }
             ]
         },
@@ -162,8 +160,7 @@ module.exports = {
                     },
                     type: ApplicationCommandOptionType.Integer,
                     required: true,
-                    min_value: 0,
-                    max_value: 1000000
+                    min_value: 0
                 }
             ]
         },
@@ -213,8 +210,7 @@ module.exports = {
                     },
                     type: ApplicationCommandOptionType.Integer,
                     required: true,
-                    min_value: 0,
-                    max_value: 1000000000
+                    min_value: 0
                 }
             ]
         },
@@ -315,8 +311,7 @@ module.exports = {
                     },
                     type: ApplicationCommandOptionType.Integer,
                     required: true,
-                    min_value: 0,
-                    max_value: 10000
+                    min_value: 0
                 }
             ]
         },
@@ -603,16 +598,16 @@ module.exports = {
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
         await interaction.deferReply({ flags: ["Ephemeral"] })
-        const member = await interaction.guild.members.fetch(args.user).catch(e => null)
+        const member = await interaction.guild.members.fetch(args.user).catch(() => null)
         if (!member) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Пользователь с ID`, guildId: interaction.guildId, locale: interaction.locale })} **${args.user}** ${client.language({ textId: `не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}.`})
         if (member.user.bot) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Ты не можешь использовать эту команду для бота`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })
         const profile = await client.functions.fetchProfile(client, args.user, interaction.guildId)
         if (args.Subcommand === "level") {
-            await profile.setLevel(args.amount, true)
+            await profile.setLevel({ amount: args.amount, save: true })
             return interaction.editReply({ content: `${client.config.emojis.YES} 🎖**${client.language({ textId: `Уровень`, guildId: interaction.guildId, locale: interaction.locale })}** (${args.amount.toLocaleString()}) ${client.language({ textId: `был установлен`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>`, flags: ["Ephemeral"] }) 
         }
         if (args.Subcommand === "season_level") {
-            await profile.setSeasonLevel(args.amount, true)  
+            await profile.setSeasonLevel({ amount: args.amount, save: true })  
             return interaction.editReply({ content: `${client.config.emojis.YES} ${client.config.emojis.seasonLevel}**${client.language({ textId: `Сезонный уровень`, guildId: interaction.guildId, locale: interaction.locale })}** (${args.amount.toLocaleString()}) ${client.language({ textId: `был установлен`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>`, flags: ["Ephemeral"] }) 
         }
         if (args.Subcommand === "experience") {
@@ -620,24 +615,24 @@ module.exports = {
             return interaction.editReply({ content: `${client.config.emojis.YES} ${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: interaction.guildId, locale: interaction.locale })}** (${args.amount.toLocaleString()}) ${client.language({ textId: `было установлено`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>`, flags: ["Ephemeral"] })
         }
         if (args.Subcommand === "reputation") {
-            profile.rp = args.amount - profile.rp
+            profile.rp = args.amount
             profile.save()
             return interaction.editReply({ content: `${client.config.emojis.YES} ${client.config.emojis.RP}**${client.language({ textId: "Репутация", guildId: interaction.guildId, locale: interaction.locale })}** (${args.amount.toLocaleString()}) ${client.language({ textId: `было установлено`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>` })
         }
         if (args.Subcommand === "currency") {
             const settings = client.cache.settings.get(interaction.guildId)
-            profile.currency = args.amount - profile.currency
+            profile.currency = args.amount
             await profile.save()
             return interaction.editReply({ content: `${client.config.emojis.YES} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${args.amount.toLocaleString()}) ${client.language({ textId: `было установлено`, guildId: interaction.guildId, locale: interaction.locale })} <@${args.user}>` })
         }
         if (args.Subcommand === "likes") {
             const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Like)
-            profile.likes = args.amount - profile.likes
+            profile.likes = args.amount
             await Promise.all(achievements.map(async achievement => {
                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.likes >= achievement.amount && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                     if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                     client.tempAchievements[profile.userID].push(achievement.id)
-                    await profile.addAchievement(achievement)
+                    await profile.addAchievement({ achievement })
                 }    
             }))
             await profile.save()

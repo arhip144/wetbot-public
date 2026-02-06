@@ -2,412 +2,532 @@ const { AchievementType } = require("../enums")
 const client = require("../index")
 const { EmbedBuilder, Events } = require("discord.js")
 const Decimal = require('decimal.js')
+
+// Вспомогательные функции
+const isMutedChannel = (settings, channelId) => settings.channels.mutedChannels.includes(channelId);
+const isActiveMember = (member) => !member.user.bot && !member.voice.mute;
+const getActiveMembers = (channel) => channel?.members.filter(isActiveMember) || new Map();
+
+const calculateMultipliers = (client, channel, profile, type) => {
+	if (!channel) return { multiplier: 0, membersMultiplier: 0 };
+
+	let channelMultipliers = client.cache.channels.find(cm => cm.id === channel.id && cm.isEnabled);
+	if (!channelMultipliers) {
+		channelMultipliers = client.cache.channels.find(cm => cm.id === channel.parentId && cm.isEnabled);
+	}
+
+	if (!channelMultipliers) return { multiplier: 0, membersMultiplier: 0 };
+
+	const membersSize = getActiveMembers(channel).size;
+	const minSize = channelMultipliers[`${type}_min_members_size`];
+	const maxSize = channelMultipliers[`${type}_max_members_size`];
+
+	let adjustedSize = membersSize;
+	if (membersSize < minSize) adjustedSize = 0;
+	if (membersSize > maxSize) adjustedSize = maxSize;
+
+	return {
+		multiplier: channelMultipliers[`${type}_multiplier`],
+		membersMultiplier: channelMultipliers[`${type}_multiplier_for_members`] * adjustedSize
+	};
+};
+
+const calculateReward = (timeDiff, baseRate, boostFunction, multipliers, type) => {
+	if (!baseRate) return 0;
+
+	const baseReward = (timeDiff / 1000 / 60) * baseRate;
+	const totalMultiplier = multipliers.multiplier + multipliers.membersMultiplier;
+	const boost = boostFunction ? boostFunction(totalMultiplier) : 0;
+
+	return baseReward + (baseReward * boost);
+};
+
+const handleSessionStart = async (client, userId, guildId, newDate) => {
+	const profile = await client.functions.fetchProfile(client, userId, guildId);
+	profile.startTime = newDate;
+	await profile.save();
+};
+
+const handleSessionEnd = async (client, userId, guild, settings, oldState, newState, newDate) => {
+	const profile = client.cache.profiles.get(guild.id + userId);
+	if (!profile || !profile.startTime) return;
+
+	const member = await guild.members.fetch(userId).catch(() => null);
+	if (!member) return;
+
+	client.globalCooldown[`${guild.id}_${userId}`] = Date.now() + 10000;
+
+	try {
+		const timeDiff = newDate - profile.startTime;
+		const hours = timeDiff / 1000 / 60 / 60;
+
+		if (hours > 100) {
+			await resetProfileSession(profile);
+			return;
+		}
+
+		const { channel } = oldState;
+		const rewards = await calculateRewards(client, profile, member, settings, channel, timeDiff, hours, guild.id);
+
+		await applyRewards(profile, rewards, hours);
+		await checkAchievements(client, profile, member, guild.id, hours);
+
+		if (!member.roles.cache.hasAny(...settings.roles?.mutedRoles) && !profile.blockActivities?.voice?.items) {
+			await dropItems(client, profile, member, channel, hours, guild.id, settings);
+		}
+
+		profile.startTime = undefined;
+		await profile.save();
+
+	} finally {
+		delete client.globalCooldown[`${guild.id}_${userId}`];
+	}
+
+	// Сброс статистики сессии если нужно
+	if (shouldResetSession(oldState, newState, settings)) {
+		await sessionStatsReset({ client, profile, settings, newState });
+	}
+};
+
+const shouldProcessVoiceState = (oldState, newState, settings) => {
+	if (client.blacklist(newState.guild.id, "full_ban", "guilds")) return false;
+	if (client.blacklist(newState.id, "full_ban", "users")) return false;
+	if (!newState.member || newState.member.user.bot) return false;
+	return true;
+};
+
+// Основные обработчики сценариев
+const voiceScenarios = {
+	// Смена канала между неисключенными
+	switchUnmutedChannels: async (oldState, newState, settings, newDate) => {
+		const oldChannel = oldState.channel;
+		const newChannel = newState.channel;
+
+		if (!oldChannel || !newChannel) return false;
+		if (isMutedChannel(settings, oldState.channelId) || isMutedChannel(settings, newState.channelId)) return false;
+		if (oldState.mute || newState.mute) return false;
+
+		// Обработка ухода из старого канала
+		const oldMembers = getActiveMembers(oldChannel);
+		if (oldMembers.size >= 1) {
+			await handleSessionEnd(client, newState.id, newState.guild, settings, oldState, newState, newDate);
+			if (oldMembers.size === 1) {
+				await handleSessionEnd(client, oldMembers.first().id, newState.guild, settings, oldState, newState, newDate);
+			}
+		}
+
+		// Обработка входа в новый канал
+		const newMembers = getActiveMembers(newChannel);
+		if (newMembers.size === 2) {
+			for (const [userId, member] of newMembers) {
+				await handleSessionStart(client, userId, newState.guild.id, newDate);
+			}
+		} else if (newMembers.size > 2) {
+			await handleSessionStart(client, newState.id, newState.guild.id, newDate);
+		}
+
+		return true;
+	},
+
+	// Мьюте/размьюте в канале
+	muteToggle: async (oldState, newState, settings, newDate) => {
+		if (oldState.channelId !== newState.channelId) return false;
+		if (isMutedChannel(settings, newState.channelId)) return false;
+
+		const channel = newState.channel;
+		const members = getActiveMembers(channel);
+
+		if (oldState.mute && !newState.mute) { // Размьютился
+			if (members.size === 2) {
+				for (const [userId, member] of members) {
+					await handleSessionStart(client, userId, newState.guild.id, newDate);
+				}
+			} else if (members.size > 2) {
+				await handleSessionStart(client, newState.id, newState.guild.id, newDate);
+			}
+		} else if (!oldState.mute && newState.mute) { // Замьютился
+			if (members.size >= 1) {
+				await handleSessionEnd(client, newState.id, newState.guild, settings, oldState, newState, newDate);
+				if (members.size === 1) {
+					await handleSessionEnd(client, members.first().id, newState.guild, settings, oldState, newState, newDate);
+				}
+			}
+		}
+
+		return true;
+	},
+
+	// Вход в неисключенный канал
+	joinUnmutedChannel: async (oldState, newState, settings, newDate) => {
+		if (oldState.channelId || !newState.channelId) return false;
+		if (isMutedChannel(settings, newState.channelId)) return false;
+
+		const members = getActiveMembers(newState.channel);
+		if (members.size === 2) {
+			for (const [userId, member] of members) {
+				await handleSessionStart(client, userId, newState.guild.id, newDate);
+			}
+		} else if (members.size > 2) {
+			await handleSessionStart(client, newState.id, newState.guild.id, newDate);
+		}
+
+		return true;
+	},
+
+	// Выход из неисключенного канала
+	leaveUnmutedChannel: async (oldState, newState, settings, newDate) => {
+		if (!oldState.channelId || newState.channelId) return false;
+		if (isMutedChannel(settings, oldState.channelId)) return false;
+		if (oldState.mute) return false;
+
+		const members = getActiveMembers(oldState.channel);
+		if (members.size >= 1) {
+			await handleSessionEnd(client, newState.id, newState.guild, settings, oldState, newState, newDate);
+			if (members.size === 1) {
+				await handleSessionEnd(client, members.first().id, newState.guild, settings, oldState, newState, newDate);
+			}
+		} else {
+			await sessionStatsReset({
+				client,
+				profile: await client.functions.fetchProfile(client, newState.id, newState.guild.id),
+				settings,
+				newState
+			});
+		}
+
+		return true;
+	},
+
+	// Переход между исключенным и неисключенным каналом
+	switchMutedUnmuted: async (oldState, newState, settings, newDate) => {
+		const oldMuted = isMutedChannel(settings, oldState.channelId);
+		const newMuted = isMutedChannel(settings, newState.channelId);
+
+		if (oldMuted === newMuted) return false;
+		if (oldState.mute || newState.mute) return false;
+
+		if (oldMuted && !newMuted) { // Из исключенного в неисключенный
+			const members = getActiveMembers(newState.channel);
+			if (members.size === 2) {
+				for (const [userId, member] of members) {
+					await handleSessionStart(client, userId, newState.guild.id, newDate);
+				}
+			} else if (members.size > 2) {
+				await handleSessionStart(client, newState.id, newState.guild.id, newDate);
+			}
+		} else if (!oldMuted && newMuted) { // Из неисключенного в исключенный
+			const members = getActiveMembers(oldState.channel);
+			if (members.size >= 1) {
+				await handleSessionEnd(client, newState.id, newState.guild, settings, oldState, newState, newDate);
+				if (members.size === 1) {
+					await handleSessionEnd(client, members.first().id, newState.guild, settings, oldState, newState, newDate);
+				}
+			} else {
+				await sessionStatsReset({
+					client,
+					profile: await client.functions.fetchProfile(client, newState.id, newState.guild.id),
+					settings,
+					newState
+				});
+			}
+		}
+
+		return true;
+	}
+};
+
+// Основной обработчик
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
-	if (client.blacklist(newState.guild.id, "full_ban", "guilds")) return
-	if (client.blacklist(newState.id, "full_ban", "users")) return
-	const newDate = Date.now()
-	const settings = client.cache.settings.get(newState.guild.id)
-	const newUserChannel = newState.channelId
-	const oldUserChannel = oldState.channelId
-	//Если зашел бот
-	if (newState.member === null || newState.member.user.bot) return
-	//Если зашел из неисключенного канала в неисключенный канал 
-	if (oldState.channel && oldState.mute === false && newState.mute === false && newUserChannel !== null && oldUserChannel !== null && oldUserChannel !== newUserChannel && newState.channel && oldState.channel &&
-		settings.channels.mutedChannels.includes(oldUserChannel) === false && 
-		settings.channels.mutedChannels.includes(newUserChannel) === false) {
-		let members = oldState.channel.members.filter(member => !member.user.bot && !member.voice.mute)
-		if (members.size == 1) {
-			memberLeaveChannel({ client: client, userID: newState.id || oldState.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			memberLeaveChannel({ client: client, userID: members.first().user.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			//console.log(`[VOICE-STATE-${members.first().user.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${members.first().displayName} ${oldState.member?.displayName} endTime 1 установлен для двоих: один из двоих вышел из неисключенного канала`)	
-		} else if (members.size > 1){
-			memberLeaveChannel({ client: client, userID: newState.id || oldState.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			//console.log(`[VOICE-STATE-${newState.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${newState.member?.displayName} endTime 1 установлен, вышел из неисключенного канала`)	
+	if (!shouldProcessVoiceState(oldState, newState, client.cache.settings.get(newState.guild.id))) return;
+
+	const settings = client.cache.settings.get(newState.guild.id);
+	const newDate = Date.now();
+
+	// Последовательная проверка сценариев
+	for (const scenario of Object.values(voiceScenarios)) {
+		if (await scenario(oldState, newState, settings, newDate)) {
+			return;
 		}
-		members = newState.channel.members.filter(member => !member.user.bot && !member.voice.mute)
-		if (members.size == 2) {
-			for (let member of members) {
-				const profile = await client.functions.fetchProfile(client, member[0], member[1].guild.id)
-				profile.startTime = new Date()
-				await profile.save()
-				//console.log(`[VOICE-STATE-${member[1].user.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${member[1].displayName} startTime 1 установлен, зашел в неисключенный канал`)
-			}
-		} else if (members.size > 2) {
-			const profile = await client.functions.fetchProfile(client, newState.id, newState.guild.id)
-			profile.startTime = new Date()
-			await profile.save()
-			//console.log(`[VOICE-STATE-${newState.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${newState.member?.displayName} startTime 1 установлен, зашел в неисключенный канал`)
-		}
-		return
 	}
-	// Если замьютился в канале
-	if (newState.channel && oldState.mute === false && newState.mute === true && oldUserChannel === newUserChannel &&
-		settings.channels.mutedChannels.includes(oldUserChannel) === false) {
-		const members = newState.channel.members.filter(member => !member.user.bot && !member.voice.mute)
-		if (members.size == 1) {
-			memberLeaveChannel({ client: client, userID: newState.id || oldState.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			//console.log(`[VOICE-STATE-${newState.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${newState.member.displayName} endTime 2 установлен, замьютился в канале`)
-			memberLeaveChannel({ client: client, userID: members.first().user.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			//console.log(`[VOICE-STATE-${members.first().user.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${members.first().displayName} endTime 2 установлен, т.к. остался последним актвным`)		}
-		} else if (members.size > 1) {
-			memberLeaveChannel({ client: client, userID: newState.id || oldState.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			//console.log(`[VOICE-STATE-${newState.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${newState.member?.displayName} endTime 2 установлен, замьютился в канале`)
-		}
-		return
-	} 
-	//Если размьютился в неисключенном канале
-	if (newState.channel && oldState.mute === true && newState.mute === false && oldUserChannel === newUserChannel &&
-		settings.channels.mutedChannels.includes(newUserChannel) === false) {
-		const members = newState.channel.members.filter(member => !member.user.bot && !member.voice.mute)
-		if (members.size == 2) {
-			for (const member of members) {
-				const profile = await client.functions.fetchProfile(client, member[0], member[1].guild.id)
-				profile.startTime = newDate
-				await profile.save()
-				//console.log(`[VOICE-STATE-${member[1].user.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${member[1].displayName} startTime 2 установлен, размьютился в неисключенном канале`)
-			}
-		} else if (members.size > 2) {
-			const profile = await client.functions.fetchProfile(client, newState.id, newState.guild.id)
-			profile.startTime = newDate
-			await profile.save()
-			//console.log(`[VOICE-STATE-${newState.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${newState.member?.displayName} startTime 2 установлен, размьютился в неисключенном канале`)
-		}
-		return
+
+	// Обработка выхода из канала с выключенным микрофоном
+	if (newState.channelId !== oldState.channelId &&
+		((!newState.channel && oldState.channel) ||
+			(newState.channel && isMutedChannel(settings, newState.channelId))) &&
+		oldState.mute) {
+		await sessionStatsReset({
+			client,
+			profile: await client.functions.fetchProfile(client, newState.id, newState.guild.id),
+			settings,
+			newState
+		});
 	}
-	//Если зашел в неисключенный канал 
-	if (newState.channel && oldUserChannel == null && newUserChannel !== null &&
-		settings.channels.mutedChannels.includes(newUserChannel) === false) {
-		const members = newState.channel.members.filter(member => !member.user.bot && !member.voice.mute)
-		if (members.size == 2) {
-			for (const member of members) {
-				const profile = await client.functions.fetchProfile(client, member[0], member[1].guild.id)
-				profile.startTime = newDate
-				await profile.save()
-				//console.log(`[VOICE-STATE-${member[1].user.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${member[1].displayName} startTime 3 установлен, зашел в неисключенный канал`)
-			}
-		} else if (members.size > 2) {
-			const profile = await client.functions.fetchProfile(client, newState.id, newState.guild.id)
-			profile.startTime = newDate
-			await profile.save()
-			//console.log(`[VOICE-STATE-${newState.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${newState.member?.displayName} startTime 3 установлен, зашел в неисключенный канал`)
+});
+
+async function calculateRewards(client, profile, member, settings, channel, timeDiff, hours, guildId) {
+	const rewards = { xp: 0, currency: 0, rp: 0 };
+
+	if (member.roles.cache.hasAny(...settings.roles?.mutedRoles)) return rewards;
+
+	const rewardTypes = [
+		{ type: 'xp', rate: settings.xpForVoice, blocked: profile.blockActivities?.voice?.XP, boost: (mult) => profile.getXpBoost(mult) },
+		{ type: 'rp', rate: settings.rpForVoice, blocked: profile.blockActivities?.voice?.RP, boost: (mult) => profile.getRpBoost(mult) },
+		{ type: 'currency', rate: settings.curForVoice, blocked: profile.blockActivities?.voice?.CUR, boost: (mult) => profile.getCurBoost(mult) }
+	];
+
+	for (const rewardType of rewardTypes) {
+		if (rewardType.rate && !rewardType.blocked) {
+			const multipliers = calculateMultipliers(client, channel, profile, rewardType.type);
+			rewards[rewardType.type] = calculateReward(timeDiff, rewardType.rate, rewardType.boost, multipliers, rewardType.type);
 		}
-		return
-	} 
-	//Если вышел из неисключенного канала
-	if (oldState.channel && oldState.mute === false && newUserChannel === null && oldUserChannel !== null &&
-		settings.channels.mutedChannels.includes(oldUserChannel) === false) {
-		const members = oldState.channel.members.filter(member => !member.user.bot && !member.voice.mute)
-		if (members.size === 1) {
-			memberLeaveChannel({ client: client, userID: newState.id || oldState.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			memberLeaveChannel({ client: client, userID: members.first().user.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			//console.log(`[VOICE-STATE-${members.first().user.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${members.first().displayName} ${oldState.member?.displayName} endTime 3 установлен для двоих: один из двоих вышел из неисключенного канала`)
-		} else if (members.size > 1) {
-			memberLeaveChannel({ client: client, userID: newState.id || oldState.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			//console.log(`[VOICE-STATE-${newState.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${newState.member?.displayName} endTime 3 установлен, вышел из неисключенного канала`)
-		} else sessionStatsReset({ client: client, profile: await client.functions.fetchProfile(client, newState.id || oldState.id, newState.guild.id), settings: settings, newState: newState })
-		return
-	} 
-	//Если зашел из неиcключенного канала в исключенный канал
-	if (oldState.channel && oldState.mute === false && newState.mute === false && oldUserChannel !== null && oldUserChannel !== newUserChannel &&
-		settings.channels.mutedChannels.includes(oldUserChannel) === false && 
-		settings.channels.mutedChannels.includes(newUserChannel) === true) {
-		const members = oldState.channel.members.filter(member => !member.user.bot && !member.voice.mute)
-		if (members.size == 1) {
-			memberLeaveChannel({ client: client, userID: newState.id || oldState.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			memberLeaveChannel({ client: client, userID: members.first().user.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			//console.log(`[VOICE-STATE-${members.first().user.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${members.first().displayName} ${oldState.member?.displayName} endTime 4 установлен для двоих: один из двоих зашел из неиcключенного канала в исключенный канал`)
-		} else if (members.size > 1) {
-			memberLeaveChannel({ client: client, userID: newState.id || oldState.id, guild: newState.guild, settings: settings, oldState: oldState, newState: newState, newDate: newDate })
-			//console.log(`[VOICE-STATE-${newState.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${newState.member.displayName} endTime 4 установлен, зашел из неиcключенного канала в исключенный канал`)
-		} else sessionStatsReset({ client: client, profile: await client.functions.fetchProfile(client, newState.id || oldState.id, newState.guild.id), settings: settings, newState: newState })
-		return
-	} 
-	//Если зашел из исключенного канала в неисключенный канал
-	if (newState.channel && oldState.mute === false && newState.mute === false && newUserChannel !== null && oldUserChannel !== newUserChannel &&
-		settings.channels.mutedChannels.includes(oldUserChannel) === true && 
-		settings.channels.mutedChannels.includes(newUserChannel) === false) {
-		const members = newState.channel.members.filter(member => !member.user.bot && !member.voice.mute)
-		if (members.size == 2) {
-			for (const member of members) {
-				const profile = await client.functions.fetchProfile(client, member[0], member[1].guild.id)
-				profile.startTime = newDate
-				await profile.save()
-				//console.log(`[VOICE-STATE-${member[1].user.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${member[1].displayName} startTime 4 установлен, зашел из исключенного канала в неисключенный канал`)
-			}
-		} else if (members.size > 2){
-			const profile = await client.functions.fetchProfile(client, newState.id, newState.guild.id)
-			profile.startTime = newDate
-			await profile.save()
-			//console.log(`[VOICE-STATE-${newState.id}] [<t:${Math.round(newDate.valueOf() / 1000)}>] ${newState.member.displayName} startTime 4 установлен, зашел из исключенного канала в неисключенный канал`)
-		}
-		return
 	}
-	//Если вышел из не исключенного канала с выключенным микрофоном
-	if (newState.channelId !== oldState.channelId && ((!newState.channel && oldState.channel) || (newState.channel && settings.channels.mutedChannels.includes(newState.channelId))) && oldState.mute) {
-		sessionStatsReset({ client: client, profile: await client.functions.fetchProfile(client, newState.id || oldState.id, newState.guild.id), settings: settings, newState: newState })
+
+	// Проверка квестов
+	const guildQuests = client.cache.quests.filter(quest =>
+		quest.guildID === guildId &&
+		quest.isEnabled &&
+		quest.targets.some(target => target.type === "voice")
+	);
+	if (guildQuests.size) {
+		await profile.addQuestProgression({ type: "voice", amount: hours * 60, object: channel?.id });
 	}
-})
-async function memberLeaveChannel({ client, userID, guild, settings, oldState, newState, newDate }) {
-	let profile = client.cache.profiles.get(guild.id + userID)
-	if (profile) {
-		if (profile.startTime !== undefined) {
-			const member = await guild.members.fetch(profile.userID).catch(e => null)
-			if (member) {
-				client.globalCooldown[`${guild.id}_${profile.userID}`] = Date.now() + 10000
-				const timeDiff = newDate - profile.startTime
-				const { channel } = oldState
-				const hours = timeDiff/1000/60/60
-				if (hours > 100) {
-					delete client.globalCooldown[`${guild.id}_${profile.userID}`]
-					profile.itemsSession = undefined
-					profile.hoursSession = 0
-					profile.xpSession = 0
-					profile.currencySession = 0
-					profile.startTime = undefined
-					await profile.save()
-					return
+
+	return rewards;
+}
+
+async function applyRewards(profile, rewards, hours) {
+	profile.hours += hours;
+	profile.hoursSession += hours;
+	profile.xpSession += rewards.xp;
+	profile.rpSession += rewards.rp;
+	profile.currencySession += rewards.currency;
+
+	const promises = [];
+	if (rewards.xp) promises.push(profile.addXp({ amount: rewards.xp }));
+	if (rewards.rp) promises.push(profile.addRp({ amount: rewards.rp }));
+	if (rewards.currency > 0) promises.push(profile.addCurrency({ amount: rewards.currency }));
+
+	await Promise.all(promises);
+}
+
+async function checkAchievements(client, profile, member, guildId, hours) {
+	const achievementTypes = [
+		{ type: AchievementType.DailyHours, check: (ach) => profile.hoursSession >= ach.amount },
+		{ type: AchievementType.Voice, check: (ach) => profile.hours >= ach.amount }
+	];
+
+	for (const achType of achievementTypes) {
+		const achievements = client.cache.achievements.filter(e =>
+			e.guildID === guildId &&
+			e.type === achType.type &&
+			e.enabled
+		);
+
+		for (const achievement of achievements) {
+			if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) &&
+				achType.check(achievement) &&
+				!client.tempAchievements[member.user.id]?.includes(achievement.id)) {
+
+				if (!client.tempAchievements[member.user.id]) {
+					client.tempAchievements[member.user.id] = [];
 				}
-				const rewards = {
-					xp: 0,
-					currency: 0,
-					rp: 0
-				}
-				if (!member.roles.cache.hasAny(...settings.roles?.mutedRoles)) {
-					if (settings.xpForVoice && !profile.blockActivities?.voice?.XP) {
-						let xp_multiplier_for_channel = 0
-						let xp_multiplier_for_members = 0
-						if (channel) {
-							let channelMultipliers = client.cache.channels.find(channelMultipliers => channelMultipliers.id === channel.id && channelMultipliers.isEnabled)
-							if (!channelMultipliers) channelMultipliers = client.cache.channels.find(channelMultipliers => channelMultipliers.id === channel.parentId && channelMultipliers.isEnabled)
-							if (channelMultipliers) {
-								let members_size = channel.members.filter(member => !member.voice.mute && !member.user.bot).size
-								if (members_size < channelMultipliers.xp_min_members_size) members_size = 0
-								if (members_size > channelMultipliers.xp_max_members_size) members_size = channelMultipliers.xp_max_members_size
-								xp_multiplier_for_channel = channelMultipliers.xp_multiplier
-								xp_multiplier_for_members = channelMultipliers.xp_multiplier_for_members * members_size
-							}
-						}
-						const base_xp = timeDiff/1000/60 * settings.xpForVoice
-						const xp = base_xp + (base_xp * profile.getXpBoost(xp_multiplier_for_channel + xp_multiplier_for_members))
-						if (xp) rewards.xp += xp
-					}
-					if (settings.rpForVoice && !profile.blockActivities?.voice?.RP) {
-						let rp_multiplier_for_channel = 0
-						let rp_multiplier_for_members = 0
-						if (channel) {
-							let channelMultipliers = client.cache.channels.find(channelMultipliers => channelMultipliers.id === channel.id && channelMultipliers.isEnabled)
-							if (!channelMultipliers) channelMultipliers = client.cache.channels.find(channelMultipliers => channelMultipliers.id === channel.parentId && channelMultipliers.isEnabled)
-							if (channelMultipliers) {
-								let members_size = channel.members.filter(member => !member.voice.mute && !member.user.bot).size
-								if (members_size < channelMultipliers.rp_min_members_size) members_size = 0
-								if (members_size > channelMultipliers.rp_max_members_size) members_size = channelMultipliers.rp_max_members_size
-								rp_multiplier_for_channel = channelMultipliers.rp_multiplier
-								rp_multiplier_for_channel = channelMultipliers.rp_multiplier_for_members * members_size
-							}
-						}
-						const base_rp = timeDiff/1000/60 * settings.rpForVoice
-						const rp = base_rp + (base_rp * profile.getRpBoost(rp_multiplier_for_channel + rp_multiplier_for_members))
-						if (rp) rewards.rp += rp
-					}
-					if (settings.curForVoice && !profile.blockActivities?.voice?.CUR) {
-						let cur_multiplier_for_channel = 0
-						let cur_multiplier_for_members = 0
-						if (channel) {
-							let channelMultipliers = client.cache.channels.find(channelMultipliers => channelMultipliers.id === channel.id && channelMultipliers.isEnabled)
-							if (!channelMultipliers) channelMultipliers = client.cache.channels.find(channelMultipliers => channelMultipliers.id === channel.parentId && channelMultipliers.isEnabled)
-							if (channelMultipliers) {
-								let members_size = channel.members.filter(member => !member.voice.mute && !member.user.bot).size
-								if (members_size < channelMultipliers.cur_min_members_size) members_size = 0
-								if (members_size > channelMultipliers.cur_max_members_size) members_size = channelMultipliers.cur_max_members_size
-								cur_multiplier_for_channel = channelMultipliers.cur_multiplier
-								cur_multiplier_for_members = channelMultipliers.cur_multiplier_for_members * members_size
-							}
-						}
-						const base_cur = timeDiff/1000/60 * settings.curForVoice
-						const cur = base_cur + (base_cur * profile.getCurBoost(cur_multiplier_for_channel + cur_multiplier_for_members))
-						if (cur) {
-							rewards.currency += cur
-						}
-					}
-					const guildQuests = client.cache.quests.filter(quest => quest.guildID === guild.id && quest.isEnabled && quest.targets.some(target => target.type === "voice"))
-					if (guildQuests.size) await profile.addQuestProgression("voice", hours*60, channel?.id)
-					let achievements = client.cache.achievements.filter(e => e.guildID === guild.id && e.type === AchievementType.DailyHours && e.enabled)
-					await Promise.all(achievements.map(async achievement => {
-						if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.hoursSession >= achievement.amount && !client.tempAchievements[member.user.id]?.includes(achievement.id)) { 
-							if (!client.tempAchievements[profile.userID]) client.tempAchievements[member.user.id] = []
-							client.tempAchievements[member.user.id].push(achievement.id)
-							await profile.addAchievement(achievement)
-						}
-					}))
-					achievements = client.cache.achievements.filter(e => e.guildID === guild.id && e.type === AchievementType.Voice && e.enabled)
-					await Promise.all(achievements.map(async achievement => {
-						if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.hours >= achievement.amount && !client.tempAchievements[member.user.id]?.includes(achievement.id)) {
-							if (!client.tempAchievements[profile.userID]) client.tempAchievements[member.user.id] = []
-							client.tempAchievements[member.user.id].push(achievement.id)
-							await profile.addAchievement(achievement)
-						}
-					}))
-				}
-				if (rewards.xp > 1000000000000) rewards.xp = 1000000000000
-				profile.hours = hours
-				profile.hoursSession += hours
-				profile.xpSession += rewards.xp
-				profile.rpSession += rewards.rp
-				profile.currencySession += rewards.currency
-				profile.currency = rewards.currency
-				profile.startTime = undefined
-				if (rewards.xp) await profile.addXp(rewards.xp)
-				if (rewards.rp) await profile.addRp(rewards.rp)
-				if (rewards.currency > 0) await profile.addCurrency(rewards.currency)
-				if (!member.roles.cache.hasAny(...settings.roles?.mutedRoles) && !profile.blockActivities?.voice?.items) {
-					let luck_multiplier_for_channel = 0
-					let luck_multiplier_for_members = 0
-					if (channel) {
-						let channelMultipliers = client.cache.channels.find(channelMultipliers => channelMultipliers.id === channel.id && channelMultipliers.isEnabled)
-						if (!channelMultipliers) channelMultipliers = client.cache.channels.find(channelMultipliers => channelMultipliers.id === channel.parentId && channelMultipliers.isEnabled)
-						if (channelMultipliers) {
-							let members_size = channel.members.filter(member => !member.voice.mute && !member.user.bot).size
-							if (members_size < channelMultipliers.luck_min_members_size) members_size = 0
-							if (members_size > channelMultipliers.luck_max_members_size) members_size = channelMultipliers.luck_max_members_size
-							luck_multiplier_for_channel = channelMultipliers.luck_multiplier
-							luck_multiplier_for_members = channelMultipliers.luck_multiplier_for_members * members_size
-						}
-					}
-					let Items = client.cache.items.filter(item => item.guildID === guild.id && !item.temp && item.enabled && item.activities?.voice?.chance).sort((a, b) => a.activities.voice.chance - b.activities.voice.chance).map(e => { 
-						return { itemID: e.itemID, displayEmoji: e.displayEmoji, name: e.name, activities: { voice: { chance: e.activities.voice.chance, amountFrom: e.activities.voice.amountFrom, amountTo: e.activities.voice.amountTo } }, activities_voice_permission: e.activities_voice_permission }
-					})
-					if (Items.length) {
-						const received_items = []
-						let count = Math.round((hours*60))
-						const bonus = new Decimal(1).plus(profile.getLuckBoost(luck_multiplier_for_channel))
-						Items = client.functions.adjustActivityChanceByLuck(Items, bonus, "voice")
-						for (let i = 0; i < count; i++) {
-							let base_chance = Math.random()
-							if (base_chance === 0) base_chance = 1
-							const asyncFilter = async (arr, predicate) => {
-								const results = await Promise.all(arr.map(predicate))
-								return results.filter((_v, index) => results[index])
-							}
-							let items = await asyncFilter(Items, async (e) => {
-								if (e.activities_voice_permission) {
-									const permission = client.cache.permissions.find(i => i.id === e.activities_voice_permission)
-									if (permission) {
-										const isPassing = permission.for(profile, member, channel)
-										if (isPassing.value === true) return e	
-									} else return e
-								} else return e
-							})
-							const item = drop(items, base_chance)
-							if (item) {
-								const amount = client.functions.getRandomNumber(item.activities.voice.amountFrom, item.activities.voice.amountTo)
-								await profile.addItem(item.itemID, amount)
-								const received_item = received_items.find(e => { return e.itemID === item.itemID })
-								if (received_item) received_item.amount += amount
-								else {
-									received_items.push({
-										itemID: item.itemID,
-										name: item.name,
-										displayEmoji: item.displayEmoji,
-										amount: amount,
-									})
-								}
-							}
-						}
-						if (received_items.length) {
-							let index = 0
-							for (const received_item of received_items) {
-								const sessionItem = profile.itemsSession?.find(e => { return e.itemID === received_item.itemID })
-								if (sessionItem) {
-									sessionItem.amount += received_item.amount
-								} else {
-									if (!profile.itemsSession) profile.itemsSession = []
-									profile.itemsSession.push({
-										itemID: received_item.itemID,
-										amount: received_item.amount,
-									})
-								}
-								received_items[index] = `**${received_item.displayEmoji}${received_item.name}** (${received_item.amount})`
-								index++
-							}
-							if (settings.channels.itemsNotificationChannelId) {
-								const channel = await guild.channels.fetch(settings.channels.itemsNotificationChannelId).catch(e => null)
-								if (channel && channel.permissionsFor(guild.members.me).has("SendMessages")) {
-									const embed2 = new EmbedBuilder()
-										.setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL() })
-										.setDescription(`${client.language({ textId: "Нашел", guildId: guild.id })}:\n${received_items.join("\n")}`)
-										.setColor("#2F3236")
-									channel.send({ content: profile.itemMention ? `<@${member.user.id}>` : ` `, embeds: [embed2] }).catch(e => null)
-								}
-							}
-						}	
-					}
-				}
-				delete client.globalCooldown[`${guild.id}_${profile.userID}`]
-				await profile.save()
+				client.tempAchievements[member.user.id].push(achievement.id);
+				await profile.addAchievement({ achievement });
 			}
 		}
-		if (
-			userID === oldState.id &&
-			oldState.channelId !== null && 
-			settings.channels.mutedChannels.includes(oldState.channelId) === false && 
-			(	
-				newState.channelId === null || 
-				settings.channels.mutedChannels.includes(newState.channelId) === true
-			)
-		) sessionStatsReset({ client: client, profile: profile, settings: settings, newState: newState })	
 	}
 }
+
+async function dropItems(client, profile, member, channel, hours, guildId, settings) {
+	const multipliers = calculateMultipliers(client, channel, profile, 'luck');
+	const bonus = new Decimal(1).plus(profile.getLuckBoost(multipliers.multiplier));
+
+	let items = client.cache.items.filter(item =>
+		item.guildID === guildId &&
+		!item.temp &&
+		item.enabled &&
+		item.activities?.voice?.chance
+	).map(e => ({
+		itemID: e.itemID,
+		displayEmoji: e.displayEmoji,
+		name: e.name,
+		activities: {
+			voice: {
+				chance: e.activities.voice.chance,
+				amountFrom: e.activities.voice.amountFrom,
+				amountTo: e.activities.voice.amountTo
+			}
+		},
+		activities_voice_permission: e.activities_voice_permission
+	}));
+
+	if (!items.length) return;
+
+	items = client.functions.adjustActivityChanceByLuck(items, bonus, "voice");
+	const receivedItems = await processItemDrops(client, items, profile, member, channel, hours);
+
+	if (receivedItems.length) {
+		await updateProfileItems(profile, receivedItems);
+		await sendItemNotification(client, member, receivedItems, guildId, settings, profile);
+	}
+}
+
+async function processItemDrops(client, items, profile, member, channel, hours) {
+	const receivedItems = [];
+	const count = Math.round(hours * 60);
+
+	for (let i = 0; i < count; i++) {
+		const baseChance = Math.random() || 1;
+		const filteredItems = await filterItemsByPermission(client, items, profile, member, channel);
+		const item = drop(filteredItems, baseChance);
+
+		if (item) {
+			const amount = client.functions.getRandomNumber(item.activities.voice.amountFrom, item.activities.voice.amountTo);
+			await profile.addItem({ itemID: item.itemID, amount });
+
+			const existingItem = receivedItems.find(e => e.itemID === item.itemID);
+			if (existingItem) {
+				existingItem.amount += amount;
+			} else {
+				receivedItems.push({
+					itemID: item.itemID,
+					name: item.name,
+					displayEmoji: item.displayEmoji,
+					amount: amount,
+				});
+			}
+		}
+	}
+
+	return receivedItems;
+}
+
+async function filterItemsByPermission(client, items, profile, member, channel) {
+	const results = await Promise.all(items.map(async (e) => {
+		if (!e.activities_voice_permission) return e;
+
+		const permission = client.cache.permissions.find(p => p.id === e.activities_voice_permission);
+		if (!permission) return e;
+
+		const isPassing = permission.for(profile, member, channel);
+		return isPassing.value === true ? e : null;
+	}));
+
+	return results.filter(Boolean);
+}
+
+async function updateProfileItems(profile, receivedItems) {
+	for (const receivedItem of receivedItems) {
+		const sessionItem = profile.itemsSession?.find(e => e.itemID === receivedItem.itemID);
+		if (sessionItem) {
+			sessionItem.amount += receivedItem.amount;
+		} else {
+			if (!profile.itemsSession) profile.itemsSession = [];
+			profile.itemsSession.push({
+				itemID: receivedItem.itemID,
+				amount: receivedItem.amount,
+			});
+		}
+	}
+}
+
+async function sendItemNotification(client, member, receivedItems, guildId, settings, profile) {
+	if (!settings.channels.itemsNotificationChannelId) return;
+
+	const channel = await member.guild.channels.fetch(settings.channels.itemsNotificationChannelId).catch(() => null);
+	if (!channel || !channel.permissionsFor(member.guild.members.me).has("SendMessages")) return;
+
+	const itemStrings = receivedItems.map(item => `**${item.displayEmoji}${item.name}** (${item.amount})`);
+
+	const embed = new EmbedBuilder()
+		.setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL() })
+		.setDescription(`${client.language({ textId: "Нашел", guildId })}:\n${itemStrings.join("\n")}`)
+		.setColor("#2F3236");
+
+	await channel.send({
+		content: profile.itemMention ? `<@${member.user.id}>` : ` `,
+		embeds: [embed]
+	}).catch(() => null);
+}
+
 async function sessionStatsReset({ client, profile, settings, newState }) {
-	if (!profile) return
-	const { member } = newState
-	if (profile.hoursSession >= 0.1) {
-		if (member) {
-			if (settings.channels?.botChannelId) {
-				const channel = member.guild.channels.cache.get(settings.channels.botChannelId)
-				if (!channel) {
-					const settings = client.cache.settings.get(member.guild.id)
-					settings.channels.botChannelId = undefined
-					await settings.save()
-				}
-				else {
-					if (channel && channel.permissionsFor(newState.guild.members.me)?.has("SendMessages")) {
-						const itemsSessionArray = []
-						if (profile.itemsSession?.length) {
-							for (const item of profile.itemsSession) {
-								const serverItem = client.cache.items.find(i => i.itemID === item.itemID && !i.temp && i.enabled)
-								if (serverItem) {
-									itemsSessionArray.push(`> ${serverItem.displayEmoji}****${serverItem.name}**** (${item.amount})`)	
-								} else {
-									itemsSessionArray.push(`> ${client.config.emojis.NO}${client.language({ textId: `Ошибка: неизвестный предмет`, guildId: newState.guild.id })} (${item.itemID}) (${item.amount})`)	
-								}
-							}    
-						}
-						const settings = client.cache.settings.get(newState.guild.id)
-						const session_reward_embed = new EmbedBuilder()
-							.setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL() })
-							.setColor(member.displayHexColor)
-							.setDescription(`${client.language({ textId: `За общение в голосовом канале ты`, guildId: newState.guild.id })} ${profile.sex === "male" ? `${client.language({ textId: `получил`, guildId: newState.guild.id })}` : profile.sex === "female" ? `${client.language({ textId: `получила`, guildId: newState.guild.id })}` : `${client.language({ textId: `получил(-а)`, guildId: newState.guild.id })}`}:\n${client.config.emojis.mic}${profile.hoursSession.toFixed(1)} => ${client.config.emojis.XP}${profile.xpSession.toFixed()} ${settings.displayCurrencyEmoji}${(profile.currencySession).toFixed()} ${client.config.emojis.RP}${profile.rpSession.toFixed(2)}\n${itemsSessionArray.join("\n")}`)
-						channel.send({ embeds: [session_reward_embed] }).catch(e => null)
-					}	
-				}
-			} 
+	if (!profile || profile.hoursSession < 0.1) return;
+
+	const { member } = newState;
+	if (!member) return;
+
+	if (settings.channels?.botChannelId) {
+		const channel = member.guild.channels.cache.get(settings.channels.botChannelId);
+		if (!channel) {
+			const settings = client.cache.settings.get(member.guild.id);
+			settings.channels.botChannelId = undefined;
+			await settings.save();
+		} else if (channel.permissionsFor(newState.guild.members.me)?.has("SendMessages")) {
+			await sendSessionSummary(client, profile, member, channel, newState.guild.id, settings);
 		}
 	}
-	profile.itemsSession = []
-	profile.hoursSession = 0
-	profile.xpSession = 0
-	profile.currencySession = 0
-	profile.rpSession = 0
-	await profile.save()
+
+	await resetProfileSession(profile);
 }
-const lerp = (min, max, roll) => ((1 - roll) * min + roll * max)
+
+async function sendSessionSummary(client, profile, member, channel, guildId, settings) {
+	const itemsSessionArray = [];
+	if (profile.itemsSession?.length) {
+		for (const item of profile.itemsSession) {
+			const serverItem = client.cache.items.find(i => i.itemID === item.itemID && !i.temp && i.enabled);
+			if (serverItem) {
+				itemsSessionArray.push(`> ${serverItem.displayEmoji}****${serverItem.name}**** (${item.amount})`);
+			} else {
+				itemsSessionArray.push(`> ${client.config.emojis.NO}${client.language({ textId: `Ошибка: неизвестный предмет`, guildId })} (${item.itemID}) (${item.amount})`);
+			}
+		}
+	}
+
+	const genderText = profile.sex === "male" ? "получил" :
+		profile.sex === "female" ? "получила" : "получил(-а)";
+
+	const embed = new EmbedBuilder()
+		.setAuthor({ name: member.displayName, iconURL: member.displayAvatarURL() })
+		.setColor(member.displayHexColor)
+		.setDescription(
+			`${client.language({ textId: `За общение в голосовом канале ты`, guildId })} ${genderText}:\n` +
+			`${client.config.emojis.mic}${profile.hoursSession.toFixed(1)} => ` +
+			`${client.config.emojis.XP}${profile.xpSession.toFixed()} ` +
+			`${settings.displayCurrencyEmoji}${profile.currencySession.toFixed()} ` +
+			`${client.config.emojis.RP}${profile.rpSession.toFixed(2)}\n` +
+			`${itemsSessionArray.join("\n")}`
+		);
+
+	await channel.send({ embeds: [embed] }).catch(() => null);
+}
+
+async function resetProfileSession(profile) {
+	profile.itemsSession = [];
+	profile.hoursSession = 0;
+	profile.xpSession = 0;
+	profile.currencySession = 0;
+	profile.rpSession = 0;
+	await profile.save();
+}
+
+function shouldResetSession(oldState, newState, settings) {
+	return oldState.channelId !== null &&
+		!isMutedChannel(settings, oldState.channelId) &&
+		(newState.channelId === null || isMutedChannel(settings, newState.channelId));
+}
+
+// Вспомогательные функции для дропа предметов
+const lerp = (min, max, roll) => ((1 - roll) * min + roll * max);
+
 const drop = (items, roll) => {
-	const chance = lerp(0, 100, roll)
-	let current = new Decimal(0)
+	const chance = lerp(0, 100, roll);
+	let current = new Decimal(0);
+
 	for (const item of items) {
 		if (current.lte(chance) && current.plus(item.activities.voice.chance).gte(chance)) {
 			return item
 		}
-		current = current.plus(item.activities.voice.chance)
+		current = current.plus(item.activities.voice.chance);
 	}
-}
+	return null;
+};

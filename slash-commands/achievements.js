@@ -70,11 +70,11 @@ module.exports = {
         let min = 0
         let limit = 10
         let member
-        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(e => null)
-        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(() => null)
+        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         else if (interaction.isStringSelectMenu() && (MemberRegexp.exec(interaction.customId) || MemberRegexp.exec(interaction.values[0]))) {
-            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(e => null)
-            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(() => null)
+            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         }
         else member = interaction.member
         if (!member) {
@@ -87,7 +87,7 @@ module.exports = {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && Date.now() - member.joinedTimestamp >= achievement.amount * 60 * 1000 && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                 if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                 client.tempAchievements[profile.userID].push(achievement.id)
-                await profile.addAchievement(achievement, true)
+                await profile.addAchievement({ achievement, save: true })
             }    
         }))
         const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled).map(e => e)
@@ -97,8 +97,8 @@ module.exports = {
                 const filter = m => m.author.id == interaction.user.id && !m.content.includes(`\u200B`) && m.content.length > 0 && m.channel.id == interaction.channel.id
                 const message = await interaction.followUp({ content: `${client.language({ textId: "Напиши в чат страницу", guildId: interaction.guildId, locale: interaction.locale })}. ${client.language({ textId: "Для отмены напиши", guildId: interaction.guildId, locale: interaction.locale })}: cancel` })
                 const collected = await waitingForPage(client, interaction, filter, achievements.length)
-                message.delete().catch(e => null)
-                if (!collected) return interaction.editReply({ components: components }).catch(e => null)
+                message.delete().catch(() => null)
+                if (!collected) return interaction.editReply({ components: components }).catch(() => null)
                 limit = +collected.content * 10
                 min = limit - 10   
             } else {
@@ -221,18 +221,18 @@ async function waitingForPage(client, interaction, filter, length) {
         if (!collected.size) return false
         if (!isNaN(collected.first().content) && Number.isInteger(+collected.first().content)) {
             if (collected.first().content <= 0 || collected.first().content > (length + (length % 10 == 0 ? 0 : 10 - (length % 10)))/10) {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: "Такой страницы не существует", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             } else {
-                collected.first().delete().catch(e => null) 
+                collected.first().delete().catch(() => null) 
                 return collected.first()
             }
         } else {
             if (collected.first().content.toLowerCase() == `cancel`) {
-                collected.first().delete().catch(e => null)
+                collected.first().delete().catch(() => null)
                 return false
             }
-            collected.first().delete().catch(e => null)
+            collected.first().delete().catch(() => null)
             interaction.followUp({ content: `${client.config.emojis.NO} **${collected.first().content}** ${client.language({ textId: "не является целым числом", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
     } 

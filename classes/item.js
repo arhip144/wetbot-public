@@ -158,7 +158,7 @@ class Item {
         await this.client.giftSchema.updateMany({ guildID: this.guildID, 'items.itemID': this.itemID }, { "$pull": { "items": { "itemID": this.itemID }}})
         await Promise.all(this.client.cache.lots.filter(lot => lot.guildID === this.guildID && lot.items.some(e => e.id === this.itemID)).map(async lot => {
             const guild = this.client.guilds.cache.get(lot.guildID)
-            const member = await guild.members.fetch(lot.userID).catch(e => null)
+            const member = await guild.members.fetch(lot.userID).catch(() => null)
             const profile = this.client.cache.profiles.get(guild.id+lot.userID)
             if (profile) {
                 let sellingItem
@@ -177,7 +177,7 @@ class Item {
                         .setThumbnail(guild.iconURL())
                         .setDescription(`${this.client.language({ textId: `Твой лот`, guildId: guild.id })} ${sellingItem} (${lot.lotID}) ${this.client.language({ textId: `был автоматически удален - один из предметов цены удалён. Предметы возвращены.`, guildId: guild.id })}`)
                         .setColor(3093046)
-                ] }).catch(e => null)    
+                ] }).catch(() => null)    
             }
         }))
         await Promise.all(this.client.cache.auctions.filter(e => e.item.id === this.itemID && e.guildID === this.guildID).map(async auction => {

@@ -95,20 +95,20 @@ module.exports = {
                     for (const reward of job[action][exodus].rewards) {
                         const amount = client.functions.getRandomNumber(reward.minAmount, reward.maxAmount)
                         if (reward.itemID === "currency") {
-                            await profile.addCurrency(amount)
+                            await profile.addCurrency({ amount })
                             rewards.push(`${settings.displayCurrencyEmoji}${settings.currencyName} (${amount.toLocaleString()})`)
                         } else
                         if (reward.itemID === "xp") {
-                            await profile.addXp(amount)
+                            await profile.addXp({ amount })
                             rewards.push(`${client.config.emojis.XP}${client.language({ textId: `Опыт`, guildId: interaction.guildId, locale: interaction.locale })} (${amount.toLocaleString()})`)
                         } else
                         if (reward.itemID === "rp") {
-                            await profile.addRp(amount)
+                            await profile.addRp({ amount: amount })
                             rewards.push(`${client.config.emojis.RP}${client.language({ textId: `Репутация`, guildId: interaction.guildId, locale: interaction.locale })} (${amount.toLocaleString()})`)
                         } else {
                             const item = client.cache.items.find(e => e.itemID === reward.itemID && !e.temp && e.enabled)
                             if (item) {
-                                await profile.addItem(reward.itemID, amount)
+                                await profile.addItem({ itemID: reward.itemID, amount })
                                 rewards.push(`${item.displayEmoji}${item.name} (${amount.toLocaleString()})`)    
                             }
                         }
@@ -150,7 +150,7 @@ module.exports = {
                         if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.works >= achievement.amount && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                             if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                             client.tempAchievements[profile.userID].push(achievement.id)
-                            await profile.addAchievement(achievement)
+                            await profile.addAchievement({ achievement })
                         }
                     }))
                     await profile.save()
@@ -187,7 +187,7 @@ module.exports = {
                                         else return false
                                     } 
                                 }
-                            }).filter(e => e)).then(rewards => rewards.join(", "))}` : "🚫"}`,
+                            }).filter(Boolean)).then(rewards => rewards.join(", "))}` : "🚫"}`,
                             client.config.emojis.DOWN + `**${client.language({ textId: `Провал`, guildId: interaction.guildId, locale: interaction.locale })} (${job.action1.hideChance ? `||??||` : 100-job.action1.success.chance}%)**`,
                             job.action1.fail.hideCooldowns ? undefined : `* ${client.language({ textId: `Кулдаун этой работы после провала`, guildId: interaction.guildId, locale: interaction.locale })}: \`${client.functions.transformSecs(client, job.action1.fail.cooldown * 1000, interaction.guildId, interaction.locale)}\``,
                             job.action1.fail.hideCooldowns ? undefined : `* ${client.language({ textId: `Кулдаун всей работы после провала`, guildId: interaction.guildId, locale: interaction.locale })}: \`${client.functions.transformSecs(client, job.action1.fail.cooldownJobs * 1000, interaction.guildId, interaction.locale)}\``,
@@ -209,8 +209,8 @@ module.exports = {
                                         else return false
                                     }
                                 }
-                            }).filter(e => e)).then(rewards => rewards.join(", "))}` : "🚫"}`,
-                        ].filter(e => e).join("\n"),
+                            }).filter(Boolean)).then(rewards => rewards.join(", "))}` : "🚫"}`,
+                        ].filter(Boolean).join("\n"),
                         inline: true
                     },
                     {
@@ -237,7 +237,7 @@ module.exports = {
                                         else return false
                                     }
                                 }
-                            }).filter(e => e)).then(rewards => rewards.join(", "))}` : "🚫"}`,
+                            }).filter(Boolean)).then(rewards => rewards.join(", "))}` : "🚫"}`,
                             client.config.emojis.DOWN + `**${client.language({ textId: `Провал`, guildId: interaction.guildId, locale: interaction.locale })} (${job.action2.hideChance ? `||??||` : 100-job.action2.success.chance}%)**`,
                             job.action2.fail.hideCooldowns ? undefined : `* ${client.language({ textId: `Кулдаун этой работы после провала`, guildId: interaction.guildId, locale: interaction.locale })}: \`${client.functions.transformSecs(client, job.action2.fail.cooldown * 1000, interaction.guildId, interaction.locale)}\``,
                             job.action2.fail.hideCooldowns ? undefined : `* ${client.language({ textId: `Кулдаун всей работы после провала`, guildId: interaction.guildId, locale: interaction.locale })}: \`${client.functions.transformSecs(client, job.action2.fail.cooldownJobs * 1000, interaction.guildId, interaction.locale)}\``,
@@ -259,8 +259,8 @@ module.exports = {
                                         else return false
                                     }
                                 }
-                            }).filter(e => e)).then(rewards => rewards.join(", "))}` : "🚫"}`,
-                        ].filter(e => e).join("\n"),
+                            }).filter(Boolean)).then(rewards => rewards.join(", "))}` : "🚫"}`,
+                        ].filter(Boolean).join("\n"),
                         inline: true
                     }
                 ])

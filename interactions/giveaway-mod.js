@@ -22,7 +22,7 @@ module.exports = {
         }
         const profile = await client.functions.fetchProfile(client, giveaway.creator, interaction.guildId)
         if (interaction.customId.includes("accept")) {
-            const channel = await interaction.guild.channels.fetch(giveaway.channelId).catch(e => null)
+            const channel = await interaction.guild.channels.fetch(giveaway.channelId).catch(() => null)
             if (!channel) {
                 await giveaway.delete()
                 return interaction.update({ content: `${client.config.emojis.NO} ${client.language({ textId: `Канал для раздачи не найден`, guildId: interaction.guildId, locale: interaction.locale })}: <#${giveaway.channelId}>`, components: [], flags: ["Ephemeral"] })
@@ -33,7 +33,7 @@ module.exports = {
             if (giveaway.status === "started") {
                 return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Эта раздача уже принята`, guildId: interaction.guildId })}`, flags: ["Ephemeral"] })
             }
-            const member = await interaction.guild.members.fetch(giveaway.creator).catch(e => null)
+            const member = await interaction.guild.members.fetch(giveaway.creator).catch(() => null)
             const changes = []
             if (interaction.customId.includes("edit")) {
                 let copyDate = new Date(giveaway.endsTime)
@@ -184,7 +184,7 @@ module.exports = {
                                 return `<@&${e.id}>${e.ms ? ` [${client.functions.transformSecs(client, e.ms, interaction.guildId, interaction.locale)}]` : ``} (${e.amount})`
                             }
     				})).then(array => array.join(", ")) : `${client.language({ textId: `Добавь награду`, guildId: interaction.guildId })}`}`,
-				].filter(e => e).join("\n"))
+				].filter(Boolean).join("\n"))
 				.setThumbnail(giveaway.thumbnail || null)
 				.setFooter({ text: `ID: ${giveaway.giveawayID}` })
             const giveawayMessage = await interaction.guild.channels.cache.get(giveaway.channelId).send({ 
@@ -204,13 +204,13 @@ module.exports = {
             await giveaway.save()
             if (giveaway.endsTime) giveaway.setTimeoutEnd(client)
             giveaway.clearTimeoutDelete()
-            profile.giveawaysCreated = 1
+            profile.giveawaysCreated += 1
             const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.type === AchievementType.Giveaway && e.enabled)
             await Promise.all(achievements.map(async achievement => {
                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.giveawaysCreated >= achievement.amount && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                     if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                     client.tempAchievements[profile.userID].push(achievement.id)
-                    await profile.addAchievement(achievement)
+                    await profile.addAchievement({ achievement })
                 }    
             }))
             await profile.save()
@@ -275,21 +275,21 @@ module.exports = {
                     if (giveaway.type === "user") {
                         for (const element of giveaway.rewards) {
                             if (element.type === RewardType.Currency) {
-                                profile.currency = element.amount
+                                profile.currency += element.amount
                             }
                             else if (element.type === RewardType.Item) {
                                 const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-                                if (item) await profile.addItem(element.id, element.amount)
+                                if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
                             } else if (element.type === RewardType.Role) {
                                 const role = interaction.guild.roles.cache.get(element.id)
-                                if (role) profile.addRole(element.id, element.amount, element.ms)
+                                if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
                             }
                         }
                         await profile.save()
                     }
-                    const member = await interaction.guild.members.fetch(giveaway.creator).catch(e => null)
+                    const member = await interaction.guild.members.fetch(giveaway.creator).catch(() => null)
                     if (member) {
-                        member.send({ content: `## ${interaction.guild.name}\n${client.language({ textId: `Раздача отклонена по причине:`, guildId: interaction.guildId })} ${modalArgs.reason}`, embeds: [embedRaw] }).catch(e => null)
+                        member.send({ content: `## ${interaction.guild.name}\n${client.language({ textId: `Раздача отклонена по причине:`, guildId: interaction.guildId })} ${modalArgs.reason}`, embeds: [embedRaw] }).catch(() => null)
                     }
                     giveaway.delete()
                 } else return

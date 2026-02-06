@@ -163,7 +163,7 @@ module.exports = async function (client) {
                                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && !client.tempAchievements[profile.userID]?.includes(achievement.id)) { 
                                     if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                                     client.tempAchievements[profile.userID].push(achievement.id)
-                                    profile.addAchievement(achievement, true)
+                                    profile.addAchievement({ achievement, save: true })
                                 }
                             }))
                         }
@@ -651,7 +651,7 @@ module.exports = async function (client) {
         if (!settings.logs?.webhook || !settings.logs?.memberAdd) return
         const embed = new EmbedBuilder()
         embed.setColor(3093046)
-        const logs = await member.guild.fetchAuditLogs({ type: AuditLogEvent.BotAdd }).catch(e => null)
+        const logs = await member.guild.fetchAuditLogs({ type: AuditLogEvent.BotAdd }).catch(() => null)
         const log = logs?.entries.find(e => e.target.id === member.user.id)
         if (!log) {
             embed.setAuthor({ name: `${client.language({ textId: "Пользователь вошел на сервер", guildId: member.guild.id })}`, iconURL: `https://i.imgur.com/cMmtKDA.png` })
@@ -686,9 +686,9 @@ module.exports = async function (client) {
         if (!settings.logs?.webhook || !settings.logs?.memberRemove) return
         const embed = new EmbedBuilder()
         embed.setColor(3093046)
-        const kickLogs = await member.guild.fetchAuditLogs({ type: AuditLogEvent.MemberKick }).catch(e => null)
+        const kickLogs = await member.guild.fetchAuditLogs({ type: AuditLogEvent.MemberKick }).catch(() => null)
         const kickLog = kickLogs?.entries.find(e => e.target.id === member.user.id && new Date().getTime() - e.createdTimestamp < 1000)
-        const pruneLogs = await member.guild.fetchAuditLogs({ type: AuditLogEvent.MemberPrune }).catch(e => null)
+        const pruneLogs = await member.guild.fetchAuditLogs({ type: AuditLogEvent.MemberPrune }).catch(() => null)
         const pruneLog = pruneLogs?.entries.find(e => e.target?.id === member.user.id && new Date().getTime() - e.createdTimestamp < 1000)
         if (!kickLog && !pruneLog) {
             embed.setAuthor({ name: `${client.language({ textId: "Пользователь покинул сервер", guildId: member.guild.id })}`, iconURL: `https://i.imgur.com/6mMBC9q.png` })

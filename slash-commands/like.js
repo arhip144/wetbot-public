@@ -37,12 +37,12 @@ module.exports = {
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
         if (interaction.isButton()) {
-            if (interaction.user.id !== MemberRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== MemberRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
         }
         let mentionMember
-        if (args?.user) mentionMember = await interaction.guild.members.fetch(args.user).catch(e => null)
-        else if (interaction.isContextMenuCommand()) mentionMember = await interaction.guild.members.fetch(interaction.tagertId).catch(e => null)
-        else if (interaction.isButton()) mentionMember = await interaction.guild.members.fetch(UserRegexp.exec(interaction.customId)?.[1]).catch(e => null)
+        if (args?.user) mentionMember = await interaction.guild.members.fetch(args.user).catch(() => null)
+        else if (interaction.isContextMenuCommand()) mentionMember = await interaction.guild.members.fetch(interaction.tagertId).catch(() => null)
+        else if (interaction.isButton()) mentionMember = await interaction.guild.members.fetch(UserRegexp.exec(interaction.customId)?.[1]).catch(() => null)
         else mentionMember = interaction.member
         if (!mentionMember) {
             return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
@@ -90,7 +90,7 @@ module.exports = {
                                 `${client.config.emojis.heart}**${client.language({ textId: `Лайк`, guildId: interaction.guildId, locale: interaction.locale })}** 1`,
                                 rewards.join("\n"),
                                 `${data.likedUserRewards ? data.likedUserRewards.join("\n") : undefined}`
-                            ].filter(e => e).join("\n"))
+                            ].filter(Boolean).join("\n"))
                     ])
             ])
         container.addSeparatorComponents(SeparatorBuilder => SeparatorBuilder.setSpacing(SeparatorSpacingSize.Large))
@@ -102,7 +102,7 @@ module.exports = {
                             .setContent([
                                 `## ${interaction.member.displayName}`,
                                 (settings.xpForLike || settings.curForLike || settings.rpForLike) && (!data.likingProfile.blockActivities?.like?.XP || !data.likingProfile.blockActivities?.like?.CUR || !data.likingProfile.blockActivities?.like?.RP || !data.likingProfile.blockActivities?.like?.items) ? `${client.language({ textId: `Получено`, guildId: interaction.guildId, locale: interaction.locale })}:\n${rewards1.join("\n")}\n${data.likingUserRewards ? data.likingUserRewards.join("\n") : "" }` : undefined
-                            ].filter(e => e).join("\n"))
+                            ].filter(Boolean).join("\n"))
                     ])
             ])
         if (!interaction.isButton()) {

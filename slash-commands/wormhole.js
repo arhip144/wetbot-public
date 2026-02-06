@@ -49,7 +49,7 @@ module.exports = {
         if (wormhole.webhookId) {
             webhook = client.cache.webhooks.get(wormhole.webhookId)
             if (!webhook) {
-                webhook = await client.fetchWebhook(wormhole.webhookId).catch(e => null)
+                webhook = await client.fetchWebhook(wormhole.webhookId).catch(() => null)
                 if (webhook instanceof Webhook) client.cache.webhooks.set(webhook.id, webhook)
             }    
         }

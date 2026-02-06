@@ -16,7 +16,7 @@ module.exports = {
             }
             await interaction.deferUpdate()
             for (const value of interaction.values) {
-                const guildRole = await interaction.guild.roles.fetch(value).catch(e => null)
+                const guildRole = await interaction.guild.roles.fetch(value).catch(() => null)
                 if (guildRole) {
                     if (dropdownDB) {
                         const role = dropdownDB.roles[value]
@@ -166,11 +166,11 @@ module.exports = {
                 for (const value in totalPrice) {
                     if (totalPrice[value]) {
                         if (value === "currency") {
-                            await profile.subtractCurrency(totalPrice[value])
+                            await profile.subtractCurrency({ amount: totalPrice[value] })
                         } else if (value === "rp") {
-                            await profile.subtractRp(totalPrice[value])
+                            await profile.subtractRp({ amount: totalPrice[value] })
                         } else {
-                            await profile.subtractItem(value, totalPrice[value])
+                            await profile.subtractItem({ itemID: value, amount: totalPrice[value] })
                         }
                     }
                 }

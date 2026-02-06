@@ -22,7 +22,7 @@ module.exports = {
     run: async (client, interaction) => {
         if (!interaction.channel) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: "Возможно у меня нет доступа к каналу", guildId: interaction.guildId })}.`, flags: ["Ephemeral"] })
         if (!interaction.channel.messages) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: "Возможно у меня нет доступа к сообщениям этого канала", guildId: interaction.guildId })}.`, flags: ["Ephemeral"] })
-        const message = await interaction.channel.messages.fetch({ message: interaction.targetId, cache: false, force: true }).catch(e => null)
+        const message = await interaction.channel.messages.fetch({ message: interaction.targetId, cache: false, force: true }).catch(() => null)
         if (!message) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: "Не удалось найти сообщение", guildId: interaction.guildId })}.`, flags: ["Ephemeral"] })
         if (message.author.id !== client.user.id) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: "Это сообщение не является моим", guildId: interaction.guildId })}.`, flags: ["Ephemeral"] })
         if (!message.components?.length) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: "В этом сообщении нет компонентов", guildId: interaction.guildId })}.`, flags: ["Ephemeral"] })

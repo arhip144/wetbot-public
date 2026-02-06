@@ -83,9 +83,8 @@ module.exports = {
         let amount = !args.amount || args.amount < 1 ? 1 : args.amount
         if (amount > 100000) amount = 100000
         const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
-        const globalUser = await client.globalProfileSchema.findOne({ userID: interaction.user.id })
-        if (profile.rp > 1000) profile.rp = 1000 - profile.rp
-        if (profile.rp < -1000) profile.rp = Math.abs(profile.rp - -1000)
+        if (profile.rp > 1000) profile.rp = 1000
+        if (profile.rp < -1000) profile.rp = -1000
         let shopItem
         if (args.item.length < 2) {
             return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Запрос содержит менее двух символов", guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })  
@@ -159,7 +158,7 @@ module.exports = {
             }    
         }
         await interaction.deferReply({ flags: ["Ephemeral"] })
-        await profile.addItem(shopItem.itemID, amount)
+        await profile.addItem({ itemID: shopItem.itemID, amount })
         if (shopItem.shop.monthlyShopping) {
             if (!profile.monthlyLimits || profile.monthlyLimits[shopItem.itemID] === undefined) {
                 if (!profile.monthlyLimits) profile.monthlyLimits = {}
@@ -185,15 +184,16 @@ module.exports = {
             limitDescription.push(`${client.language({ textId: "Оставшийся дневной лимит", guildId: interaction.guildId, locale: interaction.locale })}: **${shopItem.shop.dailyShopping - profile.dailyLimits[shopItem.itemID] < 0 ? 0 : shopItem.shop.dailyShopping - profile.dailyLimits[shopItem.itemID]}**`)
         }
         if (priceType === "currency") {
-            await profile.subtractCurrency(spent)
-        } else {
-            await profile.subtractItem(priceType, spent)
+            await profile.subtractCurrency({ amount: spent })
+        }
+        else {
+            await profile.subtractItem({ itemID: priceType, amount: spent })
         }
         if (shopItem.shop.inShop && shopItem.shop.amount >= amount) {
             shopItem.shop.amount -= amount
             await shopItem.save().catch(e => console.error(e))    
         }
-        await profile.addQuestProgression("itemsBoughtInShop", amount, shopItem.itemID)
+        await profile.addQuestProgression({ type: "itemsBoughtInShop", amount, object: shopItem.itemID })
         profile.itemsBoughtInShop += amount
         client.emit("economyLogCreate", interaction.guildId, `<@${interaction.user.id}> (${interaction.user.username}) ${client.language({ textId: "купил предмет", guildId: interaction.guildId })} ${shopItem.displayEmoji}${shopItem.name} (${shopItem.itemID}) (${amount.toLocaleString()})`)
         const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.ItemsBoughtInShop)
@@ -201,7 +201,7 @@ module.exports = {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.itemsBoughtInShop >= achievement.amount && !client.tempAchievements[interaction.user.id]?.includes(achievement.id)) { 
                 if (!client.tempAchievements[interaction.user.id]) client.tempAchievements[interaction.user.id] = []
                 client.tempAchievements[interaction.user.id].push(achievement.id)
-                await profile.addAchievement(achievement)
+                await profile.addAchievement({ achievement })
             }
         }))
         await profile.save()

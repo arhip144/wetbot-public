@@ -43,13 +43,13 @@ module.exports = {
      * @param {String[]} args
      */
     run: async (client, interaction, args) => {
-        if (!interaction.isChatInputCommand() && interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+        if (!interaction.isChatInputCommand() && interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
         const { guild } = interaction
         const userID = args?.user || MemberRegexp.exec(interaction.customId)?.[1]
         if (!userID) {
             return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Некорректный ID`, guildId: interaction.guildId, locale: interaction.locale })}`, embeds: [], components: [], flags: ["Ephemeral"] })
         }
-        const member = await guild.members.fetch(userID).catch(e => null)
+        const member = await guild.members.fetch(userID).catch(() => null)
         if (!member) {
             return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Пользователь не найден на сервере`, guildId: interaction.guildId, locale: interaction.locale })}`, embeds: [], components: [], flags: ["Ephemeral"] })
         }

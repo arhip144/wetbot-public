@@ -5,6 +5,7 @@ client.on(Events.GuildDelete, async (guild) => {
     const settings = client.cache.settings.get(guild.id)
     if (settings) {
         settings.deleteFromDB = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        settings.resetDeleteFromDbTimeout()
         await settings.save()    
     }
     await Promise.all(client.cache.promocodeAutogenerators.filter(generator => generator.guildID === guild.id).map(async generator => {
@@ -16,7 +17,7 @@ client.on(Events.GuildDelete, async (guild) => {
         client.cache.wormholes.delete(wormhole.wormholeID)
     }))
     await Promise.all(client.cache.profiles.filter(profile => profile.guildID === guild.id).map(async profile => {
-        if (profile.autoIncomeTimeoutId) profile.clearAutoIncomeTimeout()
+        if (profile.timeouts.autoIncome) profile.clearAutoIncomeTimeout()
         client.cache.profiles.delete(profile.guildID+profile.userID)
     }))
     await Promise.all(client.cache.permissions.filter(permission => permission.guildID === guild.id).map(async permission => {
@@ -53,7 +54,7 @@ client.on(Events.GuildDelete, async (guild) => {
         client.cache.emojiSelectors.delete(emojiSelector.id)
     }))
     if (settings) {
-        if (settings.resetSeasonTimeoutId) settings.clearResetSeasonTimeout()
+        if (settings.timeouts.resetSeason) settings.clearResetSeasonTimeout()
         client.cache.settings.delete(guild.id)    
     }
 })

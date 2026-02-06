@@ -337,7 +337,7 @@ module.exports = {
                     if (roleProperties && roleProperties.cannotAuction) {
                         return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Эту роль нельзя продавать на аукционе`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                     }
-                    await profile.subtractRole(guildRole.id, auction.item.amount, auction.item.ms)
+                    await profile.subtractRole({ id: guildRole.id, amount: auction.item.amount, ms: auction.item.ms })
                 }
                 if (auction.item.type === RewardType.Item) {
                     const item = client.cache.items.find(e => e.itemID === auction.item.id && e.guildID === interaction.guildId && e.enabled)
@@ -351,7 +351,7 @@ module.exports = {
                     if (item.notAuctionable) {
                         return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Этот предмет нельзя продавать на аукционе`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                     }
-                    await profile.subtractItem(auction.item.id, auction.item.amount)
+                    await profile.subtractItem({ itemID: auction.item.id, amount: auction.item.amount })
                 }
                 profile.save()
                 auction.status = "started"
@@ -501,7 +501,7 @@ module.exports = {
                     if (modalArgs.bet < auction.bet.initial) {
                         return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Начальная ставка должна составлять`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.displayCurrencyEmoji}${settings.currencyName} (${auction.bet.initial.toLocaleString()})`, flags: ["Ephemeral"] })
                     }
-                    profile.subtractCurrency(modalArgs.bet, false, true)
+                    profile.subtractCurrency({ amount: modalArgs.bet, noCurrencySpent: true })
                     profile.save()
                     auction.participants.push({ userID: interaction.user.id, bet: { type: RewardType.Currency, amount: modalArgs.bet } })
                     await auction.save()
@@ -511,14 +511,14 @@ module.exports = {
                     if (modalArgs.bet < min_bet) {
                         return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Следующая ставка должна составлять минимум`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.displayCurrencyEmoji}${settings.currencyName} (${min_bet.toLocaleString()})`, flags: ["Ephemeral"] })
                     }
-                    profile.subtractCurrency(modalArgs.bet, false, true)
+                    profile.subtractCurrency({ amount: modalArgs.bet, noCurrencySpent: true })
                     profile.save()
                     const channel = interaction.guild.channels.cache.get(auction.channelId)
-                    const message = await channel.messages.fetch(auction.messageId).catch(e => null)
+                    const message = await channel.messages.fetch(auction.messageId).catch(() => null)
                     if (channel && message && channel.permissionsFor(interaction.guild.members.me).has(PermissionFlagsBits.SendMessagesInThreads) && interaction.user.id !== auction.participants.sort((a, b) => b.bet.amount - a.bet.amount)[0].userID) {
                         let thread
                         if (!message.hasThread) {
-                            if (channel.permissionsFor(interaction.guild.members.me).has(PermissionFlagsBits.CreatePublicThreads)) thread = await message.startThread({ name: `${client.language({ textId: `Аукцион: комментарии`, guildId: interaction.guildId })}`, autoArchiveDuration: ThreadAutoArchiveDuration.OneDay }).catch(e => null)
+                            if (channel.permissionsFor(interaction.guild.members.me).has(PermissionFlagsBits.CreatePublicThreads)) thread = await message.startThread({ name: `${client.language({ textId: `Аукцион: комментарии`, guildId: interaction.guildId })}`, autoArchiveDuration: ThreadAutoArchiveDuration.OneDay }).catch(() => null)
                         } else thread = message.thread
                         if (thread) {
                             const participant_leader = auction.participants.sort((a, b) => b.bet.amount - a.bet.amount)[0]

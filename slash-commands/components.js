@@ -505,9 +505,9 @@ module.exports = {
                 if (!label && !emoji) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Одно из этих полей должно быть заполнено: название, эмодзи`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 const channelId = message_url.split("/")[5]
                 const messageId = message_url.split("/")[6]
-                const channel = await interaction.guild.channels.fetch(channelId).catch(e => null)
+                const channel = await interaction.guild.channels.fetch(channelId).catch(() => null)
                 if (!channel || !channel.guild) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Канал не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(e => null)
+                const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(() => null)
                 if (!message) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Сообщение не найдено`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 if (message.author.id !== client.user.id) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Это сообщение не является моим`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 if (!message.editable) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Сообщение невозможно редактировать`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
@@ -545,9 +545,9 @@ module.exports = {
                 const message_url = args.message_url
                 const channelId = message_url.split("/")[5]
                 const messageId = message_url.split("/")[6]
-                const channel = await interaction.guild.channels.fetch(channelId).catch(e => null)
+                const channel = await interaction.guild.channels.fetch(channelId).catch(() => null)
                 if (!channel) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Канал не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(e => null)
+                const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(() => null)
                 if (!message) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Сообщение не найдено`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 if (message.author.id !== client.user.id) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Это сообщение не является моим`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 if (!message.editable) return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Сообщение невозможно редактировать`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })

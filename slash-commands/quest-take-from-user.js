@@ -66,7 +66,7 @@ module.exports = {
             args.quest = questRegexp.exec(interaction.customId)[1]
             await interaction.deferReply({ flags: ["Ephemeral"] })
         } else await interaction.deferReply()
-        const member = await interaction.guild.members.fetch(args.user).catch(e => null)
+        const member = await interaction.guild.members.fetch(args.user).catch(() => null)
         if (!member) {
             return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Пользователь с ID", guildId: interaction.guildId, locale: interaction.locale })} **${args.user}** ${client.language({ textId: "не найден на сервере", guildId: interaction.guildId, locale: interaction.locale })}.` })
         }

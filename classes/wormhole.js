@@ -168,7 +168,7 @@ class Wormhole {
 		this.cronJob = Cron(this.cronPattern, { interval: 60, timezone: "Africa/Conakry" }, async (job) => {
 			let webhook = this.client.cache.webhooks.get(this.webhookId)
 			if (!webhook) {
-				webhook = await this.client.fetchWebhook(this.webhookId).catch(e => null)
+				webhook = await this.client.fetchWebhook(this.webhookId).catch(() => null)
 				if (webhook instanceof Webhook) this.client.cache.webhooks.set(webhook.id, webhook)
 			}
 			if (!webhook) {

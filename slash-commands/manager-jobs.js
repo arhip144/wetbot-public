@@ -804,8 +804,8 @@ module.exports = {
                         ],
                         flags: ["Ephemeral"]
                     })    
-                    const filter = (i) => i.customId.includes(`manager-jobs_add_reward`) && i.user.id === interaction.user.id
-                    let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                    const filter = (i) => i.customId.includes(`manager-jobs_add_reward`) && i.user.id === interaction.user.id;
+                    let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                     if (interaction2 && interaction2.customId.includes("manager-jobs_add_reward")) {
                         let itemID
                         let minAmount
@@ -1088,7 +1088,7 @@ module.exports = {
             .setDescription([
                 job.description,
                 `${client.language({ textId: `Скрывать работу из автозаполнения, если не доступна`, guildId: interaction.guildId, locale: interaction.locale })}: ${job.hide ? `${client.language({ textId: `Да`, guildId: interaction.guildId, locale: interaction.locale })}` : `${client.language({ textId: `Нет`, guildId: interaction.guildId, locale: interaction.locale })}`}`
-            ].filter(e => e).join("\n"))
+            ].filter(Boolean).join("\n"))
             .setFields([
                 {
                     name: job.action1.name,
@@ -1110,7 +1110,7 @@ module.exports = {
                                     if (item) return `${item.displayEmoji}${item.name} (${e.minAmount !== e.maxAmount ? `${e.minAmount}~${e.maxAmount}` : e.minAmount})`
                                     else return false
                                 }
-                        }).filter(e => e)).then(rewards => rewards.join(", "))}` : "🚫"}`,
+                        }).filter(Boolean)).then(rewards => rewards.join(", "))}` : "🚫"}`,
                         client.config.emojis.DOWN + `**${client.language({ textId: `Провал`, guildId: interaction.guildId, locale: interaction.locale })} (${100-job.action1.success.chance}%)**`,
                         `* ${client.language({ textId: `Кулдаун этой работы после провала`, guildId: interaction.guildId, locale: interaction.locale })}${job.action1.fail.hideCooldowns ? ` (${client.language({ textId: `скрыт`, guildId: interaction.guildId, locale: interaction.locale })})` : ``}: \`${job.action1.fail.cooldown ? transformSecs(client, job.action1.fail.cooldown * 1000, interaction.guildId, interaction.locale) : `${client.language({ textId: `отсутствует`, guildId: interaction.guildId, locale: interaction.locale })}`}\``,
                         `* ${client.language({ textId: `Кулдаун всей работы после провала`, guildId: interaction.guildId, locale: interaction.locale })}${job.action1.fail.hideCooldowns ? ` (${client.language({ textId: `скрыт`, guildId: interaction.guildId, locale: interaction.locale })})` : ``}: \`${job.action1.fail.cooldownJobs ? transformSecs(client, job.action1.fail.cooldownJobs * 1000, interaction.guildId, interaction.locale) : `${client.language({ textId: `отсутствует`, guildId: interaction.guildId, locale: interaction.locale })}`}\``,
@@ -1128,7 +1128,7 @@ module.exports = {
                                 if (item) return `${item.displayEmoji}${item.name} (${e.minAmount !== e.maxAmount ? `${e.minAmount}~${e.maxAmount}` : e.minAmount})`
                                 else return false
                             }
-                    }).filter(e => e)).then(rewards => rewards.join(", "))}` : "🚫"}`,
+                    }).filter(Boolean)).then(rewards => rewards.join(", "))}` : "🚫"}`,
                     ].join("\n"),
                     inline: true
                 },
@@ -1152,7 +1152,7 @@ module.exports = {
                                 if (item) return `${item.displayEmoji}${item.name} (${e.minAmount !== e.maxAmount ? `${e.minAmount}~${e.maxAmount}` : e.minAmount})`
                                 else return false
                             }
-                        }).filter(e => e)).then(rewards => rewards.join(", "))}` : "🚫"}`,
+                        }).filter(Boolean)).then(rewards => rewards.join(", "))}` : "🚫"}`,
                         client.config.emojis.DOWN + `**${client.language({ textId: `Провал`, guildId: interaction.guildId, locale: interaction.locale })} (${100-job.action2.success.chance}%)**`,
                         `* ${client.language({ textId: `Кулдаун этой работы после провала`, guildId: interaction.guildId, locale: interaction.locale })}${job.action2.fail.hideCooldowns ? ` (${client.language({ textId: `скрыт`, guildId: interaction.guildId, locale: interaction.locale })})` : ``}: \`${job.action2.fail.cooldown ? transformSecs(client, job.action2.fail.cooldown * 1000, interaction.guildId, interaction.locale) : `${client.language({ textId: `отсутствует`, guildId: interaction.guildId, locale: interaction.locale })}`}\``,
                         `* ${client.language({ textId: `Кулдаун всей работы после провала`, guildId: interaction.guildId, locale: interaction.locale })}${job.action2.fail.hideCooldowns ? ` (${client.language({ textId: `скрыт`, guildId: interaction.guildId, locale: interaction.locale })})` : ``}: \`${job.action2.fail.cooldownJobs ? transformSecs(client, job.action2.fail.cooldownJobs * 1000, interaction.guildId, interaction.locale) : `${client.language({ textId: `отсутствует`, guildId: interaction.guildId, locale: interaction.locale })}`}\``,
@@ -1170,7 +1170,7 @@ module.exports = {
                                 if (item) return `${item.displayEmoji}${item.name} (${e.minAmount !== e.maxAmount ? `${e.minAmount}~${e.maxAmount}` : e.minAmount})`
                                 else return false
                             }
-                        }).filter(e => e)).then(rewards => rewards.join(", "))}` : "🚫"}`,
+                        }).filter(Boolean)).then(rewards => rewards.join(", "))}` : "🚫"}`,
                     ].join("\n"),
                     inline: true
                 }

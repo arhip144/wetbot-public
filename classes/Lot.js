@@ -28,9 +28,9 @@ class Lot {
         if (seller) {
             if (this.item.type === RewardType.Item) {
                 if (!this.client.cache.items.find(item => item.itemID === this.item.id && item.guildID === this.guildID && !item.temp && item.enabled)) return await this.delete()
-                await seller.addItem(this.item.id, this.item.amount)
+                await seller.addItem({ itemID: this.item.id, amount: this.item.amount })
             }
-            if (this.item.type === RewardType.Role) seller.addRole(this.item.id, this.item.amount, this.item.ms)
+            if (this.item.type === RewardType.Role) seller.addRole({ id: this.item.id, amount: this.item.amount, ms: this.item.ms })
             await seller.save()
         }
         await this.delete()
@@ -40,7 +40,7 @@ class Lot {
             const guild = this.client.guilds.cache.get(this.guildID)
             const channel = guild.channels.cache.get(this.channelId)
             if (channel) {
-                const message = await channel.messages.fetch(this.messageId).catch(e => null)
+                const message = await channel.messages.fetch(this.messageId).catch(() => null)
                 if (message) await message.delete()
             }
         }
@@ -54,39 +54,39 @@ class Lot {
         const guild = this.client.guilds.cache.get(this.guildID)
         for (let item of this.items) {
             if (item.type === RewardType.Item) {
-                await profile.subtractItem(item.id, item.amount * amount)
-                await profileSeller.addItem(item.id, item.amount * amount)
+                await profile.subtractItem({ itemID: item.id, amount: item.amount * amount })
+                await profileSeller.addItem({ itemID: item.id, amount: item.amount * amount })
             }
             if (item.type === RewardType.Currency) {
-                profileSeller.currency = item.amount * amount
-                profile.currency = item.amount * amount * -1
+                profileSeller.currency += item.amount * amount
+                profile.currency -= item.amount * amount
             }
             if (item.type === RewardType.Role) {
-                await profile.subtractRole(item.id, item.amount * amount)
-                await profileSeller.addRole(item.id, item.amount * amount)
+                await profile.subtractRole({ id: item.id, amount: item.amount * amount })
+                await profileSeller.addRole({ id: item.id, amount: item.amount * amount })
             }
         }
         if (this.item.type === RewardType.Role) {
-            await profile.addRole(this.item.id, amount, this.item.ms)   
+            await profile.addRole({ id: this.item.id, amount, ms: this.item.ms })   
         }
-        profileSeller.itemsSoldOnMarketPlace = amount
+        profileSeller.itemsSoldOnMarketPlace += amount
         this.item.amount -= amount
         if (this.item.type === RewardType.Item) {
             const serverItem = this.client.cache.items.find(e => !e.temp && e.itemID === this.item.id && e.enabled)
-            await profile.addItem(serverItem.itemID, amount)
+            await profile.addItem({ itemID: serverItem.itemID, amount })
             this.client.emit("economyLogCreate", this.guildID, `<@${interaction.user.id}> (${interaction.user.username}) ${this.client.language({ textId: "купил предмет на маркете", guildId: this.guildID })} ${serverItem.displayEmoji}**${serverItem.name}** (${serverItem.itemID}) (${amount})`)
-            await profile.addQuestProgression("itemsBoughtOnMarket", amount, serverItem.itemID)
-            await profileSeller.addQuestProgression("marketplace", amount, serverItem.itemID)
+            await profile.addQuestProgression({ type: "itemsBoughtOnMarket", amount, object: serverItem.itemID })
+            await profileSeller.addQuestProgression({ type: "marketplace", amount, object: serverItem.itemID })
         }
         if (this.item.type === RewardType.Role) {
-            await profileSeller.addQuestProgression("marketplace", amount)
+            await profileSeller.addQuestProgression({ type: "marketplace", amount })
         }
         let achievements = this.client.cache.achievements.filter(e => e.guildID === this.guildID && e.enabled && e.type === AchievementType.Marketplace)
         await Promise.all(achievements.map(async achievement => {
             if (!profileSeller.achievements?.some(ach => ach.achievmentID === achievement.id) && profileSeller.itemsSoldOnMarketPlace >= achievement.amount && !this.client.tempAchievements[profileSeller.userID]?.includes(achievement.id)) { 
                 if (!this.client.tempAchievements[profileSeller.userID]) this.client.tempAchievements[profileSeller.userID] = []
                 this.client.tempAchievements[profileSeller.userID].push(achievement.id)
-                await profileSeller.addAchievement(achievement)
+                await profileSeller.addAchievement({ achievement })
             }    
         }))
         await profileSeller.save()
@@ -96,7 +96,7 @@ class Lot {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.itemsBoughtOnMarket >= achievement.amount && !this.client.tempAchievements[interaction.user.id]?.includes(achievement.id)) { 
                 if (!this.client.tempAchievements[interaction.user.id]) this.client.tempAchievements[interaction.user.id] = []
                 this.client.tempAchievements[interaction.user.id].push(achievement.id)
-                await profile.addAchievement(achievement)
+                await profile.addAchievement({ achievement })
             }    
         }))
         await profile.save()
@@ -115,7 +115,7 @@ class Lot {
                 .setThumbnail(interaction.member.displayAvatarURL())
                 .setDescription(`${this.client.language({ textId: `Из твоего лота на маркете`, guildId: this.guildID })} (${this.lotID}) <@${interaction.user.id}> (${interaction.member.displayName}) ${this.client.language({ textId: `купил`, guildId: this.guildID })} ${sellingItem}`)
                 .setColor(3093046)
-        ] }).catch(e => null)
+        ] }).catch(() => null)
         if (reply) await interaction.reply({ content: `${this.client.config.emojis.YES}${this.client.language({ textId: "Ты купил", guildId: this.guildID, locale: interaction.locale })}: ${sellingItem}`, flags: ["Ephemeral"] })
         else await interaction.followUp({ content: `${this.client.config.emojis.YES}${this.client.language({ textId: "Ты купил", guildId: this.guildID, locale: interaction.locale })}: ${sellingItem}`, flags: ["Ephemeral"] })
         let message
@@ -127,7 +127,7 @@ class Lot {
             if (this.channelId && this.messageId) {
                 const channel = guild.channels.cache.get(this.channelId)
                 if (channel) {
-                    message = await channel.messages.fetch(this.messageId).catch(e => null)
+                    message = await channel.messages.fetch(this.messageId).catch(() => null)
                 }
             }
         }
@@ -151,8 +151,8 @@ class Lot {
                     }
                 }).join("\n"),
                 this.lifeTime ? `${this.client.language({ textId: "Срок истечения хранения", guildId: this.guildID })}: <t:${Math.floor(this.lifeTime/1000)}:f>` : undefined
-            ].filter(e => e).join("\n"))
-            await message.edit({ embeds: [embed] }).catch(e => null)
+            ].filter(Boolean).join("\n"))
+            await message.edit({ embeds: [embed] }).catch(() => null)
         }
     }
     setTimeoutDelete() {
@@ -160,7 +160,7 @@ class Lot {
             const guild = this.client.guilds.cache.get(this.guildID)
             const profile = this.client.cache.profiles.get(guild.id+this.userID)
             if (profile) {
-                const member = await guild.members.fetch(this.userID).catch(e => null)
+                const member = await guild.members.fetch(this.userID).catch(() => null)
                 let sellingItem
                 if (this.item.type === RewardType.Item) {
                     const item = this.client.cache.items.find(e => !e.temp && e.itemID === this.item.id && e.enabled)
@@ -181,7 +181,7 @@ class Lot {
                         .setThumbnail(guild.iconURL())
                         .setDescription(`${this.client.language({ textId: `Твой лот`, guildId: guild.id })} ${sellingItem} (${this.lotID}) ${this.client.language({ textId: `был автоматически удалён по истечению 14 дней. Предметы были возвращены.`, guildId: guild.id })}`)
                         .setColor(3093046)
-                ] }).catch(e => null)
+                ] }).catch(() => null)
             }
 		}, this.lifeTime - Date.now())
 	}

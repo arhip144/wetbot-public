@@ -26,15 +26,15 @@ class Auction {
         if (this.timeoutDeleteId) this.clearTimeoutDelete()
         if (returnAuctionItem) {
             const profile = await this.client.functions.fetchProfile(this.client, this.creatorId, this.guildID)
-            if (this.item.type === RewardType.Item) profile.addItem(this.item.id, this.item.amount)
-            if (this.item.type === RewardType.Role) profile.addRole(this.item.id, this.item.amount, this.item.ms)
+            if (this.item.type === RewardType.Item) profile.addItem({ itemID: this.item.id, amount: this.item.amount })
+            if (this.item.type === RewardType.Role) profile.addRole({ id: this.item.id, amount: this.item.amount, ms: this.item.ms })
             profile.save()
         }
         if (returnBets) {
             this.participants.forEach(async participant => {
                 const profile = await this.client.functions.fetchProfile(this.client, participant.userID, this.guildID)
-                if (participant.bet.type === RewardType.Currency) profile.currency = participant.bet.amount
-                if (participant.bet.type === RewardType.Item) profile.addItem(participant.bet.id, participant.bet.amount)
+                if (participant.bet.type === RewardType.Currency) profile.currency += participant.bet.amount
+                if (participant.bet.type === RewardType.Item) profile.addItem({ itemID: participant.bet.id, amount: participant.bet.amount })
                 profile.save()
             })
         }
@@ -44,9 +44,9 @@ class Auction {
     async updateMessage(interaction) {
         const guild = this.client.guilds.cache.get(this.guildID)
         const channel = guild.channels.cache.get(this.channelId)
-        const message = await channel.messages.fetch(this.messageId).catch(e => null)
+        const message = await channel.messages.fetch(this.messageId).catch(() => null)
         if (!message) return
-        const memberCreator = await guild.members.fetch(this.creatorId).catch(e => null)
+        const memberCreator = await guild.members.fetch(this.creatorId).catch(() => null)
         const settings = this.client.cache.settings.get(this.guildID)
         const initialBetEmoji = this.bet.type === RewardType.Currency ? settings.displayCurrencyEmoji : this.client.cache.items.get(this.bet.id).displayEmoji
         let auctionItem
@@ -85,8 +85,8 @@ class Auction {
                             .setCustomId(`cmd{auctions}id{${this.id}} participants`)
                             .setLabel(`${this.client.language({ textId: `Все участники`, guildId: this.guildID })}`)
                             .setStyle(ButtonStyle.Primary) : undefined
-                ].filter(e => e))
-        ].filter(e => e)
+                ].filter(Boolean))
+        ].filter(Boolean)
         if (interaction) {
             await interaction.update({
                 embeds: [embed],
@@ -108,25 +108,25 @@ class Auction {
         await this.save()
         if (winner) {
             const winnerProfile = await this.client.functions.fetchProfile(this.client, winner.userID, this.guildID)
-            if (this.item.type === RewardType.Item) await winnerProfile.addItem(this.item.id, this.item.amount)
-            if (this.item.type === RewardType.Role) await winnerProfile.addRole(this.item.id, this.item.amount, this.item.ms)
+            if (this.item.type === RewardType.Item) await winnerProfile.addItem({ itemID: this.item.id, amount: this.item.amount })
+            if (this.item.type === RewardType.Role) await winnerProfile.addRole({ id: this.item.id, amount: this.item.amount, ms: this.item.ms })
             winnerProfile.currencySpent += winner.bet.amount
             winnerProfile.save()
         } else {
             const profile = await this.client.functions.fetchProfile(this.client, this.creatorId, this.guildID)
-            if (this.item.type === RewardType.Item) await profile.addItem(this.item.id, this.item.amount)
-            if (this.item.type === RewardType.Role) await profile.addRole(this.item.id, this.item.amount, this.item.ms)
+            if (this.item.type === RewardType.Item) await profile.addItem({ itemID: this.item.id, amount: this.item.amount })
+            if (this.item.type === RewardType.Role) await profile.addRole({ id: this.item.id, amount: this.item.amount, ms: this.item.ms })
             profile.save()
         }
         this.participants.forEach(async participant => {
             if (participant.userID !== winner.userID) {
                 const profile = await this.client.functions.fetchProfile(this.client, participant.userID, this.guildID)
-                if (participant.bet.type === RewardType.Currency) profile.currency = participant.bet.amount
-                if (participant.bet.type === RewardType.Item) await profile.addItem(participant.bet.id, participant.bet.amount)
+                if (participant.bet.type === RewardType.Currency) profile.currency += participant.bet.amount
+                if (participant.bet.type === RewardType.Item) await profile.addItem({ itemID: participant.bet.id, amount: participant.bet.amount })
                 profile.save()
             } else {
                 const creatorProfile = await this.client.functions.fetchProfile(this.client, this.creatorId, this.guildID)
-                await creatorProfile.addCurrency(participant.bet.amount)
+                await creatorProfile.addCurrency({ amount: participant.bet.amount })
                 creatorProfile.save()
             }
         })
@@ -140,7 +140,7 @@ class Auction {
             auctionItem = `${item.displayEmoji}${item.name} (${this.item.amount.toLocaleString()})`
         }
         const initialBetEmoji = this.bet.type === RewardType.Currency ? settings.displayCurrencyEmoji : this.client.cache.items.get(this.bet.id).displayEmoji
-        const memberCreator = await guild.members.fetch(this.creatorId).catch(e => null)
+        const memberCreator = await guild.members.fetch(this.creatorId).catch(() => null)
         const embed = new EmbedBuilder()
             .setAuthor({ name: memberCreator?.displayName || this.creatorId, iconURL: memberCreator?.displayAvatarURL() })
             .setTitle(`${this.client.language({ textId: `Аукцион закончен`, guildId: this.guildID })}`)
@@ -162,7 +162,7 @@ class Auction {
             .setStyle(ButtonStyle.Primary))
         }
         const channel = guild.channels.cache.get(this.channelId)
-        const message = await channel.messages.fetch(this.messageId).catch(e => null)
+        const message = await channel.messages.fetch(this.messageId).catch(() => null)
         if (!message) return
         await message.edit({ embeds: [embed], components })
     }
@@ -176,9 +176,9 @@ class Auction {
             const guild = this.client.guilds.cache.get(this.guildID)
             const channel = guild.channels.cache.get(this.channelId)
             if (channel) {
-                const message = await channel.messages.fetch(this.messageId).catch(e => null)
+                const message = await channel.messages.fetch(this.messageId).catch(() => null)
                 if (message) {
-                    message.delete().catch(e => null)
+                    message.delete().catch(() => null)
                 }
             }
             this.delete()

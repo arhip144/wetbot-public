@@ -7,38 +7,38 @@ client.on(Events.GuildMemberAdd, async (member) => {
 	if (giveaways.size) {
 		giveaways.forEach(async giveaway => {
 			const profile = await client.functions.fetchProfile(client, giveaway.creator, guild.id)
-			const channel = await guild.channels.fetch(giveaway.channelId).catch(e => null)
+			const channel = await guild.channels.fetch(giveaway.channelId).catch(() => null)
 			if (!channel) {
 				if (giveaway.type === "user") {
 					for (const element of giveaway.rewards) {
 						if (element.type === RewardType.Currency) {
-							profile.currency = element.amount
+							profile.currency += element.amount
 						}
 						else if (element.type === RewardType.Item) {
 							const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-							if (item) await profile.addItem(element.id, element.amount)
+							if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
 						} else if (element.type === RewardType.Role) {
 							const role = guild.roles.cache.get(element.id)
-							if (role) profile.addRole(element.id, element.amount, element.ms)
+							if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
 						}
 					}
 					await profile.save()
 				}
 				return giveaway.delete()
 			}
-			const giveawayMessage = await channel.messages.fetch({ message: giveaway.messageId, cache: false, force: true }).catch(e => null)
+			const giveawayMessage = await channel.messages.fetch({ message: giveaway.messageId, cache: false, force: true }).catch(() => null)
 			if (!giveawayMessage) {
 				if (giveaway.type === "user") {
 					for (const element of giveaway.rewards) {
 						if (element.type === RewardType.Currency) {
-							profile.currency = element.amount
+							profile.currency += element.amount
 						}
 						else if (element.type === RewardType.Item) {
 							const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-							if (item) await profile.addItem(element.id, element.amount)
+							if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
 						} else if (element.type === RewardType.Role) {
 							const role = guild.roles.cache.get(element.id)
-							if (role) profile.addRole(element.id, element.amount, element.ms)
+							if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
 						}
 					}
 					await profile.save()
@@ -49,14 +49,14 @@ client.on(Events.GuildMemberAdd, async (member) => {
 				if (giveaway.type === "user") {
 					for (const element of giveaway.rewards) {
 						if (element.type === RewardType.Currency) {
-							profile.currency = element.amount
+							profile.currency += element.amount
 						}
 						else if (element.type === RewardType.Item) {
 							const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-							if (item) await profile.addItem(element.id, element.amount)
+							if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
 						} else if (element.type === RewardType.Role) {
 							const role = guild.roles.cache.get(element.id)
-							if (role) profile.addRole(element.id, element.amount, element.ms)
+							if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
 						}
 					}
 					await profile.save()
@@ -68,14 +68,14 @@ client.on(Events.GuildMemberAdd, async (member) => {
 				if (giveaway.type === "user") {
 					for (const element of giveaway.rewards) {
 						if (element.type === RewardType.Currency) {
-							profile.currency = element.amount
+							profile.currency += element.amount
 						}
 						else if (element.type === RewardType.Item) {
 							const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-							if (item) await profile.addItem(element.id, element.amount)
+							if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
 						} else if (element.type === RewardType.Role) {
 							const role = guild.roles.cache.get(element.id)
-							if (role) profile.addRole(element.id, element.amount, element.ms)
+							if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
 						}
 					}
 					await profile.save()
@@ -86,14 +86,14 @@ client.on(Events.GuildMemberAdd, async (member) => {
 			if (!object.winners.length && giveaway.type === "user") {
 				for (const element of giveaway.rewards) {
 					if (element.type === RewardType.Currency) {
-						profile.currency = element.amount
+						profile.currency += element.amount
 					}
 					else if (element.type === RewardType.Item) {
 						const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-						if (item) await profile.addItem(element.id, element.amount)
+						if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
 					} else if (element.type === RewardType.Role) {
 						const role = guild.roles.cache.get(element.id)
-						if (role) profile.addRole(element.id, element.amount, element.ms)
+						if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
 					}
 					await profile.save()
 				}
@@ -146,24 +146,25 @@ client.on(Events.GuildMemberAdd, async (member) => {
 	const profile = client.cache.profiles.get(guild.id+member.user.id)
 	if (profile) {
 		profile.deleteFromDB = undefined
-		await profile.save()	
+		profile.clearDeleteFromDbTimeout()
+		await profile.save()
 	}
 	if (settings) {
-		if (settings.roles?.rolesToNewMember?.length) await member.roles.add(settings.roles.rolesToNewMember).catch(e => null)
+		if (settings.roles?.rolesToNewMember?.length) await member.roles.add(settings.roles.rolesToNewMember).catch(() => null)
 		if (profile) {
 			if (settings.levelsRoles.length > 0) {
 				const rolesAdd = settings.levelsRoles.filter(e => profile.level >= e.levelFrom && (!e.levelTo || e.levelTo > profile.level) && !member.roles.cache.has(e.roleId))
 				for (const role of rolesAdd) {
-					const guild_role = await member.guild.roles.fetch(role.roleId).catch(e => null)
+					const guild_role = await member.guild.roles.fetch(role.roleId).catch(() => null)
 					if (guild_role && member.guild.members.me.roles.highest.position > guild_role.position) {
-						await member.roles.add(role.roleId).catch(e => null)
+						await member.roles.add(role.roleId).catch(() => null)
 					}
 				}
 				const rolesRemove = settings.levelsRoles.filter(e => (e.levelTo <= profile.level || e.levelFrom > profile.level) && member.roles.cache.has(e.roleId))
 				for (const role of rolesRemove) {
-					const guild_role = await member.guild.roles.fetch(role.roleId).catch(e => null)
+					const guild_role = await member.guild.roles.fetch(role.roleId).catch(() => null)
 					if (guild_role && member.guild.members.me.roles.highest.position > guild_role.position) {
-						await member.roles.remove(role.roleId).catch(e => null)
+						await member.roles.remove(role.roleId).catch(() => null)
 					}
 				}
 			}

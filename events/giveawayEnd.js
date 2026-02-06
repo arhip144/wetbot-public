@@ -5,39 +5,39 @@ client.on('giveawayEnd', async (giveaway) => {
     const guild = client.guilds.cache.get(giveaway.guildID)
     if (!guild) return giveaway.delete()
     if (client.blacklist(guild.id, "full_ban", "guilds")) return giveaway.delete()
-    const channel = await guild.channels.fetch(giveaway.channelId).catch(e => null)
+    const channel = await guild.channels.fetch(giveaway.channelId).catch(() => null)
     const profile = await client.functions.fetchProfile(client, giveaway.creator, guild.id)
     if (!channel) {
         if (giveaway.type === "user") {
             for (const element of giveaway.rewards) {
                 if (element.type === RewardType.Currency) {
-                    profile.currency = element.amount
+                    profile.currency += element.amount
                 }
                 else if (element.type === RewardType.Item) {
                     const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-                    if (item) await profile.addItem(element.id, element.amount)
+                    if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
                 } else if (element.type === RewardType.Role) {
                     const role = guild.roles.cache.get(element.id)
-                    if (role) profile.addRole(element.id, element.amount, element.ms)
+                    if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
                 }
             }
             await profile.save()
         }
         return giveaway.delete()
     }
-    const giveawayMessage = await channel.messages.fetch({ message: giveaway.messageId, cache: false, force: true }).catch(e => null)
+    const giveawayMessage = await channel.messages.fetch({ message: giveaway.messageId, cache: false, force: true }).catch(() => null)
     if (!giveawayMessage) {
         if (giveaway.type === "user") {
             for (const element of giveaway.rewards) {
                 if (element.type === RewardType.Currency) {
-                    profile.currency = element.amount
+                    profile.currency += element.amount
                 }
                 else if (element.type === RewardType.Item) {
                     const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-                    if (item) await profile.addItem(element.id, element.amount)
+                    if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
                 } else if (element.type === RewardType.Role) {
                     const role = guild.roles.cache.get(element.id)
-                    if (role) profile.addRole(element.id, element.amount, element.ms)
+                    if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
                 }
             }
             await profile.save()
@@ -48,14 +48,14 @@ client.on('giveawayEnd', async (giveaway) => {
         if (giveaway.type === "user") {
             for (const element of giveaway.rewards) {
                 if (element.type === RewardType.Currency) {
-                    profile.currency = element.amount
+                    profile.currency += element.amount
                 }
                 else if (element.type === RewardType.Item) {
                     const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-                    if (item) await profile.addItem(element.id, element.amount)
+                    if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
                 } else if (element.type === RewardType.Role) {
                     const role = guild.roles.cache.get(element.id)
-                    if (role) profile.addRole(element.id, element.amount, element.ms)
+                    if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
                 }
             }
             await profile.save()
@@ -67,14 +67,14 @@ client.on('giveawayEnd', async (giveaway) => {
         if (giveaway.type === "user") {
             for (const element of giveaway.rewards) {
                 if (element.type === RewardType.Currency) {
-                    profile.currency = element.amount
+                    profile.currency += element.amount
                 }
                 else if (element.type === RewardType.Item) {
                     const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-                    if (item) await profile.addItem(element.id, element.amount)
+                    if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
                 } else if (element.type === RewardType.Role) {
                     const role = guild.roles.cache.get(element.id)
-                    if (role) profile.addRole(element.id, element.amount, element.ms)
+                    if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
                 }
             }
             await profile.save()
@@ -85,14 +85,14 @@ client.on('giveawayEnd', async (giveaway) => {
     if (!object.winners.length && giveaway.type === "user") {
         for (const element of giveaway.rewards) {
             if (element.type === RewardType.Currency) {
-                profile.currency = element.amount
+                profile.currency += element.amount
             }
             else if (element.type === RewardType.Item) {
                 const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-                if (item) await profile.addItem(element.id, element.amount)
+                if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
             } else if (element.type === RewardType.Role) {
                 const role = guild.roles.cache.get(element.id)
-                if (role) profile.addRole(element.id, element.amount, element.ms)
+                if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
             }
             await profile.save()
         }

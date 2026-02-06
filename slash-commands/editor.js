@@ -117,7 +117,7 @@ module.exports = {
                 if (interaction.values[0] === "invite") {
                     const invite = await client.shard.broadcastEval(async (c, { guildID }) => {
                         const guild = await c.guilds.cache.get(guildID)
-                        let invite = await guild.invites.fetch().then(invites => invites.first()).catch(e => null)
+                        let invite = await guild.invites.fetch().then(invites => invites.first()).catch(() => null)
                         if (!invite) invite = await guild.invites.create(guild.channels.cache.find(channel => channel.permissionsFor(guild.members.me).has("CreateInstantInvite")), { maxAge: 60 })
                         return invite
                     }, { shard: shardNum, context: { guildID: guildID } })
@@ -146,8 +146,8 @@ module.exports = {
                             .setLabel(`${client.language({ textId: `НЕТ`, guildId: interaction.guildId, locale: interaction.locale })}`)
                             .setStyle(ButtonStyle.Danger))
                     ] })    
-                    const filter = (i) => (i.customId === `kick confirm` || i.customId === `kick decline`) && i.user.id === interaction.user.id
-                    interaction = await interaction.channel.awaitMessageComponent({ filter, time: 20000 }).catch(e => null)
+                    const filter = (i) => (i.customId === `kick confirm` || i.customId === `kick decline`) && i.user.id === interaction.user.id;
+                    interaction = await interaction.channel.awaitMessageComponent({ filter, time: 20000 }).catch(() => null)
                     if (!interaction) return
                     if (interaction && interaction.customId !== "kick decline") {
                         await client.shard.broadcastEval(async (c, { guildID }) => {
@@ -280,7 +280,7 @@ module.exports = {
         }
         if (subcommand === "user") {
             const userID = interaction.isChatInputCommand() ? args.user_id : UserRegexp.exec(interaction.customId)?.[1]
-            const user = await client.users.fetch(userID, { force: true, cache: false }).catch(e => null)
+            const user = await client.users.fetch(userID, { force: true, cache: false }).catch(() => null)
             if (!user) return interaction.reply({ content: `Пользователя не существует (**${userID}**)`, flags: ["Ephemeral"] })
             const globalProfile = await client.functions.fetchGlobalProfile(client, userID)
             if (interaction.isStringSelectMenu()) {
@@ -302,7 +302,7 @@ module.exports = {
                         const guildName = await client.shard.broadcastEval(async (c, { guildID, userID }) => {
                             const guild = await c.guilds.cache.get(guildID)
                             if (guild) {
-                                const member = await guild.members.fetch(userID).catch(e => null)
+                                const member = await guild.members.fetch(userID).catch(() => null)
                                 if (member) return guild.name  
                                 else return false
                             } else return false

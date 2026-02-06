@@ -193,7 +193,7 @@ module.exports = {
                                     new TextInputBuilder()
                                         .setCustomId("amount")
                                         .setRequired(true)
-                                        .setMaxLength(4)
+                                        .setMaxLength(6)
                                         .setStyle(TextInputStyle.Short)
                                 )
                         ])
@@ -371,25 +371,25 @@ module.exports = {
                         const openedItemServer = client.cache.items.find(element => element.itemID === itemID && !element.temp && element.enabled)
                         array.push(`${openedItemServer.displayEmoji}**${openedItemServer.name}** (${object_items[itemID].amount.toLocaleString()})`)
                         client.emit("economyLogCreate", interaction.guildId, `${client.language({ textId: "Изменение инвентаря", guildId: interaction.guildId })} (${openedItemServer.displayEmoji}**${openedItemServer.name}**) (${object_items[itemID].amount})) ${client.language({ textId: "для", guildId: interaction.guildId })} <@${interaction.guildId}>`)
-                        await profile.addItem(itemID, object_items[itemID].amount)
+                        await profile.addItem({ itemID, amount: object_items[itemID].amount })
                     }
                     profile.itemsOpened = new Decimal(profile.itemsOpened).plus(openAmount)
                     if (rewards.xp) {
                         array.push(`${client.config.emojis.XP}**${client.language({ textId: `Опыт`, guildId: interaction.guildId, locale: interaction.locale })}** (${rewards.xp.toLocaleString()})`)
-                        await profile.addXp(rewards.xp)
+                        await profile.addXp({ amount: rewards.xp })
                     }
                     if (rewards.currency) {
                         array.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${rewards.currency.toLocaleString()})`)
-                        await profile.addCurrency(rewards.currency)
+                        await profile.addCurrency({ amount: rewards.currency })
                     }
                     if (rewards.rp) {
                         array.push(`${client.config.emojis.RP}**${client.language({ textId: `Репутация`, guildId: interaction.guildId, locale: interaction.locale })}** (${rewards.rp.toLocaleString()})`)
-                        await profile.addRp(rewards.rp)
+                        await profile.addRp({ amount: rewards.rp })
                     }
                     if (rewards.roles.size) {
                         rewards.roles.forEach((role) => {
                             array.push(`<@&${role.id}>${role.ms ? ` [${client.functions.transformSecs(client, role.ms, interaction.guildId, interaction.locale)}]` : ``} (${role.amount.toLocaleString()})`)
-                            profile.addRole(role.id, role.amount, role.ms)
+                            profile.addRole({ id: role.id, amount: role.amount, ms: role.ms })
                         })
                     }
                     if (Object.keys(object_items).length > 0) {
@@ -407,24 +407,24 @@ module.exports = {
                             }    
                         }))
                     }
-                    await profile.subtractItem(serverItem.itemID, openAmount)
+                    await profile.subtractItem({ itemID: serverItem.itemID, amount: openAmount })
                     if (serverItem.openByItem?.itemID) {
                         switch (serverItem.openByItem.itemID) {
                             case "currency":
-                                await profile.subtractCurrency(serverItem.openByItem.amount * openAmount)
+                                await profile.subtractCurrency({ amount: serverItem.openByItem.amount * openAmount })
                                 break
                             case "xp":
-                                await profile.subtractXp(serverItem.openByItem.amount * openAmount)
+                                await profile.subtractXp({ amount: serverItem.openByItem.amount * openAmount })
                                 break
                             case "rp":
-                                await profile.subtractRp(serverItem.openByItem.amount * openAmount)
+                                await profile.subtractRp({ amount: serverItem.openByItem.amount * openAmount })
                                 break
                             default: 
-                                await profile.subtractItem(serverItem.openByItem.itemID, serverItem.openByItem.amount * openAmount)
+                                await profile.subtractItem({ itemID: serverItem.openByItem.itemID, amount: serverItem.openByItem.amount * openAmount })
                                 break
                         }    
                     }
-                    await profile.addQuestProgression("itemsOpened", openAmount, serverItem.itemID)
+                    await profile.addQuestProgression({ type: "itemsOpened", amount: openAmount, object: serverItem.itemID })
                     const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.ItemsOpened)
                     await Promise.all(achievements.map(async achievement => {
                         if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.itemsOpened >= achievement.amount && !client.tempAchievements[interaction.user.id]?.includes(achievement.id)) { 
@@ -435,7 +435,7 @@ module.exports = {
                     }))
                     if (achievements_to_give.length) {
                         for (const achievementID of achievements_to_give) {
-                            await profile.addAchievement(achievementID)
+                            await profile.addAchievement({ achievement: achievementID })
                         }
                     }
                     client.emit("economyLogCreate", interaction.guildId, `<@${interaction.user.id}> (${interaction.user.username}) ${client.language({ textId: "открыл", guildId: interaction.guildId })} ${serverItem.displayEmoji}**${serverItem.name}** (${serverItem.itemID}) (${openAmount}) (${interaction.message.url})`)
@@ -579,7 +579,7 @@ module.exports = {
                                 itemsForOpenDescription.length ? `${client.language({ textId: `Для открытия требуется`, guildId: interaction.guildId, locale: interaction.locale })}: ${itemsForOpenDescription.join(", ")}` : undefined,
                                 bonus < 1 ? `${client.config.emojis.random}${client.language({ textId: `Удача`, guildId: interaction.guildId, locale: interaction.locale })} ${bonus.mul(100).minus(100)}%` : bonus > 1 && !profile.settings_open_disallow_luck ? `${client.config.emojis.random}${client.language({ textId: `Удача`, guildId: interaction.guildId, locale: interaction.locale })} ${bonus.mul(100).minus(100)}%` : undefined,
                                 `${serverItem.displayEmoji}**${serverItem.name}**: ${Math.floor(item.amount).toLocaleString()}${serverItem.openByItem?.itemID ? `\n${key_emoji}**${key_name}**: ${key_inventory_amount}` : ""}`
-                            ].filter(e => e).join("\n"))
+                            ].filter(Boolean).join("\n"))
                     ])
                     .setThumbnailAccessory(ThumbnailBuilder => ThumbnailBuilder.setURL(serverItem.image || emojiURL || "https://www.meme-arsenal.com/memes/15ef8d1ccbb4514e0a758c61e1623b2f.jpg"))
             ])

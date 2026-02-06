@@ -16,15 +16,15 @@ module.exports = async function (manager) {
     await mongoose.connect(process.env.mongoDB_SRV, {
         useNewUrlParser: true, 
         useUnifiedTopology: true,
-    })
-    Cron('00 00 * * * *', { timezone: "Atlantic/Azores" }, async () => {
+    });
+    Cron('00 00 * * * *', { timezone: "UTC" }, async () => {
         //HOURLY
          await commandsUsesSchema.updateMany({}, [{ $set: {
             lastHourUses: "$hourly.uses",
              "hourly.uses": 0,
          }}])
-    })
-    Cron('00 25 00 * * *', { timezone: "Atlantic/Azores" }, async () => {
+    });
+    Cron('00 25 00 * * *', { timezone: "UTC" }, async () => {
         //DAILY
         await commandsUsesSchema.updateMany({}, [{ $set: {
             lastDayUses: "$daily.uses",
@@ -56,6 +56,7 @@ module.exports = async function (manager) {
                 if (guild) {
                     const settings = c.cache.settings.get(guildID)
                     settings.deleteFromDB = undefined
+                    settings.clearDeleteFromDbTimeout()
                     await settings.save()
                     return true
                 }
@@ -111,18 +112,14 @@ module.exports = async function (manager) {
         const users = await profileSchema.find({ deleteFromDB: { $lte: new Date() } })
         for (const user of users) {
             await manager.broadcastEval(async (c, { guildID, userID }) => {
-                const profile = c.cache.profiles.get(guildID + userID)
-                if (!profile) return
                 const guild = c.guilds.cache.get(guildID)
-                if (!guild) return await profile.delete()
-                const member = await guild.members.fetch(userID).catch(e => null)
-                if (!member) return await profile.delete()
-                profile.deleteFromDB = undefined 
-                await profile.save()   
+                if (!guild) return await c.profileSchema.deleteOne({ userID, guildID })
+                const profile = c.cache.profiles.get(guildID + userID)
+                if (!profile) return await c.profileSchema.deleteOne({ userID, guildID }) 
             }, { shard: ShardClientUtil.shardIdForGuildId(user.guildID, manager.totalShards), context: { guildID: user.guildID, userID: user.userID }})	    
         }
     })
-    Cron('00 30 00 * * Mon', { timezone: "Atlantic/Azores" }, async () => {
+    Cron('00 30 00 * * Mon', { timezone: "UTC" }, async () => {
         //WEEKLY
         await commandsUsesSchema.updateMany({}, [{ $set: {
             lastWeekUses: "$weekly.uses",
@@ -144,8 +141,8 @@ module.exports = async function (manager) {
                 await item.save()
             }))
 		})
-    })
-    Cron('00 35 00 1 * *', { timezone: "Atlantic/Azores" }, async () => {
+    });
+    Cron('00 35 00 1 * *', { timezone: "UTC" }, async () => {
         //MONTHLY
         await commandsUsesSchema.updateMany({}, [{ $set: {
             lastMonthUses: "$monthly.uses",
@@ -167,8 +164,8 @@ module.exports = async function (manager) {
                 await item.save()
             }))
 		})
-    })
-    Cron('00 40 00 1 1 *', { timezone: "Atlantic/Azores" }, async () => {
+    });
+    Cron('00 40 00 1 1 *', { timezone: "UTC" }, async () => {
         //YEARLY
         await manager.broadcastEval(async (c) => {
 			await Promise.all(c.cache.profiles.filter(profile => profile.stats && profile.stats.yearly).map(async profile => {

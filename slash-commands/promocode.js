@@ -80,9 +80,9 @@ module.exports = {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.promocodesUsed >= achievement.amount && !client.tempAchievements[interaction.user.id]?.includes(achievement.id)) {
                 if (!client.tempAchievements[interaction.user.id]) client.tempAchievements[interaction.user.id] = []
                 client.tempAchievements[interaction.user.id].push(achievement.id)
-                await profile.addAchievement(achievement, true)
+                await profile.addAchievement({ achievement, save: true })
             }    
         }))
-        await profile.addQuestProgression("UsedPromocode", 1, promocode.code, true)
+        await profile.addQuestProgression({ type: "UsedPromocode", amount: 1, object: promocode.code, save: true })
     }
 }

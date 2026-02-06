@@ -13,19 +13,21 @@ client.on(Events.GuildMemberRemove, async (member) => {
 		removedProfile.marry = undefined
 	}
 	removedProfile.deleteFromDB = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+	removedProfile.clearDeleteFromDbTimeout()
+	removedProfile.setDeleteFromDbTimeout()
 	await removedProfile.save()
-	const memberInviter = removedProfile.inviterInfo?.userID ? await member.guild.members.fetch(removedProfile.inviterInfo.userID).catch(e => null) : null 
-	if (!memberInviter || memberInviter.user.bot) return
+	const memberInviter = removedProfile.inviterInfo?.userID ? await member.guild.members.fetch(removedProfile.inviterInfo.userID).catch(() => null) : null 
+	if (!memberInviter || memberInviter.user.bot) return;
 	await client.customRoleSchema.deleteMany({ userID: member.user.id })
 	const profile = await client.functions.fetchProfile(client, removedProfile.inviterInfo.userID, removedProfile.guildID)
 	const rewards = [`${client.config.emojis.invite}**${client.language({ textId: "Приглашение", guildId: member.guild.id })}** (1)`]
 	for (const item of removedProfile.inviterInfo.items) {
 		if (item.itemID == "currency") {
-			profile.currency = item.amount*-1
+			profile.currency -= item.amount
 			rewards.push(`${settings.displayCurrencyEmoji}**${settings.currencyName}** (${item.amount})`)
 		}
 		if (item.itemID == "xp") {
-			await profile.subtractXp(item.amount)
+			await profile.subtractXp({ amount: item.amount })
 			rewards.push(`${client.config.emojis.XP}**${client.language({ textId: "Опыт", guildId: member.guild.id })}** (${item.amount})`)
 		}
 		if (item.itemID == "rp") {
@@ -39,13 +41,13 @@ client.on(Events.GuildMemberRemove, async (member) => {
 			if (serverItem) {
 				const userItem = profile.inventory.find((e) => { return e.itemID == serverItem.itemID && e.amount > 0 })
 				if (userItem) {
-					await profile.subtractItem(serverItem.itemID, userItem.amount < item.amount ? userItem.amount : item.amount)
+					await profile.subtractItem({ itemID: serverItem.itemID, amount: userItem.amount < item.amount ? userItem.amount : item.amount })
 					rewards.push(`${serverItem.displayEmoji}**${serverItem.name}** (${item.amount})`)
 				}	
 			}
 		}
 	}
-	profile.invites = -1
+	profile.invites -= 1
 	await profile.save()
 	removedProfile.inviterInfo = undefined
 	await removedProfile.save()
@@ -67,6 +69,6 @@ client.on(Events.GuildMemberRemove, async (member) => {
 					.setThumbnail(member.user.avatarURL())
 			],
 			enforceNonce: true, nonce: nonce,
-		}).catch(e => null)
+		}).catch(() => null)
 	}
 })

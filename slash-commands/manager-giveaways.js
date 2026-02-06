@@ -177,8 +177,8 @@ module.exports = {
 		                    ],
 		                    flags: ["Ephemeral"]
 		                })    
-		                const filter = (i) => i.customId.includes(`manager-giveaways_settings_giveawaysChannelId`) && i.user.id === interaction.user.id
-		                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+		                const filter = (i) => i.customId.includes(`manager-giveaways_settings_giveawaysChannelId`) && i.user.id === interaction.user.id;
+		                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 		                if (interaction2) {
 		                    if (interaction2.customId === "manager-giveaways_settings_giveawaysChannelId_select") {
 		                    	const channel = interaction2.channels.first()
@@ -231,8 +231,8 @@ module.exports = {
 		                    ],
 		                    flags: ["Ephemeral"]
 		                })    
-		                const filter = (i) => i.customId.includes(`manager-giveaways_settings_giveawaysMeetingRoom`) && i.user.id === interaction.user.id
-		                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+		                const filter = (i) => i.customId.includes(`manager-giveaways_settings_giveawaysMeetingRoom`) && i.user.id === interaction.user.id;
+		                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 		                if (interaction2) {
 		                    if (interaction2.customId === "manager-giveaways_settings_giveawaysMeetingRoom_select") {
 		                    	const channel = interaction2.channels.first()
@@ -284,8 +284,8 @@ module.exports = {
 		                    ],
 		                    flags: ["Ephemeral"]
 		                })    
-		                const filter = (i) => i.customId.includes(`manager-giveaways_settings_giveawaysNotification`) && i.user.id === interaction.user.id
-		                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+		                const filter = (i) => i.customId.includes(`manager-giveaways_settings_giveawaysNotification`) && i.user.id === interaction.user.id;
+		                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 		                if (interaction2) {
 		                    if (interaction2.customId === "manager-giveaways_settings_giveawaysNotification_select") {
 		                    	const role = interaction2.roles.first()
@@ -414,7 +414,7 @@ module.exports = {
 	                else index = +IndexRegexp.exec(interaction.customId)[1]
 	            }
 	        	if (interaction.customId.includes(`delete`)) {
-	                interaction.guild.channels.fetch(giveaways[index].channelId).then(channel => channel.messages.fetch({ message: giveaways[index].messageId, cache: false, force: true }).then(message => message.delete())).catch(e => null)
+	                interaction.guild.channels.fetch(giveaways[index].channelId).then(channel => channel.messages.fetch({ message: giveaways[index].messageId, cache: false, force: true }).then(message => message.delete())).catch(() => null)
 	                const giveaway = client.cache.giveaways.get(GiveawayRegexp.exec(interaction.customId)[1])
 	                if (!giveaway) {
 	                	return interaction.update({ content: `${client.config.emojis.NO} ${client.language({ textId: `Этой раздачи больше не существует`, guildId: interaction.guildId, locale: interaction.locale })}` })
@@ -520,7 +520,7 @@ module.exports = {
 	                                return `<@&${e.id}>${e.ms ? ` [${client.functions.transformSecs(client, e.ms, interaction.guildId, interaction.locale)}]` : ``} (${e.amount})`
 	                            }
 	    				})).then(array => array.join(", "))}`,
-					].filter(e => e).join("\n"))
+					].filter(Boolean).join("\n"))
 					.setThumbnail(giveaway.thumbnail || null)
 					.setFooter({ text: `ID: ${giveaway.giveawayID}` })
 				return interaction.update({ embeds: [embed], components: [new ActionRowBuilder().addComponents(array_btn), new ActionRowBuilder().addComponents(back_btn, endGiveaway_btn, deleteGiveaway_btn)] })
@@ -695,8 +695,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })    
-                const filter = (i) => i.customId.includes(`manager-giveaways_channels`) && i.user.id === interaction.user.id
-                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`manager-giveaways_channels`) && i.user.id === interaction.user.id;
+                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                 if (interaction2) {
                     if (interaction2.customId === "manager-giveaways_channels_select") {
                         giveaway.channelId = interaction2.channels.first().id
@@ -784,7 +784,7 @@ module.exports = {
 	                                    .setCustomId("manager-giveaways_add_reward_other")
 	                                    .setLabel(client.language({ textId: `Другое`, guildId: interaction.guildId, locale: interaction.locale }))
 	                                    .setStyle(ButtonStyle.Secondary)
-                               	].filter(e => e)
+                               	].filter(Boolean)
                             ),
 							new ActionRowBuilder()
                             .addComponents(
@@ -804,8 +804,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })
-                const filter = (i) => i.customId.includes(`manager-giveaways_add_reward`) && i.user.id === interaction.user.id
-                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`manager-giveaways_add_reward`) && i.user.id === interaction.user.id;
+                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                 if (interaction2 && interaction2.customId.includes("manager-giveaways_add_reward")) {
                 	let type
                     let itemID
@@ -1056,8 +1056,8 @@ module.exports = {
 							],
 							flags: ["Ephemeral"]
 						})    
-						const filter = (i) => i.customId.includes(`addRole`) && i.user.id === interaction.user.id
-						interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+						const filter = (i) => i.customId.includes(`addRole`) && i.user.id === interaction.user.id;
+						interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 						if (interaction2 && interaction2.customId.includes("addRole")) {
 							if (interaction2.customId === "addRole") {
 								const role = interaction2.roles.first()
@@ -1106,8 +1106,8 @@ module.exports = {
 											],
 											flags: ["Ephemeral"]
 										})    
-										const filter = (i) => i.customId.includes(`addInventoryRole`) && i.user.id === interaction.user.id
-										interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+										const filter = (i) => i.customId.includes(`addInventoryRole`) && i.user.id === interaction.user.id;
+										interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 										if (interaction2 && interaction2.customId.includes("addInventoryRole")) {
 											roleInventory = profile.inventoryRoles.find(e => e.uniqId === interaction2.values[0])
 										}	
@@ -1203,7 +1203,7 @@ module.exports = {
             		return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `На этом сервере не настроен канал для решения принятия раздач`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             	}
             	if (giveaway.type === "user" && settings.channels.giveawaysMeetingRoom) {
-            		const channel = await interaction.guild.channels.fetch(settings.channels.giveawaysMeetingRoom).catch(e => null)
+            		const channel = await interaction.guild.channels.fetch(settings.channels.giveawaysMeetingRoom).catch(() => null)
             		if (!channel) {
             			return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Канал принятия раздач не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             		}
@@ -1211,7 +1211,7 @@ module.exports = {
             			return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня отсутствуют права отправки сообщения в канал принятия раздач`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
             		}
             	}
-            	const channel = await interaction.guild.channels.fetch(giveaway.channelId).catch(e => null)
+            	const channel = await interaction.guild.channels.fetch(giveaway.channelId).catch(() => null)
             	if (!channel) {
         			return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Канал для раздачи не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         		}
@@ -1286,11 +1286,11 @@ module.exports = {
 						}
 	                }
 	                if (!canGiveaway) return
-					if (subtract.currency) profile.currency = subtract.currency*-1
-					await Promise.all(Object.keys(subtract.items).map(async itemID => await profile.subtractItem(itemID, subtract.items[itemID])))
+					if (subtract.currency) profile.currency -= subtract.currency
+					await Promise.all(Object.keys(subtract.items).map(async itemID => await profile.subtractItem({ itemID, amount: subtract.items[itemID] })))
 					Object.keys(subtract.roles).map(async key => {
 						const roleInventory = profile.inventoryRoles?.find(e => { return e.uniqId === key })
-						profile.subtractRole(roleInventory.id, subtract.roles[key], roleInventory.ms)
+						profile.subtractRole({ id: roleInventory.id, amount: subtract.roles[key], ms: roleInventory.ms })
 					})
 					await profile.save()
                 }
@@ -1345,8 +1345,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })
-                const filter = (i) => i.customId.includes(`manager-giveaways_add_endsType`) && i.user.id === interaction.user.id
-                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`manager-giveaways_add_endsType`) && i.user.id === interaction.user.id;
+                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
                 if (interaction2 && interaction2.customId.includes("manager-giveaways_add_endsType")) {
 					if (interaction2.customId.includes("cancel")) {
 						interaction2.update({ content: `${client.config.emojis.YES} ${client.language({ textId: `Выбор отменён`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [] })
@@ -1421,7 +1421,7 @@ module.exports = {
 								return `<@&${e.id}>${e.ms ? ` [${client.functions.transformSecs(client, e.ms, interaction.guildId, interaction.locale)}]` : ``} (${e.amount})`
 							}
     				})).then(array => array.join(", ")) : `${client.language({ textId: `Добавь награду`, guildId: interaction.guildId })}`}`,
-				].filter(e => e).join("\n"))
+				].filter(Boolean).join("\n"))
 				.setThumbnail(giveaway.thumbnail || null)
 				.setFooter({ text: `ID: ${giveaway.giveawayID}` })
 			if (interaction.customId.includes("finish")) {
@@ -1468,13 +1468,13 @@ module.exports = {
 					if (giveaway.endsTime) giveaway.setTimeoutEnd(client)
 					giveaway.clearTimeoutDelete()
                     const profile = await client.functions.fetchProfile(client, interaction.user.id, interaction.guildId)
-                    profile.giveawaysCreated = 1
+                    profile.giveawaysCreated += 1
                     const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Giveaway)
 					await Promise.all(achievements.map(async achievement => {
 						if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.giveawaysCreated >= achievement.amount && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                             if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                             client.tempAchievements[profile.userID].push(achievement.id)
-							await profile.addAchievement(achievement)
+							await profile.addAchievement({ achievement })
                         } 	
 					}))
 					await profile.save()

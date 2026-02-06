@@ -358,7 +358,7 @@ module.exports = {
                                         }
                                     })).then(array => array.join("\n")),
                                     lot.lifeTime ? `${client.language({ textId: "Срок истечения хранения", guildId: interaction.guildId })}: <t:${Math.floor(lot.lifeTime/1000)}:f>` : undefined
-                                ].filter(e => e).join("\n"))
+                                ].filter(Boolean).join("\n"))
                                 .setThumbnail(item.image || await item.getEmojiURL())
                                 .setColor(Colors.White)
                             const message = await channel.send({
@@ -416,7 +416,7 @@ module.exports = {
                         if (lot.item.amount > (roleInventory?.amount || 0)) {
                             return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: "В инвентаре", guildId: interaction.guildId, locale: interaction.locale })} <@&${role.id}> (${roleInventory?.amount || 0})**`, flags: ["Ephemeral"] })
                         }
-                        profile.subtractRole(role.id, lot.item.amount, roleInventory.ms)
+                        profile.subtractRole({ id: role.id, amount: lot.item.amount, ms: roleInventory.ms })
                         await profile.save()
                         lot.enable = true
                         lot.item.id = role.id
@@ -444,7 +444,7 @@ module.exports = {
                                         }
                                     })).then(array => array.join("\n")),
                                     lot.lifeTime ? `${client.language({ textId: "Срок истечения хранения", guildId: interaction.guildId })}: <t:${Math.floor(lot.lifeTime/1000)}:f>` : undefined
-                                ].filter(e => e).join("\n"))
+                                ].filter(Boolean).join("\n"))
                                 .setColor(Colors.White)
                             const message = await channel.send({
                                 embeds: [embed],
@@ -658,7 +658,7 @@ module.exports = {
                         name: `${client.language({ textId: "Полный список предметов", guildId: interaction.guildId, locale: interaction.locale })}`,
                         value: `</items:1150455842076905504>`
                     }
-                ].filter(e => e))
+                ].filter(Boolean))
                 .setFooter({ text: `ID: ${lot.lotID}` })
                 .setColor(3093046)
             const create_btn = new ButtonBuilder()
@@ -913,7 +913,7 @@ module.exports = {
                             value: lot.lotID
                         }    
                     }
-                }).filter(e => e))))
+                }).filter(Boolean))))
             }
             if (lots.filter(e => e.userID === interaction.user.id).length || (interaction.member.permissions.has("Administrator") && lots.length)) {
                 components.push(new ActionRowBuilder().addComponents(new StringSelectMenuBuilder().setCustomId(`cmd{market}lim{${max}}view delete`).setPlaceholder(`${client.language({ textId: "Удалить лот", guildId: interaction.guildId, locale: interaction.locale })}`).addOptions(lots.map((lot, index) => {
@@ -934,7 +934,7 @@ module.exports = {
                             value: lot.lotID
                         }    
                     }
-                }).filter(e => e))))
+                }).filter(Boolean))))
             }
             if (interaction.deferred || interaction.replied) return interaction.editReply({ embeds: [embed], components: components }).catch(e => {
                 if (e.message.includes(`Invalid emoji`)) {

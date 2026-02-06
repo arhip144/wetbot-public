@@ -79,13 +79,14 @@ module.exports = async (client) => {
         console.timeEnd("Successfully loaded modules")
         client.cache.giveaways.filter(e => e.endsTime && e.status === "started").forEach(giveaway => giveaway.setTimeoutEnd())
         client.cache.giveaways.filter(e => e.deleteTemp && e.status !== "started").forEach(giveaway => giveaway.setTimeoutDelete())
-        await Promise.all(client.cache.wormholes.filter(e => e.isEnabled).map(async wormhole => {
+        Promise.a
+        await Promise.allSettled(client.cache.wormholes.filter(e => e.isEnabled).map(async wormhole => {
             wormhole.cronJobStart()
 		}))
-        await Promise.all(client.cache.promocodeAutogenerators.filter(e => e.isEnabled).map(async autogenerator => {
+        await Promise.allSettled(client.cache.promocodeAutogenerators.filter(e => e.isEnabled).map(async autogenerator => {
             autogenerator.cronJobStart()
 		}))
-        await Promise.all(client.cache.promocodes.filter(e => e.resetCronPattern).map(async promocode => {
+        await Promise.allSettled(client.cache.promocodes.filter(e => e.resetCronPattern).map(async promocode => {
             promocode.cronJobStart()
 		}))
         client.cache.promocodes.filter(e => e.deleteDate).forEach(promocode => promocode.setTimeoutDelete())

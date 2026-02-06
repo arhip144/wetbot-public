@@ -231,7 +231,6 @@ module.exports = {
     group: `managers`,
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
-        const settings = client.cache.settings.get(interaction.guildId)
         let permission
         if (args?.Subcommand === "enable-all") {
             if (!client.cache.permissions.some(e => e.guildID === interaction.guildId)) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `На сервере нет прав`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
@@ -319,7 +318,7 @@ module.exports = {
             if (!interaction.isChatInputCommand()) return interaction.update({ 
                 embeds: [
                     embed, 
-                    new EmbedBuilder().setColor(3093046).setDescription(`${client.config.emojis.plus}${client.language({ textId: `Создать право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions create:1150455842294988943>\n${client.config.emojis.edit}${client.language({ textId: `Изменить право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions edit:1150455842294988943>\n${client.config.emojis.copy}${client.language({ textId: `Скопировать право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions copy:1150455842294988943>\n${client.config.emojis.trash}${client.language({ textId: `Удалить право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions delete:1150455842294988943>`)
+                    new EmbedBuilder().setColor(3093046).setDescription(`<:PLUS:1012990107143385159>${client.language({ textId: `Создать право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions create:1150455842294988943>\n<:pen:1012990423171600404>${client.language({ textId: `Изменить право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions edit:1150455842294988943>\n<:activities:1005856343141384264>${client.language({ textId: `Скопировать право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions copy:1150455842294988943>\n<:block:1005859695619215370>${client.language({ textId: `Удалить право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions delete:1150455842294988943>`)
                 ],
                 components: [new ActionRowBuilder().setComponents(array_btn)],
                 flags: ["Ephemeral"]
@@ -327,7 +326,7 @@ module.exports = {
             else return interaction.reply({ 
                 embeds: [
                     embed, 
-                    new EmbedBuilder().setColor(3093046).setDescription(`${client.config.emojis.plus}${client.language({ textId: `Создать право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions create:1150455842294988943>\n${client.config.emojis.edit}${client.language({ textId: `Изменить право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions edit:1150455842294988943>\n${client.config.emojis.copy}${client.language({ textId: `Скопировать право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions copy:1150455842294988943>\n${client.config.emojis.trash}${client.language({ textId: `Удалить право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions delete:1150455842294988943>`)
+                    new EmbedBuilder().setColor(3093046).setDescription(`<:PLUS:1012990107143385159>${client.language({ textId: `Создать право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions create:1150455842294988943>\n<:pen:1012990423171600404>${client.language({ textId: `Изменить право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions edit:1150455842294988943>\n<:activities:1005856343141384264>${client.language({ textId: `Скопировать право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions copy:1150455842294988943>\n<:block:1005859695619215370>${client.language({ textId: `Удалить право`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-permissions delete:1150455842294988943>`)
                 ],
                 components: [new ActionRowBuilder().setComponents(array_btn)],
                 flags: ["Ephemeral"]
@@ -836,8 +835,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })    
-                const filter = (i) => i.customId.includes(`requirement`) && i.user.id === interaction.user.id
-                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`requirement`) && i.user.id === interaction.user.id;
+                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                 if (interaction2) {
                     if (interaction2.customId.includes("requirementSelect")) {
                         const value = interaction2.values[0]
@@ -875,7 +874,7 @@ module.exports = {
                                             ),
                                     ])
                                 await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id
+                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id;
                                 interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
                                 if (interaction2 && interaction2.type === InteractionType.ModalSubmit) {
                                     const modalArgs = {}
@@ -953,7 +952,7 @@ module.exports = {
                                             ),
                                     ])
                                 await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id
+                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id;
                                 interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
                                 if (interaction2 && interaction2.type === InteractionType.ModalSubmit) {
                                     const modalArgs = {}
@@ -997,7 +996,7 @@ module.exports = {
                                             ),
                                     ])
                                 await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id
+                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id;
                                 interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
                                 if (interaction2 && interaction2.type === InteractionType.ModalSubmit) {
                                     const modalArgs = {}
@@ -1041,7 +1040,7 @@ module.exports = {
                                             ),
                                     ])
                                 await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id
+                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id;
                                 interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
                                 if (interaction2 && interaction2.type === InteractionType.ModalSubmit) {
                                     const modalArgs = {}
@@ -1103,8 +1102,8 @@ module.exports = {
                                     ],
                                     flags: ["Ephemeral"]
                                 })    
-                                const filter = (i) => i.customId.includes(`requirementRoles`) && i.user.id === interaction2.user.id
-                                interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                                const filter = (i) => i.customId.includes(`requirementRoles`) && i.user.id === interaction2.user.id;
+                                interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                                 if (interaction2) {
                                     if (interaction2.customId === "requirementRolesSelect") {
                                         const value = interaction2.values[0]
@@ -1134,8 +1133,8 @@ module.exports = {
                                             ],
                                             flags: ["Ephemeral"]
                                         })    
-                                        const filter = (i) => i.customId.includes(`requirement2Roles`) && i.user.id === interaction2.user.id
-                                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                                        const filter = (i) => i.customId.includes(`requirement2Roles`) && i.user.id === interaction2.user.id;
+                                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                                         if (interaction2) {
                                             if (interaction2.customId === "requirement2RolesSelect") {
                                                 permission.requirements.push({
@@ -1194,8 +1193,8 @@ module.exports = {
                                     ],
                                     flags: ["Ephemeral"]
                                 })    
-                                const filter = (i) => i.customId.includes(`requirementChannels`) && i.user.id === interaction2.user.id
-                                interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                                const filter = (i) => i.customId.includes(`requirementChannels`) && i.user.id === interaction2.user.id;
+                                interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                                 if (interaction2) {
                                     if (interaction2.customId === "requirementChannelsSelect") {
                                         const value = interaction2.values[0]
@@ -1225,8 +1224,8 @@ module.exports = {
                                             ],
                                             flags: ["Ephemeral"]
                                         })    
-                                        const filter = (i) => i.customId.includes(`requirement2Channels`) && i.user.id === interaction2.user.id
-                                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                                        const filter = (i) => i.customId.includes(`requirement2Channels`) && i.user.id === interaction2.user.id;
+                                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                                         if (interaction2) {
                                             if (interaction2.customId === "requirement2ChannelsSelect") {
                                                 permission.requirements.push({
@@ -1279,7 +1278,7 @@ module.exports = {
                                             ),
                                     ])
                                 await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id
+                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id;
                                 interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
                                 if (interaction2 && interaction2.type === InteractionType.ModalSubmit) {
                                     const modalArgs = {}
@@ -1374,8 +1373,8 @@ module.exports = {
                                     ],
                                     flags: ["Ephemeral"]
                                 })    
-                                const filter = (i) => i.customId.includes(`requirementDays`) && i.user.id === interaction2.user.id
-                                interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                                const filter = (i) => i.customId.includes(`requirementDays`) && i.user.id === interaction2.user.id;
+                                interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                                 if (interaction2) {
                                     if (interaction2.customId === "requirementDaysSelect") {
                                         permission.requirements.push({
@@ -1418,7 +1417,7 @@ module.exports = {
                                             ),
                                     ])
                                 await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id
+                                const filter = (i) => i.customId === `manager-permissions_addReq_${value}_${interaction.id}` && i.user.id === interaction.user.id;
                                 interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
                                 if (interaction2 && interaction2.type === InteractionType.ModalSubmit) {
                                     const modalArgs = {}
@@ -1444,11 +1443,11 @@ module.exports = {
                                         interaction.editReply({ components: interaction.message.components })
                                         return interaction2.update({ content: `${client.config.emojis.NO} **${modalArgs.max}** ${client.language({ textId: `не является числом`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [] })
                                     }
-                                    if (modalArgs.min) modalArgs.min = +modalArgs.min
+                                    if (modalArgs.min !== "") modalArgs.min = +modalArgs.min
                                     else delete modalArgs.min
-                                    if (modalArgs.max) modalArgs.max = +modalArgs.max
+                                    if (modalArgs.max !== "") modalArgs.max = +modalArgs.max
                                     else delete modalArgs.max
-                                    if (modalArgs.min && modalArgs.max && modalArgs.min > modalArgs.max) {
+                                    if (modalArgs.min !== undefined && modalArgs.max !== undefined && modalArgs.min > modalArgs.max) {
                                         interaction.message.components.forEach(row => row.components.forEach(component => {
                                             component.data.disabled = false
                                         }))
@@ -1464,8 +1463,8 @@ module.exports = {
                                     }
                                     const requirement = {}
                                     requirement["id"] = value
-                                    if (modalArgs.min) requirement["minAmount"] = value.includes("multiply") ? modalArgs.min/100 : modalArgs.min
-                                    if (modalArgs.max) requirement["maxAmount"] = value.includes("multiply") ? modalArgs.max/100 : modalArgs.max
+                                    if (modalArgs.min !== undefined) requirement["minAmount"] = value.includes("multiply") ? modalArgs.min/100 : modalArgs.min
+                                    if (modalArgs.max !== undefined) requirement["maxAmount"] = value.includes("multiply") ? modalArgs.max/100 : modalArgs.max
                                     permission.requirements.push(requirement)
                                     await permission.save()
                                     interaction2.update({ content: `${client.config.emojis.YES}`, components: [], flags: ["Ephemeral"] })
@@ -1498,7 +1497,7 @@ module.exports = {
                             ),
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `manager-permissions_delReq_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `manager-permissions_delReq_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
                 if (interaction && interaction.type === InteractionType.ModalSubmit) {
                     const modalArgs = {}

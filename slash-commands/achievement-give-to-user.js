@@ -59,7 +59,7 @@ module.exports = {
      */
     run: async (client, interaction, args) => {
         await interaction.deferReply({ flags: ["Ephemeral"] })
-        const member = await interaction.guild.members.fetch(args.user).catch(e => null)
+        const member = await interaction.guild.members.fetch(args.user).catch(() => null)
         if (!member) {
             return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: "Пользователь с ID", guildId: interaction.guildId, locale: interaction.locale })} **${args.user}** ${client.language({ textId: "не найден на сервере", guildId: interaction.guildId, locale: interaction.locale })}.` })
         }
@@ -74,7 +74,7 @@ module.exports = {
         if (profile.achievements?.find(e => e.achievmentID === achievement.id)) {
             return interaction.editReply({ content: `${client.config.emojis.NO} ${client.language({ textId: "У пользователя уже есть достижение", guildId: interaction.guildId, locale: interaction.locale })} ${achievement.displayEmoji}**${achievement.name}**.`})
         }
-        await profile.addAchievement(achievement, true)
+        await profile.addAchievement({ achievement, save: true })
         return interaction.editReply({ content: `${client.config.emojis.DONE} ${client.language({ textId: "Достижение", guildId: interaction.guildId, locale: interaction.locale })} ${achievement.displayEmoji}**${achievement.name}** ${client.language({ textId: "было добавлено пользователю", guildId: interaction.guildId, locale: interaction.locale })}.`})
     }
 }

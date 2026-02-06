@@ -61,7 +61,7 @@ module.exports = {
         const flags = []
         if (interaction.customId?.includes("eph")) flags.push("Ephemeral")
         if (!interaction.isChatInputCommand()) {
-            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)?.[1]) return interaction.deferUpdate().catch(() => null)
         }
         let miningItems = client.cache.items.filter(e => e.guildID === interaction.guildId && !e.temp && e.enabled && e.activities?.mining?.chance).sort((a, b) => a.activities.mining.chance - b.activities.mining.chance).map(e => { 
             return { itemID: e.itemID, displayEmoji: e.displayEmoji, emoji: e.emoji, name: e.name, activities: { mining: { chance: e.activities.mining.chance, amountFrom: e.activities.mining.amountFrom, amountTo: e.activities.mining.amountTo, minxp: e.activities.mining.minxp, maxxp: e.activities.mining.maxxp } }, found: e.found, rarity: e.rarity, description: e.description, hex: e.hex, image: e.image, activities_mining_permission: e.activities_mining_permission }
@@ -181,24 +181,24 @@ module.exports = {
             }
         }
         for (const itemID in object_items) {
-            await profile.addItem(itemID, object_items[itemID].amount)
-            await profile.addQuestProgression("mining", object_items[itemID].amount, itemID)
+            await profile.addItem({ itemID, amount: object_items[itemID].amount })
+            await profile.addQuestProgression({ type: "mining", amount: object_items[itemID].amount, object: itemID })
             const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.MiningItem)
             await Promise.all(achievements.map(async achievement => {
                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && achievement.items?.includes(itemID) && !client.tempAchievements[profile.userID]?.includes(achievement.id)) { 
                     if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                     client.tempAchievements[profile.userID].push(achievement.id)
-                    await profile.addAchievement(achievement)
+                    await profile.addAchievement({ achievement })
                 }    
             }))
         }
         profile.mining += count
-        await profile.addQuestProgression("mining", count)
-        if (rewards.xp) await profile.addXp(rewards.xp)
-        if (rewards.currency) await profile.addCurrency(rewards.currency)
+        await profile.addQuestProgression({ type: "mining", amount: count })
+        if (rewards.xp) await profile.addXp({ amount: rewards.xp })
+        if (rewards.currency) await profile.addCurrency({ amount: rewards.currency })
         if (miningPrice.amount > 0) {
-            if (miningPrice.id === "currency") await profile.subtractCurrency(miningPrice.amount*count)
-            else await profile.subtractItem(miningPrice.id, miningPrice.amount*count)
+            if (miningPrice.id === "currency") await profile.subtractCurrency({ amount: miningPrice.amount*count })
+            else await profile.subtractItem({ itemID: miningPrice.id, amount: miningPrice.amount*count })
         }
         const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.Mining)
         await Promise.all(achievements.map(async achievement => {
@@ -212,7 +212,7 @@ module.exports = {
         }))
         if (achievements_to_give.length) {
             for (const achievementID of achievements_to_give) {
-                await profile.addAchievement(achievementID)
+                await profile.addAchievement({ achievement: achievementID })
             }
         }
         await profile.save()

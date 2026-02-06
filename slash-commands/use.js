@@ -116,14 +116,14 @@ module.exports = {
             const fatalErrors = []
             if (serverItem.onUse.roleDel) {
                 if (interaction.member.roles.cache.has(serverItem.onUse.roleDel)) {
-                    const guild_role = await interaction.guild.roles.fetch(serverItem.onUse.roleDel).catch(e => null)
+                    const guild_role = await interaction.guild.roles.fetch(serverItem.onUse.roleDel).catch(() => null)
                     if (guild_role) {
                         if (!interaction.guild.members.me.permissions.has("ManageRoles") || interaction.guild.members.me.roles.highest.position <= guild_role.position) fatalErrors.push(`${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} ${guild_role.name} ${client.language({ textId: `не будет убрана: у меня нет прав на ее удаление`, guildId: interaction.guildId, locale: interaction.locale })}.`)
                     } else fatalErrors.push(`${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} ID:${serverItem.onUse.roleDel} ${client.language({ textId: `не будет удалена: роль не найдена на сервере`, guildId: interaction.guildId, locale: interaction.locale })}.`)
                 } else fatalErrors.push(`${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} <@&${serverItem.onUse.roleDel}> ${client.language({ textId: `не будет удалена: у тебя нет такой роли`, guildId: interaction.guildId, locale: interaction.locale })}.`)
             }
             if (serverItem.onUse.roleAdd && serverItem.onUse.role_add_direct) {
-                const guild_role = await interaction.guild.roles.fetch(serverItem.onUse.roleDel).catch(e => null)
+                const guild_role = await interaction.guild.roles.fetch(serverItem.onUse.roleDel).catch(() => null)
                 if (guild_role) {
                     if (interaction.member.roles.cache.has(serverItem.onUse.roleAdd) && !serverItem.onUse.roleTimely) {
                         fatalErrors.push(`${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} ${guild_role.name} ${client.language({ textId: `не будет добавлена: у тебя уже есть такая роль`, guildId: interaction.guildId, locale: interaction.locale })}.`)
@@ -240,7 +240,7 @@ module.exports = {
                     if (wormholeItem) {
                         let webhook = client.cache.webhooks.get(wormhole.webhookId)
                         if (!webhook) {
-                            webhook = await client.fetchWebhook(wormhole.webhookId).catch(e => null)
+                            webhook = await client.fetchWebhook(wormhole.webhookId).catch(() => null)
                             if (webhook instanceof Webhook) client.cache.webhooks.set(webhook.id, webhook)
                         }
                         if (!webhook) {
@@ -314,7 +314,7 @@ module.exports = {
             if (!interaction.replied && !interaction.deferred) await interaction.deferReply()
             if (serverItem.onUse.message) {
                 if (serverItem.onUse.messageOnDM) {
-                    interaction.member.send({ content: serverItem.onUse.message }).catch(e => null)
+                    interaction.member.send({ content: serverItem.onUse.message }).catch(() => null)
                     used += `\n${client.config.emojis.YES} ${client.language({ textId: `Сообщение отправлено в ЛС`, guildId: interaction.guildId, locale: interaction.locale })}`
                 } else {
                     used += `\n${serverItem.onUse.message}`
@@ -322,7 +322,7 @@ module.exports = {
                 ableToUse = true
             }
             if (serverItem.onUse.roleAdd) {
-                const guild_role = await interaction.guild.roles.fetch(serverItem.onUse.roleAdd).catch(e => null)
+                const guild_role = await interaction.guild.roles.fetch(serverItem.onUse.roleAdd).catch(() => null)
                 if (guild_role) {
                     if (serverItem.onUse.role_add_direct) {
                         await interaction.member.roles.add(guild_role.id)
@@ -332,7 +332,7 @@ module.exports = {
                         }
                         used += `\n${client.config.emojis.YES} ${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} <@&${serverItem.onUse.roleAdd}> ${client.language({ textId: `была добавлена`, guildId: interaction.guildId, locale: interaction.locale })}`
                     } else {
-                        profile.addRole(guild_role.id, amount, serverItem.onUse.roleTimely ? serverItem.onUse.roleTimely * 60 * 1000 : undefined)
+                        profile.addRole({ id: guild_role.id, amount, ms: serverItem.onUse.roleTimely ? serverItem.onUse.roleTimely * 60 * 1000 : undefined })
                         used += `\n${client.config.emojis.YES} ${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} <@&${serverItem.onUse.roleAdd}> ${client.language({ textId: `была добавлена в </inventory-roles:1198617221170204833>`, guildId: interaction.guildId, locale: interaction.locale })}`
                     }
                     ableToUse = true
@@ -355,7 +355,7 @@ module.exports = {
                                 used += `\n${client.config.emojis.NO} ${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} <@&${serverItem.onUse.roleDel}> ${client.language({ textId: `не была удалена, поскольку у меня нет прав на ее удаление`, guildId: interaction.guildId, locale: interaction.locale })}.`
                             }
                         } else if (profile.inventoryRoles?.find(e => e.id === serverItem.onUse.roleDel && e.ms === undefined)) {
-                            profile.subtractRole(serverItem.onUse.roleDel, amount)
+                            profile.subtractRole({ id: serverItem.onUse.roleDel, amount })
                             used += `\n${client.config.emojis.YES} ${client.language({ textId: `Роль`, guildId: interaction.guildId, locale: interaction.locale })} <@&${serverItem.onUse.roleDel}> ${client.language({ textId: `была удалена`, guildId: interaction.guildId, locale: interaction.locale })}.`
                             ableToUse = true
                         }
@@ -541,31 +541,31 @@ module.exports = {
                 }
             }
             if (serverItem.onUse.levelAdd) {
-                await profile.addLevel(serverItem.onUse.levelAdd * amount)
+                await profile.addLevel({ amount: serverItem.onUse.levelAdd * amount })
                 used += `\n${client.config.emojis.YES} ${client.language({ textId: `Добавлено`, guildId: interaction.guildId, locale: interaction.locale })} ${client.config.emojis.medal}**${serverItem.onUse.levelAdd * amount}** ${client.language({ textId: `уровней`, guildId: interaction.guildId, locale: interaction.locale })}.`
                 ableToUse = true
             }
             if (serverItem.onUse.rpAdd) {
                 if (profile.rp < 1000) {
-                    await profile.addRp(serverItem.onUse.rpAdd * amount)
+                    await profile.addRp({ amount: serverItem.onUse.rpAdd * amount })
                     used += `\n${client.config.emojis.YES} ${client.language({ textId: `Добавлено`, guildId: interaction.guildId, locale: interaction.locale })} ${client.config.emojis.RP}**${!(serverItem.onUse.rpAdd * amount).toString().split('.')[1] ? serverItem.onUse.rpAdd * amount : (serverItem.onUse.rpAdd * amount).toString().split('.')[1].length === 1 ? (serverItem.onUse.rpAdd * amount).toFixed(1) : (serverItem.onUse.rpAdd * amount).toFixed(2)}** ${client.language({ textId: `репутации`, guildId: interaction.guildId, locale: interaction.locale })}.`
                     ableToUse = true
                 } else used += `\n${client.config.emojis.NO}${client.language({ textId: `Репутация не добавлена: максимум репутации`, guildId: interaction.guildId, locale: interaction.locale })}.`
             }
             if (serverItem.onUse.xpAdd) {
-                await profile.addXp(serverItem.onUse.xpAdd * amount)
+                await profile.addXp({ amount: serverItem.onUse.xpAdd * amount })
                 used += `\n${client.config.emojis.YES} ${client.language({ textId: `Добавлено`, guildId: interaction.guildId, locale: interaction.locale })} ${client.config.emojis.XP}**${serverItem.onUse.xpAdd * amount}** ${client.language({ textId: `опыта`, guildId: interaction.guildId, locale: interaction.locale })}.`
                 ableToUse = true
             }
             if (serverItem.onUse.currencyAdd) {
-                await profile.addCurrency(serverItem.onUse.currencyAdd * amount)
+                await profile.addCurrency({ amount: serverItem.onUse.currencyAdd * amount })
                 used += `\n${client.config.emojis.YES} ${client.language({ textId: `Добавлено`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${serverItem.onUse.currencyAdd * amount}).`
                 ableToUse = true
             }
             if (serverItem.onUse.itemAdd?.itemID) {
                 const item = client.cache.items.find(e => !e.temp && e.enabled && e.itemID === serverItem.onUse.itemAdd.itemID)
                 if (item) {
-                    await profile.addItem(item.itemID, serverItem.onUse.itemAdd.amount * amount)
+                    await profile.addItem({ itemID: item.itemID, amount: serverItem.onUse.itemAdd.amount * amount })
                     used += `\n${client.config.emojis.YES} ${client.language({ textId: `Добавлено`, guildId: interaction.guildId, locale: interaction.locale })} ${item.displayEmoji}**${item.name}** (${serverItem.onUse.itemAdd.amount * amount}).`
                     ableToUse = true
                 } else used += `\n${client.config.emojis.NO}${client.language({ textId: `Предмет`, guildId: interaction.guildId, locale: interaction.locale })} **${serverItem.onUse.itemAdd.itemID}** ${client.language({ textId: `не добавлен: не был найден`, guildId: interaction.guildId, locale: interaction.locale })}.`
@@ -576,7 +576,7 @@ module.exports = {
                     if (!profile.achievements?.some(e => e.achievmentID === serverItem.onUse.addAchievement)) {
                         if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                         client.tempAchievements[profile.userID].push(serverItem.onUse.addAchievement)
-                        await profile.addAchievement(achievement)
+                        await profile.addAchievement({ achievement })
                         used += `\n${client.config.emojis.YES} ${client.language({ textId: `Добавлено достижение`, guildId: interaction.guildId, locale: interaction.locale })} ${achievement.displayEmoji}**${achievement.name}**`
                         ableToUse = true
                     } else {
@@ -600,19 +600,19 @@ module.exports = {
                     if (wormholeItem) {
                         let webhook = client.cache.webhooks.get(wormhole.webhookId)
                         if (!webhook) {
-                            webhook = await client.fetchWebhook(wormhole.webhookId).catch(e => null)
+                            webhook = await client.fetchWebhook(wormhole.webhookId).catch(() => null)
                             if (webhook instanceof Webhook) client.cache.webhooks.set(webhook.id, webhook)
                         }
                         if (webhook) {
                             await wormhole.spawn(webhook)
-                            await profile.addQuestProgression("wormholesSpawned", 1, wormhole.wormholeID)
+                            await profile.addQuestProgression({ type: "wormholesSpawned", amount: 1, object: wormhole.wormholeID })
                             profile.wormholesSpawned++
                             const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId && e.enabled && e.type === AchievementType.WormholesSpawned)
                             await Promise.all(achievements.map(async achievement => {
                                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.wormholesSpawned >= achievement.amount && !client.tempAchievements[interaction.user.id]?.includes(achievement.id)) {
                                     if (!client.tempAchievements[interaction.user.id]) client.tempAchievements[interaction.user.id] = []
                                     client.tempAchievements[interaction.user.id].push(achievement.id)
-                                    await profile.addAchievement(achievement)
+                                    await profile.addAchievement({ achievement })
                                 }
                             }))
                             used += `\n${client.config.emojis.YES} ${client.language({ textId: `Червоточина`, guildId: interaction.guildId, locale: interaction.locale })} ${wormholeItemEmoji}**${wormholeItem.name}** ${client.language({ textId: `заспавнилась`, guildId: interaction.guildId, locale: interaction.locale })}.`
@@ -684,29 +684,29 @@ module.exports = {
                 } else used += `\n${client.config.emojis.NO}${client.language({ textId: `Предмет`, guildId: interaction.guildId, locale: interaction.locale })} **${serverItem.onUse.deleteItemFromServer}** ${client.language({ textId: `не был удален с сервера: не найден`, guildId: interaction.guildId, locale: interaction.locale })}.`
             }
             if (serverItem.onUse.takeXP) {
-                await profile.subtractXp(serverItem.onUse.takeXP * amount)
+                await profile.subtractXp({ amount: serverItem.onUse.takeXP * amount })
                 used += `\n${client.config.emojis.YES} ${client.language({ textId: `Вычтено`, guildId: interaction.guildId, locale: interaction.locale })} ${client.config.emojis.XP}**${serverItem.onUse.takeXP * amount}** ${client.language({ textId: `опыта`, guildId: interaction.guildId, locale: interaction.locale })}.`
                 ableToUse = true
             }
             if (serverItem.onUse.takeCUR) {
-                await profile.subtractCurrency(serverItem.onUse.takeCUR * amount)
+                await profile.subtractCurrency({ amount: serverItem.onUse.takeCUR * amount })
                 used += `\n${client.config.emojis.YES} ${client.language({ textId: `Вычтено`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.displayCurrencyEmoji}**${settings.currencyName}** (${serverItem.onUse.takeCUR * amount}).`
                 ableToUse = true
             }
             if (serverItem.onUse.takeRP) {
-                await profile.subtractRp(serverItem.onUse.takeRP * amount)
+                await profile.subtractRp({ amount: serverItem.onUse.takeRP * amount })
                 used += `\n${client.config.emojis.YES} ${client.language({ textId: `Вычтено`, guildId: interaction.guildId, locale: interaction.locale })} ${client.config.emojis.RP}**${!(serverItem.onUse.takeRP * amount).toString().split('.')[1] ? serverItem.onUse.takeRP * amount : (serverItem.onUse.takeRP * amount).toString().split('.')[1].length === 1 ? (serverItem.onUse.takeRP * amount).toFixed(1) : (serverItem.onUse.takeRP * amount).toFixed(2)}** ${client.language({ textId: `репутации`, guildId: interaction.guildId, locale: interaction.locale })}.`
                 ableToUse = true
             }
             if (serverItem.onUse.takeLevel) {
-                await profile.subtractLevel(serverItem.onUse.takeLevel * amount)
+                await profile.subtractLevel({ amount: serverItem.onUse.takeLevel * amount })
                 used += `\n${client.config.emojis.YES} ${client.language({ textId: `Вычтено`, guildId: interaction.guildId, locale: interaction.locale })} ${client.config.emojis.medal}**${serverItem.onUse.takeLevel * amount}** ${client.language({ textId: `уровней`, guildId: interaction.guildId, locale: interaction.locale })}.`
                 ableToUse = true
             }
             if (serverItem.onUse.takeItem?.itemID) {
                 const item = client.cache.items.find(e => e.itemID === serverItem.onUse.takeItem.itemID && !e.temp && e.enabled)
                 if (item) {
-                    await profile.subtractItem(item.itemID, serverItem.onUse.takeItem.amount * amount)
+                    await profile.subtractItem({ itemID: item.itemID, amount: serverItem.onUse.takeItem.amount * amount })
                     used += `\n${client.config.emojis.YES} ${client.language({ textId: `Вычтено`, guildId: interaction.guildId, locale: interaction.locale })} ${item.displayEmoji}**${item.name}** (${serverItem.onUse.takeItem.amount * amount}).`
                     ableToUse = true
                 } else used += `\n${client.config.emojis.NO}${client.language({ textId: `Предмет`, guildId: interaction.guildId, locale: interaction.locale })} **${serverItem.onUse.takeItem.itemID}** ${client.language({ textId: `не вычтен: не был найден`, guildId: interaction.guildId, locale: interaction.locale })}.`
@@ -714,7 +714,7 @@ module.exports = {
             if (serverItem.onUse.autoIncome) {
                 if (profile.autoIncomeExpire && profile.autoIncomeExpire > new Date()) {
                     profile.autoIncomeExpire = new Date(profile.autoIncomeExpire.getTime() + serverItem.onUse.autoIncome * amount * 60 * 1000)
-                    if (profile.autoIncomeTimeoutId) profile.clearAutoIncomeTimeout()
+                    if (profile.timeouts.autoIncome) profile.clearAutoIncomeTimeout()
                     profile.setAutoIncomeTimeout()
                     used += `\n${client.config.emojis.YES} ${client.language({ textId: `Авто доход ролей увеличен до`, guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(profile.autoIncomeExpire / 1000)}:f>`
                     ableToUse = true
@@ -737,8 +737,8 @@ module.exports = {
                 embed.setDescription(used || null)
                 embed.setThumbnail(serverItem.onUse.thumbnail || serverItem.image || await serverItem.getEmojiURL() || null)
                 embed.setImage(serverItem.onUse.image || null)
-                await profile.subtractItem(serverItem.itemID, amount)
-                await profile.addQuestProgression("itemsUsed", amount, serverItem.itemID)
+                await profile.subtractItem({ itemID: serverItem.itemID, amount })
+                await profile.addQuestProgression({ type: "itemsUsed", amount, object: serverItem.itemID })
                 profile.itemsUsed += amount
                 if (serverItem.cooldown_use) {
                     if (!profile.itemsCooldowns) profile.itemsCooldowns = new Map()
@@ -750,7 +750,7 @@ module.exports = {
                     if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.itemsUsed >= achievement.amount && !client.tempAchievements[interaction.user.id]?.includes(achievement.id)) {
                         if (!client.tempAchievements[interaction.user.id]) client.tempAchievements[interaction.user.id] = []
                         client.tempAchievements[interaction.user.id].push(achievement.id)
-                        await profile.addAchievement(achievement)
+                        await profile.addAchievement({ achievement })
                     }
                 }))
                 await profile.save()

@@ -1,3 +1,6 @@
+/**
+ * @type {CustomClient}
+ */
 const { Collection } = require("discord.js")
 const lt = require('long-timeout')
 const { RewardType, AchievementType } = require("../enums")
@@ -50,7 +53,7 @@ class Giveaway {
 		this.client.cache.giveaways.delete(this.giveawayID)
 	}
 	async end(guild, reaction) {
-		let users = await reaction.users.fetch().catch(e => null)
+		let users = await reaction.users.fetch().catch(() => null)
         while (users.size % 100 === 0) {
             const newUsers = await reaction.users.fetch({ after: users.lastKey() })
             if (newUsers.size === 0) break
@@ -61,7 +64,7 @@ class Giveaway {
             return results.filter((_v, index) => results[index])
         }
         users = await asyncFilter(users, async (user) => {
-            const member = await guild.members.fetch(user.id).catch(e => null)
+            const member = await guild.members.fetch(user.id).catch(() => null)
             if (member && user.bot === false && (this.type === `user` ? user.id !== this.creator : true)) {
 				if (this.permission) {
 					const permission = this.client.cache.permissions.get(this.permission)
@@ -90,18 +93,18 @@ class Giveaway {
 	        for (const element of this.rewards) {
 	            if (element.type === RewardType.Currency) {
 					const settings = this.client.cache.settings.get(this.guildID)
-					await profile.addCurrency(this.type === `user` ? element.amount/users.length : element.amount)
+					await profile.addCurrency({ amount: this.type === `user` ? element.amount/users.length : element.amount })
 					if (index === 0) rewards.push(`${settings.displayCurrencyEmoji}${this.type === `user` ? element.amount/users.length : element.amount}`)
 	            } else if (element.type === RewardType.Experience) {
-					await profile.addXp(element.amount)
+					await profile.addXp({ amount: element.amount })
 	                if (index === 0) rewards.push(`${this.client.config.emojis.XP}${element.amount}`)
 	            } else if (element.type === RewardType.Reputation) {
-					await profile.addRp(element.amount)
+					await profile.addRp({ amount: element.amount })
 	                if (index === 0) rewards.push(`${this.client.config.emojis.RP}${element.amount}`)
 	            } else if (element.type === RewardType.Item) {
 	                const rewardItem = this.client.cache.items.get(element.id)
 	                if (rewardItem) {
-						await profile.addItem(rewardItem.itemID, this.type === `user` ? element.amount/users.length : element.amount)
+						await profile.addItem({ itemID: rewardItem.itemID, amount: this.type === `user` ? element.amount/users.length : element.amount })
 						if (index === 0) rewards.push(`${rewardItem.displayEmoji}${rewardItem.name} (${this.type === `user` ? element.amount/users.length : element.amount})`)
 	            	} else {
 						if (index === 0) rewards.push(`${element.id} (${this.type === `user` ? element.amount/users.length : element.amount})`)
@@ -109,7 +112,7 @@ class Giveaway {
 	            } else if (element.type === RewardType.Text) {
 					if (index === 0) rewards.push(`📝${element.id} (${this.type === `user` ? element.amount/users.length : element.amount})`)
 	            } else if (element.type === RewardType.Role) {
-					profile.addRole(element.id, this.type === `user` ? element.amount/users.length : element.amount, element.ms)
+					profile.addRole({ id: element.id, amount: this.type === `user` ? element.amount/users.length : element.amount, ms: element.ms })
 					if (index === 0) rewards.push(`<@&${element.id}>${element.ms ? ` [${this.client.functions.transformSecs(this.client, element.ms, this.guildID)}]` : ``} (${this.type === `user` ? element.amount/users.length : element.amount})`)
 				}
 	        }
@@ -119,7 +122,7 @@ class Giveaway {
                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.giveawayWins >= achievement.amount && !this.client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                     if (!this.client.tempAchievements[profile.userID]) this.client.tempAchievements[profile.userID] = []
                     this.client.tempAchievements[profile.userID].push(achievement.id)
-                    await profile.addAchievement(achievement)
+                    await profile.addAchievement({ achievement })
                 }    
             }))
 			await profile.save()
@@ -128,7 +131,7 @@ class Giveaway {
         return { winners: users, rewards: rewards }
 	}
 	async reroll(guild, reaction) {
-		let users = await reaction.users.fetch().catch(e => null)
+		let users = await reaction.users.fetch().catch(() => null)
         while (users.size % 100 === 0) {
             const newUsers = await reaction.users.fetch({ after: users.lastKey() })
             if (newUsers.size === 0) break
@@ -139,7 +142,7 @@ class Giveaway {
             return results.filter((_v, index) => results[index])
         }
         users = await asyncFilter(users, async (user) => {
-            const member = await guild.members.fetch(user.id).catch(e => null)
+            const member = await guild.members.fetch(user.id).catch(() => null)
             if (member && user.bot === false && (this.type === `user` ? user.id !== this.creator : true)) {
 				if (this.permission) {
 					const permission = this.client.cache.permissions.get(this.permission)
@@ -169,21 +172,21 @@ class Giveaway {
 	        for (const element of this.rewards) {
 	            if (element.type === RewardType.Currency) {
 					const settings = this.client.cache.settings.get(this.guildID)
-					await profile.addCurrency(this.type === `user` ? element.amount/users.length : element.amount)
+					await profile.addCurrency({ amount: this.type === `user` ? element.amount/users.length : element.amount })
 					if (index === 0) rewards.push(`${settings.displayCurrencyEmoji}${this.type === `user` ? element.amount/users.length : element.amount}`)
 	            } else
 	            if (element.type === RewardType.Experience) {
-					await profile.addXp(element.amount)
+					await profile.addXp({ amount: element.amount })
 	                if (index === 0) rewards.push(`${this.client.config.emojis.XP}${element.amount}`)
 	            } else
 	            if (element.type === RewardType.Reputation) {
-					await profile.addRp(element.amount)
+					await profile.addRp({ amount: element.amount })
 	                if (index === 0) rewards.push(`${this.client.config.emojis.RP}${element.amount}`)
 	            } else
 	            if (element.type === RewardType.Item) {
 	                const rewardItem = this.client.cache.items.get(element.id)
 	                if (rewardItem) {
-						await profile.addItem(rewardItem.itemID, this.type === `user` ? element.amount/users.length : element.amount)
+						await profile.addItem({ itemID: rewardItem.itemID, amount: this.type === `user` ? element.amount/users.length : element.amount })
 						if (index === 0) rewards.push(`${rewardItem.displayEmoji}${rewardItem.name} (${this.type === `user` ? element.amount/users.length : element.amount})`)
 	            	} else {
 						if (index === 0) rewards.push(`${element.id} (${this.type === `user` ? element.amount/users.length : element.amount})`)
@@ -191,7 +194,7 @@ class Giveaway {
 	            } else if (element.type === RewardType.Text) {
 					if (index === 0) rewards.push(`📝${element.id} (${this.type === `user` ? element.amount/users.length : element.amount})`)
 	            } else if (element.type === RewardType.Role) {
-					profile.addRole(element.id, this.type === `user` ? element.amount/users.length : element.amount, element.ms)
+					profile.addRole({ id: element.id, amount: this.type === `user` ? element.amount/users.length : element.amount, ms: element.ms })
 					if (index === 0) rewards.push(`<@&${element.id}>${element.ms ? ` [${this.client.functions.transformSecs(this.client, element.ms, this.guildID)}]` : ``} (${this.type === `user` ? element.amount/users.length : element.amount})`)
 				}
 	        }
@@ -201,7 +204,7 @@ class Giveaway {
                 if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && profile.giveawayWins >= achievement.amount && !this.client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                     if (!this.client.tempAchievements[profile.userID]) this.client.tempAchievements[profile.userID] = []
                     this.client.tempAchievements[profile.userID].push(achievement.id)
-                    await profile.addAchievement(achievement)
+                    await profile.addAchievement({ achievement })
                 }    
             }))
 			await profile.save()
@@ -221,14 +224,14 @@ class Giveaway {
 				const profile = await this.client.functions.fetchProfile(this.client, this.creator, guild.id)
 				for (const element of this.rewards) {
 					if (element.type === RewardType.Currency) {
-						profile.currency = element.amount
+						profile.currency += element.amount
 					}
 					else if (element.type === RewardType.Item) {
 						const item = this.client.cache.items.find(i => i.itemID === element.id && !i.temp)
-						if (item) await profile.addItem(element.id, element.amount)
+						if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
 					} else if (element.type === RewardType.Role) {
 						const role = interaction.guild.roles.cache.get(element.id)
-						if (role) profile.addRole(element.id, element.amount, element.ms)
+						if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
 					}
 				}
 				await profile.save()

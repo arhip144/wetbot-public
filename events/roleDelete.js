@@ -29,7 +29,7 @@ client.on(Events.GuildRoleDelete, async (role) => {
     if (customRole) await customRole.delete()
     await Promise.all(client.cache.lots.filter(lot => lot.guildID === role.guild.id && lot.items.some(e => e.id === role.id)).map(async lot => {
         const { guild } = role
-        const member = await guild.members.fetch(lot.userID).catch(e => null)
+        const member = await guild.members.fetch(lot.userID).catch(() => null)
         const profile = client.cache.profiles.get(guild.id+lot.userID)
         if (profile) {
             let sellingItem
@@ -48,7 +48,7 @@ client.on(Events.GuildRoleDelete, async (role) => {
                     .setThumbnail(guild.iconURL())
                     .setDescription(`${client.language({ textId: `Твой лот`, guildId: guild.id })} ${sellingItem} (${lot.lotID}) ${client.language({ textId: `был автоматически удален - один из предметов цены удалён. Предметы возвращены.`, guildId: guild.id })}`)
                     .setColor(3093046)
-            ] }).catch(e => null)    
+            ] }).catch(() => null)    
         }
     }))
     await Promise.all(client.cache.profiles.filter(profile => profile.guildID === role.guild.id && profile.inventoryRoles?.some(r => r.id === role.id)).map(async profile => {

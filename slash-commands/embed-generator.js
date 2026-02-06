@@ -1,4 +1,4 @@
-const { ChannelType, ButtonStyle, InteractionType, AttachmentBuilder, TextInputBuilder, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ModalBuilder, TextInputStyle, StringSelectMenuInteraction, Client, PermissionFlagsBits, Collection, ChannelSelectMenuBuilder, LabelBuilder } = require("discord.js")
+const { ChannelType, ButtonStyle, InteractionType, AttachmentBuilder, TextInputBuilder, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ModalBuilder, TextInputStyle, StringSelectMenuInteraction, Client, PermissionFlagsBits, Collection, ChannelSelectMenuBuilder, LabelBuilder, FileUploadBuilder, MessageFlags } = require("discord.js");
 const FieldRegexp = /field{(.*?)}/
 const EmbedRegexp = /embed{(.*?)}/
 const UserRegexp = /usr{(.*?)}/
@@ -102,8 +102,8 @@ module.exports = {
                 ],
                 flags: ["Ephemeral"]
             })    
-            const filter = (i) => i.customId.includes(`embed-generator_channel`) && i.user.id === interaction.user.id
-            const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+            const filter = (i) => i.customId.includes(`embed-generator_channel`) && i.user.id === interaction.user.id;
+            const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
             if (interaction2) {
                 if (interaction2.customId === "embed-generator_channel_select") {
                     const channel = interaction2.channels.first()
@@ -145,12 +145,12 @@ module.exports = {
                 const channelId = modalArgs.link.split("/")[5]
                 const messageId = modalArgs.link.split("/")[6]
                 if (!channelId || !messageId) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Неверная ссылка на сообщение`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                const channel = await interaction.guild.channels.fetch(channelId).catch(e => null)
+                const channel = await interaction.guild.channels.fetch(channelId).catch(() => null)
                 if (!channel) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Текстовый канал не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 if (!channel.permissionsFor(interaction.guild.members.me).has("ReadMessageHistory") || !channel.permissionsFor(interaction.guild.members.me).has("ViewChannel") || !channel.permissionsFor(interaction.guild.members.me).has("SendMessages")) {
                     return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня нет прав для канала`, guildId: interaction.guildId, locale: interaction.locale })} <#${channel.id}>\n${client.language({ textId: `Мне нужны следующие права`, guildId: interaction.guildId, locale: interaction.locale })}:\n1. ${client.language({ textId: `Просмотр канала`, guildId: interaction.guildId, locale: interaction.locale })}\n2. ${client.language({ textId: `Читать историю сообщений`, guildId: interaction.guildId, locale: interaction.locale })}\n3. ${client.language({ textId: `Отправлять сообщения`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 }
-                const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(e => null)
+                const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(() => null)
                 if (!message) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Сообщение не найдено`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 if (message.author.id !== client.user.id) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Это не моё сообщение`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 await message.edit({ content: interaction.message.content, embeds: interaction.message.embeds })
@@ -190,45 +190,53 @@ module.exports = {
                 const channelId = modalArgs.link.split("/")[5]
                 const messageId = modalArgs.link.split("/")[6]
                 if (!channelId || !messageId) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Неверная ссылка на сообщение`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                const channel = await interaction.guild.channels.fetch(channelId).catch(e => null)
+                const channel = await interaction.guild.channels.fetch(channelId).catch(() => null)
                 if (!channel) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Текстовый канал не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 if (!channel.permissionsFor(interaction.guild.members.me).has("ReadMessageHistory") || !channel.permissionsFor(interaction.guild.members.me).has("ViewChannel")) {
                     return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня нет прав для канала`, guildId: interaction.guildId, locale: interaction.locale })} <#${channel.id}>\n${client.language({ textId: `Мне нужны следующие права`, guildId: interaction.guildId, locale: interaction.locale })}:\n1. ${client.language({ textId: `Просмотр канала`, guildId: interaction.guildId, locale: interaction.locale })}\n2. ${client.language({ textId: `Читать историю сообщений`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 }
-                message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(e => null)
+                message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(() => null)
                 if (!message) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Сообщение не найдено`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                 await interaction.deferUpdate()
             } else return
         }
         let embeds = message.embeds.map(embed => EmbedBuilder.from(embed))
         if (interaction.customId.includes("paste")) {
-            if (!interaction.channel.permissionsFor(interaction.guild.members.me).has("ViewChannel") || !interaction.channel.permissionsFor(interaction.guild.members.me).has("ReadMessageHistory")) {
-                return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `У меня нет прав для канала`, guildId: interaction.guildId, locale: interaction.locale })} <#${interaction.channel.id}>\n${client.language({ textId: `Мне нужны следующие права`, guildId: interaction.guildId, locale: interaction.locale })}:\n1. ${client.language({ textId: `Просмотр канала`, guildId: interaction.guildId, locale: interaction.locale })}\n2. ${client.language({ textId: `Читать историю сообщений`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-            }
-            const components = JSON.parse(JSON.stringify(message.components))
-            await interaction.update({ embeds: message.embeds, components: [] })
-            const filter = m => m.author.id == interaction.user.id && m.channel.id == interaction.channel.id
-            const message1 = await interaction.followUp({ content: `${client.config.emojis.exc} ${client.language({ textId: `Отправь файл в формате JSON эмбеда`, guildId: interaction.guildId, locale: interaction.locale })}. ${client.language({ textId: `Для отмены напиши`, guildId: interaction.guildId, locale: interaction.locale })}: cancel` })
-            const attachment = await waitingForAttachment(client, interaction, filter)
-            message1.delete().catch(e => null)
-            if (attachment) {
+            const modal = new ModalBuilder()
+                .setCustomId(`json_${interaction.id}`)
+                .setTitle(`${client.language({ textId: `JSON`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                .setLabelComponents([
+                    new LabelBuilder()
+                        .setLabel(`${client.language({ textId: `JSON`, guildId: interaction.guildId, locale: interaction.locale })}`)
+                        .setFileUploadComponent(
+                            new FileUploadBuilder()
+                                .setCustomId("json")
+                                .setMaxValues(1)
+                                .setRequired(true)
+                        )
+                ])
+            await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
+            const filter = (i) => i.customId === `json_${interaction.id}` && i.user.id === interaction.user.id;
+            interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(e => interaction)
+            if (interaction && interaction.type === InteractionType.ModalSubmit) {
+                const attachment = interaction.fields.getField("json").attachments.first()
+                if (!attachment.contentType.includes("application/json")) {
+                    return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: `Формат вложения должен быть .json`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+                }
                 const fetch = require("node-fetch")
-                await fetch(attachment.url)
-                .then(res => res.buffer())
-                .then(buffer => {
-                    let parsed
-                    try {
-                        parsed = JSON.parse(buffer.toString())
-                    } catch (err) {
-                        interaction.editReply({ embeds: message.embeds, components: components })
-                        return interaction.followUp({ content: err.message, flags: ["Ephemeral"] })
-                    }
-                    if (Array.isArray(parsed)) embeds = parsed.map(embed => EmbedBuilder.from(embed))
-                    else embeds = [EmbedBuilder.from(parsed)]
-                    embedIndex = 0
-                    fieldIndex = 0
-                })
-            } else return interaction.editReply({ embeds: message.embeds, components: components })
+                const res = await fetch(attachment.url)
+                const buffer = await res.buffer()
+                let parsed
+                try {
+                    parsed = JSON.parse(buffer.toString())
+                } catch (err) {
+                    return interaction.reply({ content: err.message, flags: ["Ephemeral"] })
+                }
+                if (Array.isArray(parsed)) embeds = parsed.map(embed => EmbedBuilder.from(embed))
+                else embeds = [EmbedBuilder.from(parsed)]
+                embedIndex = 0
+                fieldIndex = 0
+            }
         }
         if (!message.embeds[embedIndex]) return interaction.reply({ content: `${client.language({ textId: `Эмбед с индексом`, guildId: interaction.guildId, locale: interaction.locale })} ${embedIndex} ${client.language({ textId: `отсутствует`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         if (interaction.isStringSelectMenu()) {
@@ -674,33 +682,13 @@ module.exports = {
             return interaction.followUp({ content: `${client.language({ textId: `Общая сумма символов во всех полях Заглавие, Описание, Поле-имя, Поле-значение, Нижний колонтитул и Верхний колонтитул во всех эмбедах, прикрепленных к сообщению, не должна превышать 6000 символов.`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
         }
         components.push(tools_row)
-        if (interaction.replied || interaction.deferred) return interaction.editReply({ content: content || " ", embeds: embeds, components: components })
-        else return interaction.update({ content: content || " ", embeds: embeds, components: components })
-    }
-}
-async function waitingForAttachment(client, interaction, filter) {
-    while (true) {
-        const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: 30000 })
-        if (!collected.size) return false
-        if (collected.first().attachments.first()) {
-            if (collected.first().attachments.first().contentType.includes("application/json")) {
-                if (collected.first().attachments.first().size <= 8388608) {
-                    return collected.first().attachments.first()
-                } else {
-                    collected.first().delete().catch(e => null)
-                    interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Размер вложения не должен превышать 8МБ`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-                }
-            } else {
-                collected.first().delete().catch(e => null)
-                interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Формат вложения должен быть .json`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
-            }
-        } else {
-            if (collected.first().content.toLowerCase() == `cancel`) {
-                collected.first().delete().catch(e => null)
-                return false
-            }
-            collected.first().delete().catch(e => null)
-            interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Нет вложения`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+        try {
+            if (interaction.replied || interaction.deferred) return await interaction.editReply({ content: content || " ", embeds: embeds, components: components })
+            else return await interaction.update({ content: content || " ", embeds: embeds, components: components })
+        } catch (err) {
+            if (interaction.replied || interaction.deferred) return await interaction.editReply({ content: `${client.config.emojis.NO}${err.message}`, flags: [MessageFlags.Ephemeral] })
+            else return interaction.reply({ content: `${client.config.emojis.NO}${err.message}`, flags: [MessageFlags.Ephemeral] })
         }
-    } 
+        
+    }
 }

@@ -11,7 +11,7 @@ module.exports = {
         }
         const settings = client.cache.settings.get(interaction.guildId)
         if (interaction.customId.includes("accept")) {
-            const member = await interaction.guild.members.fetch(customRole.userID).catch(e => null)
+            const member = await interaction.guild.members.fetch(customRole.userID).catch(() => null)
             if (member) {
                 const position = interaction.guild.roles.cache.get(settings.roles.customRolePosition).position
                 const role = await interaction.guild.roles.create({
@@ -24,7 +24,7 @@ module.exports = {
                     unicodeEmoji: (interaction.guild.premiumTier === GuildPremiumTier.Tier2 || interaction.guild.premiumTier === GuildPremiumTier.Tier3) && customRole.icon === customRole.displayIcon ? customRole.icon : undefined
                 })
                 const profile = await client.functions.fetchProfile(client, customRole.userID, interaction.guildId)
-                profile.addRole(role.id, 1, customRole.minutes && customRole.minutes !== Infinity ? customRole.minutes * 60 * 1000 : undefined)
+                profile.addRole({ id: role.id, amount: 1, ms: customRole.minutes && customRole.minutes !== Infinity ? customRole.minutes * 60 * 1000 : undefined })
                 await profile.save()
                 member.send({ embeds: [new EmbedBuilder().setThumbnail(interaction.guild.iconURL()).setColor(3093046).setTitle(interaction.guild.name).setDescription(`${client.language({ textId: `Вам разрешено в создании кастомной роли`, guildId: interaction.guildId })}. ${client.language({ textId: `Роль`, guildId: interaction.guildId })} ${role.name} ${client.language({ textId: `добавлена в инвентарь (/inventory-roles)`, guildId: interaction.guildId })}`)] })
                 if (settings.customRoleProperties?.length) {
@@ -48,7 +48,7 @@ module.exports = {
             return interaction.update({ components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId("0").setDisabled(true).setLabel(`${client.language({ textId: `РАЗРЕШЕНО`, guildId: interaction.guildId, locale: interaction.locale })}`).setStyle(ButtonStyle.Success))] })
         }
         if (interaction.customId.includes("decline")) {
-            const member = await interaction.guild.members.fetch(customRole.userID).catch(e => null)
+            const member = await interaction.guild.members.fetch(customRole.userID).catch(() => null)
             if (member) {
                 const modal = new ModalBuilder()
                     .setCustomId(`decline_${interaction.id}`)
@@ -65,8 +65,8 @@ module.exports = {
                             )
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `decline_${interaction.id}` && i.user.id === interaction.user.id
-                interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                const filter = (i) => i.customId === `decline_${interaction.id}` && i.user.id === interaction.user.id;
+                interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                 if (interaction) {
                     const modalArgs = {}
                     interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -76,16 +76,16 @@ module.exports = {
                 if (customRole.minutes === Infinity && settings.customRolePrice.length) {
                     for (let item of settings.customRolePrice) {
                         if (item.type === RewardType.Item) {
-                            await profile.addItem(item.id, item.amount)
+                            await profile.addItem({ itemID: item.id, amount: item.amount })
                         }
                         if (item.type === RewardType.Currency) {
-                            profile.currency = item.amount
+                            profile.currency += item.amount
                         }
                         if (item.type === RewardType.Role) {
-                            await profile.addRole(item.id, item.amount)
+                            await profile.addRole({ id: item.id, amount: item.amount })
                         }
                         if (item.type === RewardType.Reputation) {
-                            await profile.addRp(item.amount)
+                            await profile.addRp({ amount: item.amount })
                         }
                     }
                     await profile.save()    
@@ -93,16 +93,16 @@ module.exports = {
                 if (customRole.minutes !== Infinity && settings.customRolePriceMinute.length) {
                     for (let item of settings.customRolePriceMinute) {
                         if (item.type === RewardType.Item) {
-                            await profile.addItem(item.id, item.amount * customRole.minutes)
+                            await profile.addItem({ itemID: item.id, amount: item.amount * customRole.minutes })
                         }
                         if (item.type === RewardType.Currency) {
-                            profile.currency = item.amount * customRole.minutes
+                            profile.currency += item.amount * customRole.minutes
                         }
                         if (item.type === RewardType.Role) {
-                            await profile.addRole(item.id, item.amount * customRole.minutes)
+                            await profile.addRole({ id: item.id, amount: item.amount * customRole.minutes })
                         }
                         if (item.type === RewardType.Reputation) {
-                            await profile.addRp(item.amount * customRole.minutes)
+                            await profile.addRp({ amount: item.amount * customRole.minutes })
                         }
                     }
                     await profile.save()    

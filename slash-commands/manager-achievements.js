@@ -1,9 +1,10 @@
 const { ApplicationCommandOptionType, Collection, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, RoleSelectMenuBuilder, LabelBuilder } = require("discord.js")
 const Achievement = require("../classes/achievement.js")
-const { RewardType, AchievementType } = require('../enums/index')
+const { RewardType, AchievementType } = require('../enums/index');
 const achievementRegexp = /achievementId{(.*?)}/
 const limRegexp = /lim{(.*?)}/
 const uniqid = require('uniqid')
+const node_emoji = require(`node-emoji`);
 const MAX_REWARDS = 5
 module.exports = {
     name: 'manager-achievements',
@@ -237,7 +238,6 @@ module.exports = {
             if (interaction.isChatInputCommand()) await interaction.deferReply({ flags: ["Ephemeral"] })
             if (args?.Subcommand === "create") {
                 const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId)
-                if (achievements.size >= settings.max_achievements) return interaction.editReply({ content: `${client.language({ textId: `Достигнуто максимум достижений:`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.max_achievements}`, flags: ["Ephemeral"] })
                 if (achievements.some(e => e.name.toLowerCase() === args.name.toLowerCase())) {
                     return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Достижение с названием`, guildId: interaction.guildId, locale: interaction.locale })} <${args.name}> ${client.language({ textId: `уже существует, выбери другое название`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 }
@@ -256,8 +256,6 @@ module.exports = {
                 if (!achievement) return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Достижение с названием`, guildId: interaction.guildId, locale: interaction.locale })} <${args.name}> ${client.language({ textId: `не существует`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
             } else
             if (args?.Subcommand === "copy") {
-                const achievements = client.cache.achievements.filter(e => e.guildID === interaction.guildId)
-                if (achievements.size >= settings.max_achievements) return interaction.reply({ content: `${client.language({ textId: `Достигнуто максимум достижений:`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.max_achievements}`, flags: ["Ephemeral"] })
                 let originalAchievement = client.cache.achievements.find(e => e.name.toLowerCase() === args.achievement.toLowerCase() && e.guildID === interaction.guildId)
                 if (!originalAchievement) return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Достижение с названием`, guildId: interaction.guildId, locale: interaction.locale })}: <${args.name}> ${client.language({ textId: `не найдено`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 if (originalAchievement.type === AchievementType.Items || originalAchievement.type === AchievementType.GetAllAchievements) return interaction.editReply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Достижение с такой задачей нельзя копировать`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
@@ -294,7 +292,7 @@ module.exports = {
                 }
                 let index = 0
                 const embed = new EmbedBuilder()
-                    .setTitle(`${client.language({ textId: `Менеджер достижений`, guildId: interaction.guildId, locale: interaction.locale })} (${achievements.size}/${settings.max_achievements})`)
+                    .setTitle(`${client.language({ textId: `Менеджер достижений`, guildId: interaction.guildId, locale: interaction.locale })} (${achievements.size})`)
                     .setColor(3093046)
                     .setDescription(achievements.size ? achievements.map((achievement) => { 
                         return `${index++}. ${achievement.enable ? "🟢": "🔴"}${achievement.displayEmoji}${achievement.name}`
@@ -303,7 +301,7 @@ module.exports = {
                     embed,
                     new EmbedBuilder()
                         .setColor(3093046)
-                        .setDescription(`${client.config.emojis.plus}${client.language({ textId: `Создать достижение`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-achievements create:1150455842076905508>\n${client.config.emojis.edit}${client.language({ textId: `Изменить достижение`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-achievements edit:1150455842076905508>\n${client.config.emojis.copy}${client.language({ textId: `Скопировать достижение`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-achievements copy:1150455842076905508>\n${client.config.emojis.trash}${client.language({ textId: `Удалить достижение`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-achievements delete:1150455842076905508>`)
+                        .setDescription(`<:PLUS:1012990107143385159>${client.language({ textId: `Создать достижение`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-achievements create:1150455842076905508>\n<:pen:1012990423171600404>${client.language({ textId: `Изменить достижение`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-achievements edit:1150455842076905508>\n<:activities:1005856343141384264>${client.language({ textId: `Скопировать достижение`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-achievements copy:1150455842076905508>\n<:block:1005859695619215370>${client.language({ textId: `Удалить достижение`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-achievements delete:1150455842076905508>`)
                 ]
                 const components = [
                     new ActionRowBuilder()
@@ -375,7 +373,7 @@ module.exports = {
                             ),
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `manager-achievements_name_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `manager-achievements_name_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
@@ -392,9 +390,9 @@ module.exports = {
                 return command.run(client, interaction, args, "achievement", achievement.id)
             } else
             if (interaction.values[0] === "type") {
-                const options = Object.values(AchievementType).map(key => {
+                const options = Object.values(AchievementType).filter(interaction.guildId !== client.config.discord.supportServerId ? e => e !== AchievementType.Upvote && e !== AchievementType.Donate : e => true).map(key => {
                     return {
-                        label: client.functions.getAchievementDescription({ type: key, client: client }, undefined, settings, interaction, interaction.member),
+                        label: client.functions.getAchievementDescription({ type: key, client: client }, undefined, undefined, settings, interaction, interaction.member),
                         value: String(key)
                     }
                 })
@@ -424,8 +422,8 @@ module.exports = {
                     )
                 })
                 await interaction.update({ embeds: [], components: components })
-                const filter = (i) => i.customId.includes(`manager-achievements_selectType`) && i.user.id === interaction.user.id
-                let selectInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`manager-achievements_selectType`) && i.user.id === interaction.user.id;
+                let selectInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                 if (selectInteraction) {
                     const type = Number(selectInteraction.values[0])
                     if (type === AchievementType.Craft || type === AchievementType.Item || type === AchievementType.MiningItem || type === AchievementType.FishingItem) {
@@ -444,12 +442,12 @@ module.exports = {
                                     )
                             }))
                         await selectInteraction.showModal(modal);delete client.globalCooldown[`${selectInteraction.guildId}_${selectInteraction.user.id}`]
-                        const filter = (i) => i.customId === `manager-achievements_items_${selectInteraction.id}` && i.user.id === selectInteraction.user.id
+                        const filter = (i) => i.customId === `manager-achievements_items_${selectInteraction.id}` && i.user.id === selectInteraction.user.id;
                         selectInteraction = await selectInteraction.awaitModalSubmit({ filter, time: 60000 }).catch(e => selectInteraction)
                         if (selectInteraction && selectInteraction.isModalSubmit()) {
                             const modalArgs = {}
                             selectInteraction.fields.fields.each(field => modalArgs[field.customId] = field.value)
-                            const values = Object.values(modalArgs).filter(e => e)
+                            const values = Object.values(modalArgs).filter(Boolean)
                             const items = []
                             for (const itemName of values) {
                                 const item = client.cache.items.find(e => !e.temp && e.enabled && e.guildID === selectInteraction.guildId && e.name.toLowerCase() === itemName.toLowerCase())
@@ -495,7 +493,7 @@ module.exports = {
                                     ),
                             ])
                         await selectInteraction.showModal(modal);delete client.globalCooldown[`${selectInteraction.guildId}_${selectInteraction.user.id}`]
-                        const filter = (i) => i.customId === `manager-achievements_custom_${selectInteraction.id}` && i.user.id === selectInteraction.user.id
+                        const filter = (i) => i.customId === `manager-achievements_custom_${selectInteraction.id}` && i.user.id === selectInteraction.user.id;
                         selectInteraction = await selectInteraction.awaitModalSubmit({ filter, time: 60000 }).catch(e => selectInteraction)
                         if (selectInteraction && selectInteraction.isModalSubmit()) {
                             const modalArgs = {}
@@ -515,8 +513,8 @@ module.exports = {
                                         .setMaxValues(10)
                                 )
                         ] })
-                        const filter = (i) => i.customId.includes(`manager-achivements_roles`) && i.user.id === interaction.user.id
-                        selectInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                        const filter = (i) => i.customId.includes(`manager-achivements_roles`) && i.user.id === interaction.user.id;
+                        selectInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                         if (selectInteraction) {
                             achievement.type = type
                             if (achievement.items.length) achievement.items = []
@@ -539,7 +537,7 @@ module.exports = {
                                     ),
                             ])
                         await selectInteraction.showModal(modal);delete client.globalCooldown[`${selectInteraction.guildId}_${selectInteraction.user.id}`]
-                        const filter = (i) => i.customId === `manager-achievements_amount_${selectInteraction.id}` && i.user.id === selectInteraction.user.id
+                        const filter = (i) => i.customId === `manager-achievements_amount_${selectInteraction.id}` && i.user.id === selectInteraction.user.id;
                         selectInteraction = await selectInteraction.awaitModalSubmit({ filter, time: 60000 }).catch(e => selectInteraction)
                         if (selectInteraction && selectInteraction.isModalSubmit()) {
                             const modalArgs = {}
@@ -595,8 +593,8 @@ module.exports = {
                             )
                     ] 
                 })
-                const filter = (i) => i.customId.includes(`manager-achievements_addreward`) && i.user.id === interaction.user.id
-                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`manager-achievements_addreward`) && i.user.id === interaction.user.id;
+                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                 if (interaction2) {
                     const rewardType = interaction2.customId.includes("item") ? RewardType.Item : interaction2.customId.includes("xp") ? RewardType.Experience : interaction2.customId.includes("currency") ? RewardType.Currency : interaction2.customId.includes("reputation") ? RewardType.Reputation : RewardType.Role
                     if (interaction2.customId.includes("item")) {
@@ -623,8 +621,8 @@ module.exports = {
                                     ),
                             ])
                         await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                        const filter = (i) => i.customId === `manager-achievements_addRewardItem_${interaction2.id}` && i.user.id === interaction2.user.id
-                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId === `manager-achievements_addRewardItem_${interaction2.id}` && i.user.id === interaction2.user.id;
+                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                         if (interaction2 && interaction2.isModalSubmit()) {
                             const modalArgs = {}
                             interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -666,8 +664,8 @@ module.exports = {
                                         .setCustomId(`manager-achievements_addRewardRole`)
                                 )
                         ] })
-                        const filter = (i) => i.customId.includes(`manager-achievements_addRewardRole`) && i.user.id === interaction2.user.id
-                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                        const filter = (i) => i.customId.includes(`manager-achievements_addRewardRole`) && i.user.id === interaction2.user.id;
+                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                         if (interaction2) {
                             const reward = achievement.rewards.find(e => { return e.type === RewardType.Role && e.id === interaction2.roles.first().id })
                             if (reward) {
@@ -696,8 +694,8 @@ module.exports = {
                                     ),
                             ])
                         await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                        const filter = (i) => i.customId === `manager-achievements_addReward_${interaction2.id}` && i.user.id === interaction2.user.id
-                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId === `manager-achievements_addReward_${interaction2.id}` && i.user.id === interaction2.user.id;
+                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                         if (interaction2 && interaction2.isModalSubmit()) {
                             const modalArgs = {}
                             interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -744,8 +742,8 @@ module.exports = {
                                 .setCustomId(`manager-achievements_delReward`)
                         )
                 ] })
-                const filter = (i) => i.customId.includes(`manager-achievements_delReward`) && i.user.id === interaction.user.id
-                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`manager-achievements_delReward`) && i.user.id === interaction.user.id;
+                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                 if (interaction2) {
                     achievement.rewards.splice(Number(interaction2.values[0]), 1)
                     await achievement.save()
@@ -763,11 +761,11 @@ module.exports = {
             if (interaction.values[0] === "addAllUsers") {
                 if (!achievement.enabled) return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Достижение выключено`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 if (achievement.rewards.some(e => e.type === RewardType.Role)) return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Достижение, где в наградах находится роль - нельзя выдать всем пользователям`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
-                await interaction.update({ content: `⏳ ${client.language({ textId: `Выдаю достижения`, guildId: interaction.guildId, locale: interaction.locale })}...`, components: [], embeds: [] })
+                await interaction.update({ content: `<a:8716loading:991344303253241897> ${client.language({ textId: `Выдаю достижения`, guildId: interaction.guildId, locale: interaction.locale })}...`, components: [], embeds: [] })
                 let count = 0
                 await interaction.guild.members.fetch()
                 await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && !profile.achievements?.some(e => e.achievmentID === achievement.id)).map(async profile => {
-                    await profile.addAchievement(achievement, false, true, true)
+                    await profile.addAchievement({ achievement, noLogs: true, noNotification: true })
                     await profile.save()
                     count++
                 }))
@@ -776,7 +774,7 @@ module.exports = {
             if (interaction.values[0] === "removeAllUsers") {
                 let count = 0
                 await Promise.all(client.cache.profiles.filter(profile => profile.guildID === interaction.guildId && profile.achievements && profile.achievements.some(e => e.achievmentID === achievement.id)).map(async profile => {
-                    await profile.delAchievement(achievement)
+                    await profile.delAchievement({ achievement })
                     await profile.save()
                     count++
                 }))
@@ -790,7 +788,7 @@ module.exports = {
             .setDescription([
                 `${achievement.enabled ? `🟢${client.language({ textId: `Достижение включено`, guildId: interaction.guildId, locale: interaction.locale })}` : `🔴${client.language({ textId: `Достижение выключено`, guildId: interaction.guildId, locale: interaction.locale })}`}`,
                 `👤${client.language({ textId: `Участников с этим достижением`, guildId: interaction.guildId, locale: interaction.locale })}: ${client.cache.profiles.filter(e => e.guildID === interaction.guildId && e.achievements && e.achievements.some(ach => ach.achievmentID === achievement.id)).size}`,
-                client.functions.getAchievementDescription(achievement, undefined, settings, interaction, interaction.member)
+                client.functions.getAchievementDescription(achievement, undefined, undefined, settings, interaction, interaction.member)
             ].join("\n"))
             .setFields([
                 {
@@ -860,12 +858,12 @@ module.exports = {
                         {
                             label: client.language({ textId: `Выдать достижение всем пользователям`, guildId: interaction.guildId, locale: interaction.locale }),
                             value: `addAllUsers`,
-                            emoji: client.config.emojis.plus
+                            emoji: client.config.emojis.join
                         },
                         {
                             label: client.language({ textId: `Забрать достижение у всех пользователей`, guildId: interaction.guildId, locale: interaction.locale }),
                             value: `removeAllUsers`,
-                            emoji: client.config.emojis.minus
+                            emoji: client.config.emojis.leave
                         }
                     ])
                     .setPlaceholder(`🪄${client.language({ textId: `Действия`, guildId: interaction.guildId, locale: interaction.locale })}`)

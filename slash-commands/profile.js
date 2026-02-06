@@ -70,17 +70,17 @@ module.exports = {
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
         if (!interaction.isChatInputCommand() && !interaction.isContextMenuCommand() && UserRegexp.exec(interaction.customId)) {
-            if (interaction.user.id !== UserRegexp.exec(interaction.customId)[1]) return interaction.deferUpdate().catch(e => null)
+            if (interaction.user.id !== UserRegexp.exec(interaction.customId)[1]) return interaction.deferUpdate().catch(() => null)
         }
         const flags = []
         if ((interaction.isChatInputCommand() && !args?.compact) || interaction.message?.flags.toArray().includes("IsComponentsV2")) flags.push(MessageFlags.IsComponentsV2)
         if (interaction.customId?.includes("eph") || interaction.values?.[0].includes("eph") || args?.ephemeral) flags.push("Ephemeral")
         let member
-        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(e => null)
-        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+        if (args?.user) member = await interaction.guild.members.fetch(args.user).catch(() => null)
+        else if (interaction.isButton() && MemberRegexp.exec(interaction.customId)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         else if (interaction.isStringSelectMenu() && (MemberRegexp.exec(interaction.customId) || MemberRegexp.exec(interaction.values[0]))) {
-            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(e => null)
-            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(e => null)
+            member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.values[0])?.[1]).catch(() => null)
+            if (!(member instanceof GuildMember)) member = await interaction.guild.members.fetch(MemberRegexp.exec(interaction.customId)[1]).catch(() => null)
         }
         else member = interaction.member
         if (!member) {
@@ -503,7 +503,7 @@ module.exports = {
                     .setThumbnail(interaction.member.displayAvatarURL())
                     .setDescription(`${interaction.member.displayName} ${client.language({ textId: `лайкнул твой профиль`, guildId: interaction.guildId })}`)
                     .setColor(3093046)
-            ] }).catch(e => null)
+            ] }).catch(() => null)
         }
         if (member.user.bot || (profile.isHiden && interaction.user.id !== profile.userID && !interaction.member.permissions.has("Administrator"))) {
             const container = new ContainerBuilder()
@@ -578,7 +578,7 @@ module.exports = {
             if (!profile.achievements?.some(ach => ach.achievmentID === achievement.id) && Date.now() - member.joinedTimestamp >= achievement.amount * 60 * 1000 && !client.tempAchievements[profile.userID]?.includes(achievement.id)) {
                 if (!client.tempAchievements[profile.userID]) client.tempAchievements[profile.userID] = []
                 client.tempAchievements[profile.userID].push(achievement.id)
-                await profile.addAchievement(achievement, true)
+                await profile.addAchievement({ achievement, save: true })
             }    
         }))
         const components = []
@@ -647,14 +647,14 @@ module.exports = {
             profile.autoIncomeExpire ? `${client.language({ textId: `Авто доход ролей до`, guildId: interaction.guildId, locale: interaction.locale })} <t:${Math.floor(profile.autoIncomeExpire/1000)}:f>` : undefined,
             `${client.config.emojis.mic}${(+profile.hours.toFixed(1)).toLocaleString()} ${client.config.emojis.message}${profile.messages.toLocaleString()} ${settings.displayCurrencyEmoji}${Math.floor(profile.currency).toLocaleString()} ${client.config.emojis.heart}${profile.likes.toLocaleString()}`
         ]
-        embed.setDescription(description.filter(e => e).join("\n"))
+        embed.setDescription(description.filter(Boolean).join("\n"))
 
         const container = new ContainerBuilder().setAccentColor(hex2rgb(member.displayHexColor))
         const text1 = new TextDisplayBuilder().setContent([
             member.displayName,
             `${client.language({ textId: `Уровень`, guildId: interaction.guildId, locale: interaction.locale })} 🎖${profile.level}`,
             `${settings.seasonLevelsEnabled ? `${client.language({ textId: `Сезонный уровень`, guildId: interaction.guildId, locale: interaction.locale })} ${client.config.emojis.seasonLevel}${profile.seasonLevel}` : ""}`,
-            description.filter(e => e).join("\n")
+            description.filter(Boolean).join("\n")
         ].join("\n"))
         if (!profile.thumbnailHidden) {
             try {

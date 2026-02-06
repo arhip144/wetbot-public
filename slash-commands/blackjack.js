@@ -96,9 +96,9 @@ module.exports = {
             const serverItemName = args.bet === "currency" ? settings.currencyName : serverItem?.name
             if ((args.bet === "currency" ? profile.currency : userItem.amount) < args.amount) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "В инвентаре", guildId: interaction.guildId, locale: interaction.locale })} ${serverItemEmoji}${serverItemName} (${(args.bet === "currency" ? profile.currency.toLocaleString() : userItem.amount.toLocaleString())})`, flags: ["Ephemeral"] })
             if (args.bet !== "currency") {
-                await profile.subtractItem(serverItem.itemID, args.amount)    
+                await profile.subtractItem({ itemID: serverItem.itemID, amount: args.amount })    
             } else {
-                await profile.subtractCurrency(args.amount)
+                await profile.subtractCurrency({ amount: args.amount })
             }
             game = new BlackjackGame(client, interaction.user.id, interaction.guildId, args.bet === "currency" ? RewardType.Currency : RewardType.Item, args.bet === "currency" ? undefined : serverItem.itemID, args.amount, serverItemEmoji, serverItemName)
             client.cache.blackjack.set(game.id, game)
@@ -129,9 +129,9 @@ module.exports = {
                 const serverItemName = game.betType === RewardType.Currency ? settings.currencyName : serverItem?.name
                 if ((game.betType === RewardType.Currency ? profile.currency : userItem?.amount || 0) < game.currentBet * 2) return interaction.reply({ content: `${client.config.emojis.NO} ${client.language({ textId: "В инвентаре", guildId: interaction.guildId, locale: interaction.locale })} ${serverItemEmoji}${serverItemName} (${(game.betType === RewardType.Currency ? profile.currency.toLocaleString() : userItem?.amount.toLocaleString() || 0)})`, flags: ["Ephemeral"] })
                 if (game.betType === RewardType.Currency) {
-                    await profile.subtractCurrency(game.currentBet)
+                    await profile.subtractCurrency({ amount: game.currentBet })
                 } else {
-                    await profile.subtractItem(serverItem.itemID, game.currentBet)
+                    await profile.subtractItem({ itemID: serverItem.itemID, amount: game.currentBet })
                 }
                 await profile.save()
                 game.playerDouble()

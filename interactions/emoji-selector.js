@@ -149,8 +149,8 @@ module.exports = {
                                 }))
                         )
                     ], embeds: [], flags: ["Ephemeral"] })
-					const filter = (i) => i.customId.includes(`selectDefaultEmoji`) && i.user.id === interaction.user.id
-					interaction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+					const filter = (i) => i.customId.includes(`selectDefaultEmoji`) && i.user.id === interaction.user.id;
+					interaction = await interaction.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
 					if (interaction) {
                         modalArgs.emoji = node_emoji.find(interaction.values[0]).emoji
                         isDefaultEmoji = true
@@ -292,11 +292,11 @@ module.exports = {
         if (select_for && select_for_id) return interaction.reply({ content: [
             selector.filter_name ? `${client.language({ textId: `Поиск по названию`, guildId: interaction.guildId, locale: interaction.locale })}: **${selector.filter_name}**` : undefined,
             selector.filter_guild_id ? `${client.language({ textId: `Поиск по ID сервера`, guildId: interaction.guildId, locale: interaction.locale })}: **${selector.filter_guild_id}**` : undefined
-        ].filter(e => e).join("\n"), components: components, flags: ["Ephemeral"] })
+        ].filter(Boolean).join("\n"), components: components, flags: ["Ephemeral"] })
         else return interaction.update({ content: [
             selector.filter_name ? `${client.language({ textId: `Поиск по названию`, guildId: interaction.guildId, locale: interaction.locale })}: **${selector.filter_name}**` : undefined,
             selector.filter_guild_id ? `${client.language({ textId: `Поиск по ID сервера`, guildId: interaction.guildId, locale: interaction.locale })}: **${selector.filter_guild_id}**` : undefined
-        ].filter(e => e).join("\n"), components: components, flags: ["Ephemeral"] })
+        ].filter(Boolean).join("\n"), components: components, flags: ["Ephemeral"] })
     }
 }
 function selectEmojisComponent(client, emojis, interaction, selector, min) {

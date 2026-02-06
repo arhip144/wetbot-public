@@ -1,6 +1,7 @@
 const { EmbedBuilder, AttachmentBuilder, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, ButtonStyle, TextInputStyle, TextInputBuilder, ModalBuilder, InteractionType, Collection, LabelBuilder } = require("discord.js")
 const UserRegexp = /usr{(.*?)}/
 const TypeRegexp = /type{(.*?)}/
+const imageUrlRegex = /https?:\/\/[^?\s]*\.(png|jpg|jpeg|gif|webp|bmp|svg|ico)(\?.*)?$/i;
 module.exports = {
     name: "rank-set",
     nameLocalizations: {
@@ -18,14 +19,13 @@ module.exports = {
     group: `profile-group`,
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
-        if (UserRegexp.exec(interaction.customId) && interaction.user.id !== UserRegexp.exec(interaction.customId)[1]) return interaction.deferUpdate().catch(e => null)
+        if (UserRegexp.exec(interaction.customId) && interaction.user.id !== UserRegexp.exec(interaction.customId)[1]) return interaction.deferUpdate().catch(() => null)
         const flags = []
         if (interaction.isChatInputCommand() || interaction.customId?.includes("eph") || interaction.values?.[0].includes("eph")) flags.push("Ephemeral")
         if (interaction.isChatInputCommand() || interaction.customId?.includes("reply")) await interaction.deferReply({ flags })
         const settings = client.cache.settings.get(interaction.guildId)
         const { member } = interaction
         const profile = await client.functions.fetchProfile(client, member.user.id, interaction.guildId)
-        let globalUser = await client.globalProfileSchema.findOne({ userID: member.user.id }).lean()
         let serverCard = false
         if (interaction.isStringSelectMenu()) {
             serverCard = interaction.values[0] === "serverCard"
@@ -48,7 +48,7 @@ module.exports = {
                                     .setRequired(false)
                                     .setStyle(TextInputStyle.Paragraph)
                                     .setPlaceholder(`${client.language({ textId: `Рекомендуется изображение 900x300`, guildId: interaction.guildId, locale: interaction.locale })}`)
-                                    .setValue(`${settings.rank_card.background || " "}`)
+                                    .setValue(`${settings.rank_card.background || ""}`)
                             ),
                         new LabelBuilder()
                             .setLabel(`${client.language({ textId: `Яркость`, guildId: interaction.guildId, locale: interaction.locale })}`)
@@ -57,16 +57,17 @@ module.exports = {
                                     .setCustomId("brightness")
                                     .setRequired(true)
                                     .setStyle(TextInputStyle.Short)
-                                    .setValue(`${settings.rank_card.background_brightness}`)
+                                    .setValue(`${settings.rank_card.background_brightness || ""}`)
                                     .setPlaceholder(`0-200`)
                             ),
                         new LabelBuilder()
                             .setLabel(`${client.language({ textId: `Размытие`, guildId: interaction.guildId, locale: interaction.locale })}`)
                             .setTextInputComponent(
                                 new TextInputBuilder()
+                                    .setCustomId("blur")
                                     .setRequired(true)
                                     .setStyle(TextInputStyle.Short)
-                                    .setValue(`${settings.rank_card.background_blur}`)
+                                    .setValue(`${settings.rank_card.background_blur || ""}`)
                                     .setPlaceholder(`0-100`)
                             )
                     ])
@@ -76,11 +77,11 @@ module.exports = {
                 if (interaction && interaction.type === InteractionType.ModalSubmit) {
                     let boolean = true
                     const modalArgs = {}
-                    for (const c of interaction.fields.fields) {
+                    for (const [key, c] of interaction.fields.fields) {
                         if (c.customId !== "link") {
                             if (isNaN(+c.value) || !Number.isInteger(+c.value)) {
                                 boolean = false
-                                if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                 interaction.followUp({ content: `**${c.value}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                             }
                             c.value = +c.value
@@ -91,18 +92,17 @@ module.exports = {
                         } else modalArgs[c.customId] = c.value
                     }
                     if (modalArgs.link) {
-                        const isImageURL = require('image-url-validator').default
-                        const image = await isImageURL(modalArgs.link)
-                        if (!image) {
-                            if (interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                        imageUrlRegex.test(modalArgs.link)
+                        if (!imageUrlRegex.test(modalArgs.link)) {
+                            if (interaction.deferred) await interaction.deferUpdate().catch(() => null)
                             return interaction.followUp({ content: `${client.language({ textId: `Ошибка: ссылка не является прямой ссылкой на фон`, guildId: interaction.guildId, locale: interaction.locale })}\n${client.language({ textId: `Пример ссылки`, guildId: interaction.guildId, locale: interaction.locale })}: **https://cdn.discordapp.com/attachments/964635142889021500/978733897204531260/IMG_0608.jpg**`, flags: ["Ephemeral"] })
                         } else settings.rank_card.background = modalArgs.link    
                     } else settings.rank_card.background = null
                     if (!boolean) return
                     settings.rank_card.background_brightness = modalArgs.brightness
                     settings.rank_card.background_blur = modalArgs.blur
-                    await settings.save().catch(e => null)
-                    await interaction.deferUpdate().catch(e => null)
+                    await settings.save().catch(() => null)
+                    await interaction.deferUpdate().catch(() => null)
                 } else return 
             }
             if (interaction.customId.includes("font")) {
@@ -157,10 +157,10 @@ module.exports = {
                 if (interaction && interaction.type === InteractionType.ModalSubmit) {
                     let boolean = true
                     const modalArgs = {}
-                    for (const c of interaction.fields.fields) {
+                    for (const [key, c] of interaction.fields.fields) {
                         if (isNaN(+c.value) || !Number.isInteger(+c.value)) {
                             boolean = false
-                            if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                            if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                             interaction.followUp({ content: `**${c.value}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                         }
                         c.value = +c.value
@@ -174,8 +174,8 @@ module.exports = {
                     settings.rank_card.font_color.g = modalArgs.green
                     settings.rank_card.font_color.b = modalArgs.blue
                     settings.rank_card.font_color.a = modalArgs.alpha !== null ? modalArgs.alpha / 100 : modalArgs.alpha
-                    await settings.save().catch(e => null)
-                    await interaction.deferUpdate().catch(e => null)
+                    await settings.save().catch(() => null)
+                    await interaction.deferUpdate().catch(() => null)
                 } else return  
             }
             if (interaction.customId.includes("xpforeground")) {
@@ -230,10 +230,10 @@ module.exports = {
                 if (interaction && interaction.type === InteractionType.ModalSubmit) {
                     let boolean = true
                     const modalArgs = {}
-                    for (const c of interaction.fields.fields) {
+                    for (const [key, c] of interaction.fields.fields) {
                         if (isNaN(+c.value) || !Number.isInteger(+c.value)) {
                             boolean = false
-                            if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                            if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                             interaction.followUp({ content: `**${c.value}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                         }
                         c.value = +c.value
@@ -247,8 +247,8 @@ module.exports = {
                     settings.rank_card.xp_color.g = modalArgs.green
                     settings.rank_card.xp_color.b = modalArgs.blue
                     settings.rank_card.xp_color.a = modalArgs.alpha !== null ? modalArgs.alpha / 100 : modalArgs.alpha
-                    await settings.save().catch(e => null)
-                    await interaction.deferUpdate().catch(e => null)
+                    await settings.save().catch(() => null)
+                    await interaction.deferUpdate().catch(() => null)
                 } else return 
             }
             if (interaction.customId.includes("xpbackground")) {
@@ -303,10 +303,10 @@ module.exports = {
                 if (interaction && interaction.type === InteractionType.ModalSubmit) {
                     let boolean = true
                     const modalArgs = {}
-                    for (const c of interaction.fields.fields) {
+                    for (const [key, c] of interaction.fields.fields) {
                         if (isNaN(+c.value) || !Number.isInteger(+c.value)) {
                             boolean = false
-                            if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                            if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                             interaction.followUp({ content: `**${c.value}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                         }
                         c.value = +c.value
@@ -320,8 +320,8 @@ module.exports = {
                     settings.rank_card.xp_background_color.g = modalArgs.green
                     settings.rank_card.xp_background_color.b = modalArgs.blue
                     settings.rank_card.xp_background_color.a = modalArgs.alpha !== null ? modalArgs.alpha / 100 : modalArgs.alpha
-                    await settings.save().catch(e => null)
-                    await interaction.deferUpdate().catch(e => null)
+                    await settings.save().catch(() => null)
+                    await interaction.deferUpdate().catch(() => null)
                 } else return 
             }
             if (interaction.customId.includes("default")) {
@@ -347,7 +347,7 @@ module.exports = {
                 settings.background_brightness = 100
                 settings.background_blur = 0
 
-                await settings.save().catch(e => null)
+                await settings.save().catch(() => null)
             }
             const 
             fontColor = `rgba(${settings.rank_card.font_color.r}, ${settings.rank_card.font_color.g}, ${settings.rank_card.font_color.b}, ${settings.rank_card.font_color.a})`,
@@ -358,16 +358,16 @@ module.exports = {
             FontLibrary.use("All fonts", [
                 "./GamestationCondensed.otf",
               ])
-            const fillMixedText = (ctx, args, x, y, maxWidth) => {
+            const fillMixedText = (ctx, arguments, x, y, maxWidth) => {
                 ctx.save()
-                args.forEach(({ text, fillStyle, font, fontSize, align }) => {
+                arguments.forEach(({ text, fillStyle, font, fontSize, align }) => {
                     let i = 0
                     do {
                         fontSize--
                         ctx.font = `${fontSize}px ${font}`
                         i++
-                        if (i > 100000) throw new Error(`Бесконечный цикл: rank-set:346, maxWidth: ${maxWidth}, args.map(e => e.text).join(""): ${args.map(e => e.text).join("")}`)
-                    } while (context.measureText(args.map(e => e.text).join("")).width > maxWidth)
+                        if (i > 100000) throw new Error(`Бесконечный цикл: rank-set:346, maxWidth: ${maxWidth}, arguments.map(e => e.text).join(""): ${arguments.map(e => e.text).join("")}`)
+                    } while (context.measureText(arguments.map(e => e.text).join("")).width > maxWidth)
                     ctx.textAlign = align
                     ctx.fillStyle = fillStyle
                     ctx.fillText(text, x, y)
@@ -616,16 +616,16 @@ module.exports = {
                                 )
                         ])
                     await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                    const filter = (i) => i.customId === `rankImage_${interaction.id}` && i.user.id === interaction.user.id
-                    interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(e => null)
+                    const filter = (i) => i.customId === `rankImage_${interaction.id}` && i.user.id === interaction.user.id;
+                    interaction = await interaction.awaitModalSubmit({ filter, time: 180000 }).catch(() => null)
                     if (interaction) {
                         let boolean = true
                         const modalArgs = {}
-                        for (const field of interaction.fields.fields) {
+                        for (const [key, field] of interaction.fields.fields) {
                             if (field.customId !== "link") {
                                 if (field.value && (isNaN(+field.value) || !Number.isInteger(+field.value))) {
                                     boolean = false
-                                    if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                    if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                     interaction.followUp({ content: `**${field.value}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                                 }
                                 if (field.value !== "") field.value = +field.value
@@ -640,9 +640,7 @@ module.exports = {
                         if (!modalArgs.link && profile.rank_card) {
                             profile.rank_card.background = undefined
                         } else {
-                            const isImageURL = require('image-url-validator').default
-                            const image = await isImageURL(modalArgs.link)
-                            if (!image) {
+                            if (!imageUrlRegex.test(modalArgs.link)) {
                                 boolean = false
                                 if (!interaction.deferred) await interaction.deferUpdate()
                                 return interaction.followUp({ content: `${client.language({ textId: `Ошибка: ссылка не является прямой ссылкой на фон`, guildId: interaction.guildId, locale: interaction.locale })}\n${client.language({ textId: `Пример ссылки`, guildId: interaction.guildId, locale: interaction.locale })}: **https://cdn.discordapp.com/attachments/964635142889021500/978733897204531260/IMG_0608.jpg**`, flags: ["Ephemeral"] })
@@ -655,7 +653,7 @@ module.exports = {
                         if (!profile.rank_card) profile.rank_card = {}
                         profile.rank_card.background_brightness = modalArgs.brightness !== undefined ? modalArgs.brightness : undefined
                         profile.rank_card.background_blur = modalArgs.blur
-                        await interaction.deferUpdate().catch(e => null)
+                        await interaction.deferUpdate().catch(() => null)
                     } else return 
                 }
                 if (interaction.customId.includes("font")) {
@@ -710,10 +708,10 @@ module.exports = {
                     if (interaction && interaction.type === InteractionType.ModalSubmit) {
                         let boolean = true
                         const modalArgs = {}
-                        for (const c of interaction.fields.fields) {
+                        for (const [key, c] of interaction.fields.fields) {
                             if (c.value && (isNaN(+c.value) || !Number.isInteger(+c.value))) {
                                 boolean = false
-                                if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                 interaction.followUp({ content: `**${c.value}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                             }
                             if (c.value !== "") c.value = +c.value
@@ -732,7 +730,7 @@ module.exports = {
                         profile.rank_card.font_color.b = modalArgs.blue
                         profile.rank_card.font_color.a = modalArgs.alpha !== undefined ? modalArgs.alpha / 100 : undefined
                         if (profile.rank_card.font_color.r === undefined && profile.rank_card.font_color.g === undefined && profile.rank_card.font_color.b === undefined && profile.rank_card.font_color.a === undefined) profile.rank_card.font_color = undefined
-                        await interaction.deferUpdate().catch(e => null)
+                        await interaction.deferUpdate().catch(() => null)
                     } else return  
                 }
                 if (interaction.customId.includes("xpforeground")) {
@@ -787,10 +785,10 @@ module.exports = {
                     if (interaction && interaction.type === InteractionType.ModalSubmit) {
                         let boolean = true
                         const modalArgs = {}
-                        for (const c of interaction.fields.fields) {
+                        for (const [key, c] of interaction.fields.fields) {
                             if (c.value && (isNaN(+c.value) || !Number.isInteger(+c.value))) {
                                 boolean = false
-                                if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                 interaction.followUp({ content: `**${c.value}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                             }
                             if (c.value !== "") c.value = +c.value
@@ -809,7 +807,7 @@ module.exports = {
                         profile.rank_card.xp_color.b = modalArgs.blue
                         profile.rank_card.xp_color.a = modalArgs.alpha !== undefined ? modalArgs.alpha / 100 : undefined
                         if (profile.rank_card.xp_color.r === undefined && profile.rank_card.xp_color.g === undefined && profile.rank_card.xp_color.b === undefined && profile.rank_card.xp_color.a === undefined) profile.rank_card.xp_color = undefined
-                        await interaction.deferUpdate().catch(e => null)
+                        await interaction.deferUpdate().catch(() => null)
                     } else return 
                 }
                 if (interaction.customId.includes("xpbackground")) {
@@ -864,10 +862,10 @@ module.exports = {
                     if (interaction && interaction.type === InteractionType.ModalSubmit) {
                         let boolean = true
                         const modalArgs = {}
-                        for (const c of interaction.fields.fields) {
+                        for (const [key, c] of interaction.fields.fields) {
                             if (c.value && (isNaN(+c.value) || !Number.isInteger(+c.value))) {
                                 boolean = false
-                                if (!interaction.deferred) await interaction.deferUpdate().catch(e => null)
+                                if (!interaction.deferred) await interaction.deferUpdate().catch(() => null)
                                 interaction.followUp({ content: `**${c.value}** ${client.language({ textId: `не является целым числом`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
                             }
                             if (c.value !== "") c.value = +c.value
@@ -886,7 +884,7 @@ module.exports = {
                         profile.rank_card.xp_background_color.b = modalArgs.blue
                         profile.rank_card.xp_background_color.a = modalArgs.alpha !== undefined ? modalArgs.alpha / 100 : undefined
                         if (profile.rank_card.xp_background_color.r === undefined && profile.rank_card.xp_background_color.g === undefined && profile.rank_card.xp_background_color.b === undefined && profile.rank_card.xp_background_color.a === undefined) profile.rank_card.xp_background_color = undefined
-                        await interaction.deferUpdate().catch(e => null)
+                        await interaction.deferUpdate().catch(() => null)
                     } else return 
                 }
                 if (interaction.customId.includes("default")) {
@@ -906,16 +904,16 @@ module.exports = {
             FontLibrary.use("All fonts", [
                 "./GamestationCondensed.otf",
               ])
-            const fillMixedText = (ctx, args, x, y, maxWidth) => {
+            const fillMixedText = (ctx, arguments, x, y, maxWidth) => {
                 ctx.save()
-                args.forEach(({ text, fillStyle, font, fontSize, align }) => {
+                arguments.forEach(({ text, fillStyle, font, fontSize, align }) => {
                     let i = 0
                     do {
                         fontSize--
                         ctx.font = `${fontSize}px ${font}`
                         i++
-                        if (i > 100000) throw new Error(`Бесконечный цикл: rank-set:867, maxWidth: ${maxWidth}, args.map(e => e.text).join(""): ${args.map(e => e.text).join("")}`)
-                    } while (context.measureText(args.map(e => e.text).join("")).width > maxWidth)
+                        if (i > 100000) throw new Error(`Бесконечный цикл: rank-set:867, maxWidth: ${maxWidth}, arguments.map(e => e.text).join(""): ${arguments.map(e => e.text).join("")}`)
+                    } while (context.measureText(arguments.map(e => e.text).join("")).width > maxWidth)
                     ctx.textAlign = align
                     ctx.fillStyle = fillStyle
                     ctx.fillText(text, x, y)
@@ -925,7 +923,6 @@ module.exports = {
                 ctx.restore()
             }
             function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
-
                 if (arguments.length === 2) {
                     x = y = 0
                     w = ctx.canvas.width

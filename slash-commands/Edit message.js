@@ -20,7 +20,7 @@ module.exports = {
     group: `context-group`,
     cooldowns: new Collection(),
     run: async (client, interaction) => {
-        const message = await interaction.channel.messages.fetch({ message: interaction.targetId, cache: false, force: true }).catch(e => null)
+        const message = await interaction.channel.messages.fetch({ message: interaction.targetId, cache: false, force: true }).catch(() => null)
         if (!message) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: "Не удалось найти сообщение", guildId: interaction.guildId })}.`, flags: ["Ephemeral"] })
         if (message.author.id !== client.user.id) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: "Это сообщение не является моим", guildId: interaction.guildId })}.`, flags: ["Ephemeral"] })
         if (!message.editable) return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: "Я не могу редактировать это сообщение", guildId: interaction.guildId })}.`, flags: ["Ephemeral"] })
@@ -47,6 +47,6 @@ module.exports = {
             interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
             message.edit({ content: modalArgs.message.length ? modalArgs.message : " ", embeds: message.embeds, files: message.attachments, components: message.components })
         } else return
-        return interaction.deferUpdate().catch(e => null)
+        return interaction.deferUpdate().catch(() => null)
     }   
 }

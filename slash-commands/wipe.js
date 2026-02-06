@@ -57,7 +57,7 @@ module.exports = {
             const array = []
             if (client.wipe[interaction.guildId]?.usersID?.length) {
                 for (const userID of client.wipe[interaction.guildId].usersID) {
-                    const member = await interaction.guild.members.fetch(userID).catch(e => null)
+                    const member = await interaction.guild.members.fetch(userID).catch(() => null)
                     if (member) array.push(`> ${member.user.username} (${member.user.id})`)
                 }
             }
@@ -79,8 +79,8 @@ module.exports = {
                 ],
                 flags: ["Ephemeral"] 
             })
-            const filter1 = (i) => (i.customId === `wipe confirm` || i.customId === `wipe decline`) && i.user.id === interaction.user.id
-            const buttonInteraction = await interaction.channel.awaitMessageComponent({ filter1, time: 20000 }).catch(e => null)
+            const filter1 = (i) => (i.customId === `wipe confirm` || i.customId === `wipe decline`) && i.user.id === interaction.user.id;
+            const buttonInteraction = await interaction.channel.awaitMessageComponent({ filter1, time: 20000 }).catch(() => null)
             if (!buttonInteraction) return
             if (buttonInteraction && buttonInteraction.customId === "wipe decline") {
                 interaction.message.components.forEach(row => row.components.forEach(component => {
@@ -89,7 +89,7 @@ module.exports = {
                     else component.data.disabled = false
                 }))
                 await interaction.editReply({ components: interaction.message.components })
-                return buttonInteraction.update({ content: `${client.config.emojis.YES} ${client.language({ textId: `Очистка отменена`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [] }).catch(e => null)
+                return buttonInteraction.update({ content: `${client.config.emojis.YES} ${client.language({ textId: `Очистка отменена`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [] }).catch(() => null)
             }
             await buttonInteraction.update({ content: `⏳ ${client.language({ textId: `Очищаю. Пожалуйста подождите`, guildId: interaction.guildId, locale: interaction.locale })}...`, embeds: [], components: [] })
             if (client.wipe[interaction.guildId].values.includes("shop")) {
@@ -229,8 +229,8 @@ module.exports = {
                 ],
                 flags: ["Ephemeral"]
             })    
-            const filter = (i) => i.customId.includes(`usersWipeFilter`) && i.user.id === interaction.user.id
-            const userSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+            const filter = (i) => i.customId.includes(`usersWipeFilter`) && i.user.id === interaction.user.id;
+            const userSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
             if (userSelectMenuInteraction && userSelectMenuInteraction.customId.includes("usersWipeFilter")) {
                 await userSelectMenuInteraction.deferUpdate()
                 if (userSelectMenuInteraction.customId === "usersWipeFilter") {
@@ -281,8 +281,8 @@ module.exports = {
                         .setLabel(`${client.language({ textId: `ОТМЕНА`, guildId: interaction.guildId, locale: interaction.locale })}`)
                         .setStyle(ButtonStyle.Danger))
                 ], flags: ["Ephemeral"] })
-            const filter = (i) => (i.customId === `wipe confirm` || i.customId === `wipe decline`) && i.user.id === interaction.user.id
-            const buttonInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 20000 }).catch(e => null)
+            const filter = (i) => (i.customId === `wipe confirm` || i.customId === `wipe decline`) && i.user.id === interaction.user.id;
+            const buttonInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 20000 }).catch(() => null)
             if (!buttonInteraction) return
             if (buttonInteraction && buttonInteraction.customId === "wipe decline") {
                 interaction.message.components.forEach(row => row.components.forEach(component => {
@@ -291,7 +291,7 @@ module.exports = {
                     else component.data.disabled = false
                 }))
                 await interaction.editReply({ components: interaction.message.components })
-                return buttonInteraction.update({ content: `${client.config.emojis.YES} ${client.language({ textId: `Очистка отменена`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [] }).catch(e => null)
+                return buttonInteraction.update({ content: `${client.config.emojis.YES} ${client.language({ textId: `Очистка отменена`, guildId: interaction.guildId, locale: interaction.locale })}`, components: [] }).catch(() => null)
             }
             await buttonInteraction.update({ content: `⏳ ${client.language({ textId: `Очищаю. Пожалуйста подождите`, guildId: interaction.guildId, locale: interaction.locale })}...`, embeds: [], components: [] })
             for (const value of interaction.values) {
@@ -345,14 +345,14 @@ module.exports = {
                             if (profile) {
                                 for (const element of giveaway.rewards) {
                                     if (element.type === RewardType.Currency) {
-                                        profile.currency = element.amount
+                                        profile.currency += element.amount
                                     }
                                     else if (element.type === RewardType.Item) {
                                         const item = client.cache.items.find(i => i.itemID === element.id && !i.temp)
-                                        if (item) await profile.addItem(element.id, element.amount)
+                                        if (item) await profile.addItem({ itemID: element.id, amount: element.amount })
                                     } else if (element.type === RewardType.Role) {
                                         const role = interaction.guild.roles.cache.get(element.id)
-                                        if (role) profile.addRole(element.id, element.amount, element.ms)
+                                        if (role) profile.addRole({ id: element.id, amount: element.amount, ms: element.ms })
                                     }
                                 }
                                 await profile.save()    

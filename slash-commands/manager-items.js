@@ -1,6 +1,6 @@
-const { ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, Collection, ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType, RoleSelectMenuBuilder, ApplicationCommandOptionType, LabelBuilder } = require("discord.js")
-const Item = require("../classes/item.js")
-const { RewardType } = require("../enums/RewardType.js")
+const { ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, Collection, ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType, RoleSelectMenuBuilder, ApplicationCommandOptionType, LabelBuilder } = require("discord.js");
+const Item = require("../classes/item.js");
+const { RewardType } = require("../enums/RewardType.js");
 const UserRegexp = /usr{(.*?)}/
 const ItemRegexp = /it{(.*?)}/
 const IndexRegexp = /index{(.*?)}/
@@ -15,8 +15,8 @@ const bannedWords = [
     `undefined`,
     `NaN`
 ]
-const isImageURL = require('image-url-validator').default
-const Decimal = require('decimal.js')
+const isImageURL = require('image-url-validator').default;
+const Decimal = require('decimal.js');
 module.exports = {
     name: 'manager-items',
     nameLocalizations: {
@@ -391,11 +391,10 @@ module.exports = {
     group: `managers`,
     cooldowns: new Collection(),
     run: async (client, interaction, args) => {
-        if (!interaction.isChatInputCommand() && UserRegexp.exec(interaction.customId)?.[1] !== interaction.user.id) return interaction.deferUpdate().catch(e => null)
+        if (!interaction.isChatInputCommand() && UserRegexp.exec(interaction.customId)?.[1] !== interaction.user.id) return interaction.deferUpdate().catch(() => null)
 		const settings = client.cache.settings.get(interaction.guildId)
 		//СОЗДАНИЕ ПРЕДМЕТА
         if (interaction.isChatInputCommand() && args.Subcommand === "create") {
-			if (client.cache.items.filter(item => item.guildID === interaction.guildId).size >= settings.max_items) return interaction.reply({ content: `${client.language({ textId: `Достигнуто максимум предметов:`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.max_items}`, flags: ["Ephemeral"] })
 			if (client.cache.items.find(i => i.guildID === interaction.guildId && i.name.toLowerCase() === args.name.toLowerCase())) {
 				return interaction.reply({ content: `${client.language({ textId: `Предмет`, guildId: interaction.guildId, locale: interaction.locale })} ${args.name} ${client.language({ textId: `уже существует, выбери другое название`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
 			} else if (bannedWords.some(word => args.name.toLowerCase() === word)) {
@@ -451,7 +450,6 @@ module.exports = {
         }
         //КОПИРОВАНИЕ ПРЕДМЕТА
         if (interaction.isChatInputCommand() && args.Subcommand === "copy") {
-			if (client.cache.items.filter(item => item.guildID === interaction.guildId).size >= settings.max_items) return interaction.reply({ content: `${client.language({ textId: `Достигнуто максимум предметов:`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.max_items}`, flags: ["Ephemeral"] })
 			const originalItem = client.cache.items.find(e => e.guildID === interaction.guildId && e.name.toLowerCase() === args.item.toLowerCase())
 			if (!originalItem) return interaction.reply({ content: `${client.language({ textId: `Предмет с названием`, guildId: interaction.guildId, locale: interaction.locale })}: **${args.item}** ${client.language({ textId: `не найден`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
 			if (client.cache.items.find(e => e.guildID === interaction.guildId && e.name.toLowerCase() === args.name.toLowerCase())) {
@@ -569,7 +567,7 @@ module.exports = {
 		if (args?.Subcommand === "view" || interaction.customId?.includes("view")) {
 			const items = client.cache.items.filter(e => e.guildID === interaction.guildId).map(e => e)
 			const embed = new EmbedBuilder()
-				.setAuthor({ name: `${client.language({ textId: `Менеджер предметов`, guildId: interaction.guildId, locale: interaction.locale })} (${items.length}/${settings.max_items})` })
+				.setAuthor({ name: `${client.language({ textId: `Менеджер предметов`, guildId: interaction.guildId, locale: interaction.locale })} (${items.length})` })
 				.setColor(3093046)
 			let min = 0
 			let max = 25
@@ -610,14 +608,14 @@ module.exports = {
 			if (interaction.isChatInputCommand()) return interaction.reply({ 
 				embeds: [
 					embed, 
-					new EmbedBuilder().setColor(3093046).setDescription(`${client.config.emojis.plus}${client.language({ textId: `Создать предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items create:1150455842294988941>\n${client.config.emojis.edit}${client.language({ textId: `Изменить предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items edit:1150455842294988941>\n${client.config.emojis.copy}${client.language({ textId: `Скопировать предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items copy:1150455842294988941>\n${client.config.emojis.trash}${client.language({ textId: `Удалить предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items delete:1150455842294988941>`)
+					new EmbedBuilder().setColor(3093046).setDescription(`<:PLUS:1012990107143385159>${client.language({ textId: `Создать предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items create:1150455842294988941>\n<:pen:1012990423171600404>${client.language({ textId: `Изменить предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items edit:1150455842294988941>\n<:activities:1005856343141384264>${client.language({ textId: `Скопировать предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items copy:1150455842294988941>\n<:block:1005859695619215370>${client.language({ textId: `Удалить предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items delete:1150455842294988941>`)
 				],
 				components: components
 			}) 
 			else return interaction.update({ 
 				embeds: [
 					embed, 
-					new EmbedBuilder().setColor(3093046).setDescription(`${client.config.emojis.plus}${client.language({ textId: `Создать предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items create:1150455842294988941>\n${client.config.emojis.edit}${client.language({ textId: `Изменить предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items edit:1150455842294988941>\n${client.config.emojis.copy}${client.language({ textId: `Скопировать предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items copy:1150455842294988941>\n${client.config.emojis.trash}${client.language({ textId: `Удалить предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items delete:1150455842294988941>`)
+					new EmbedBuilder().setColor(3093046).setDescription(`<:PLUS:1012990107143385159>${client.language({ textId: `Создать предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items create:1150455842294988941>\n<:pen:1012990423171600404>${client.language({ textId: `Изменить предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items edit:1150455842294988941>\n<:activities:1005856343141384264>${client.language({ textId: `Скопировать предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items copy:1150455842294988941>\n<:block:1005859695619215370>${client.language({ textId: `Удалить предмет`, guildId: interaction.guildId, locale: interaction.locale })}: </manager-items delete:1150455842294988941>`)
 				],
 				components: components
 			})
@@ -679,7 +677,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_name_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_name_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -770,7 +768,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_description_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_description_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -873,8 +871,8 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_image_${interaction.id}` && i.user.id === interaction.user.id
-					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
+					const filter = (i) => i.customId === `manager-items_image_${interaction.id}` && i.user.id === interaction.user.id;
+					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
 						interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -934,7 +932,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_color_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_color_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -989,8 +987,8 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_rarity_${interaction.id}` && i.user.id === interaction.user.id
-					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
+					const filter = (i) => i.customId === `manager-items_rarity_${interaction.id}` && i.user.id === interaction.user.id;
+					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
 					if (interaction && interaction.isModalSubmit()) {
 						const modalArgs = {}
 						interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -1069,8 +1067,8 @@ module.exports = {
 						],
 						flags: ["Ephemeral"]
 					})    
-					const filter = (i) => i.customId.includes(`shop_amount`) && i.user.id === interaction.user.id
-					let followUpInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+					const filter = (i) => i.customId.includes(`shop_amount`) && i.user.id === interaction.user.id;
+					let followUpInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 					if (followUpInteraction && followUpInteraction.customId.includes("shop_amount")) {
 						if (followUpInteraction.customId === "shop_amount_enter_value") {
 							const modal = new ModalBuilder()
@@ -1089,7 +1087,7 @@ module.exports = {
 										),
 								])
 							await followUpInteraction.showModal(modal);delete client.globalCooldown[`${followUpInteraction.guildId}_${followUpInteraction.user.id}`]
-							const filter = (i) => i.customId === `manager-items_shopAmount_${interaction.id}` && i.user.id === interaction.user.id
+							const filter = (i) => i.customId === `manager-items_shopAmount_${interaction.id}` && i.user.id === interaction.user.id;
 							followUpInteraction = await followUpInteraction.awaitModalSubmit({ filter, time: 120000 }).catch(e => followUpInteraction)
 							if (followUpInteraction && followUpInteraction.type === InteractionType.ModalSubmit) {
 								const modalArgs = {}
@@ -1169,8 +1167,8 @@ module.exports = {
 							})
 						} else client.functions.sendError(e)
 					})
-					const filter = (i) => i.customId.includes(`shop_Price`) && i.user.id === interaction.user.id
-					let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+					const filter = (i) => i.customId.includes(`shop_Price`) && i.user.id === interaction.user.id;
+					let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 					let check = false
 					if (interaction2 && interaction2.customId.includes(`shop_Price`)) {
 						let priceType
@@ -1189,7 +1187,7 @@ module.exports = {
 										),
 								])
 							await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-							const filter = (i) => i.customId === `manager-items_setPrice_${interaction2.id}` && i.user.id === interaction.user.id
+							const filter = (i) => i.customId === `manager-items_setPrice_${interaction2.id}` && i.user.id === interaction.user.id;
 							interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction2)
 							if (interaction2 && interaction2.isModalSubmit()) {
 								const modalArgs = {}
@@ -1263,8 +1261,8 @@ module.exports = {
 										.setStyle(ButtonStyle.Secondary)
 								])
 							], embeds: [] })
-							const filter = (i) => i.customId.includes(`shop_TypePrice`) && i.user.id === interaction.user.id
-							interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+							const filter = (i) => i.customId.includes(`shop_TypePrice`) && i.user.id === interaction.user.id;
+							interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
 							if (interaction2 && interaction2.customId.includes(`shop_TypePrice`)) {
 								if (interaction2.customId === "shop_TypePriceCrypto") {
 									const modal = new ModalBuilder()
@@ -1291,7 +1289,7 @@ module.exports = {
 												),
 										])
 									await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-									const filter = (i) => i.customId === `manager-items_shop_currency_pair_${interaction2.id}` && i.user.id === interaction.user.id
+									const filter = (i) => i.customId === `manager-items_shop_currency_pair_${interaction2.id}` && i.user.id === interaction.user.id;
 									interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction2)
 									if (interaction2 && interaction2.isModalSubmit()) {
 										const modalArgs = {}
@@ -1329,7 +1327,7 @@ module.exports = {
 												),
 										])
 									await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-									const filter = (i) => i.customId === `manager-items_price_${interaction2.id}` && i.user.id === interaction.user.id
+									const filter = (i) => i.customId === `manager-items_price_${interaction2.id}` && i.user.id === interaction.user.id;
 									interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction2)
 									if (interaction2 && interaction2.isModalSubmit()) {
 										const modalArgs = {}
@@ -1400,8 +1398,8 @@ module.exports = {
 							})
 						} else client.functions.sendError(e)
 					})
-					const filter = (i) => i.customId.includes(`shop_SellingPrice`) && i.user.id === interaction.user.id
-					let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+					const filter = (i) => i.customId.includes(`shop_SellingPrice`) && i.user.id === interaction.user.id;
+					let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 					let check = false
 					if (interaction2 && interaction2.customId.includes("shop_SellingPrice")) {
 						let sellingPriceType
@@ -1420,7 +1418,7 @@ module.exports = {
 										),
 								])
 							await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-							const filter = (i) => i.customId === `manager-items_setSellingPrice_${interaction2.id}` && i.user.id === interaction.user.id
+							const filter = (i) => i.customId === `manager-items_setSellingPrice_${interaction2.id}` && i.user.id === interaction.user.id;
 							interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction2)
 							if (interaction2 && interaction2.isModalSubmit()) {
 								const modalArgs = {}
@@ -1489,8 +1487,8 @@ module.exports = {
 										.setStyle(ButtonStyle.Secondary)
 								])
 							], embeds: [] })
-							const filter = (i) => i.customId.includes(`shop_TypeSellingPrice`) && i.user.id === interaction.user.id
-							interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 60000 }).catch(e => null)
+							const filter = (i) => i.customId.includes(`shop_TypeSellingPrice`) && i.user.id === interaction.user.id;
+							interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 60000 }).catch(() => null)
 							if (interaction2 && interaction2.customId.includes(`shop_TypeSellingPrice`)) {
 								if (interaction2.customId === "shop_TypeSellingPriceCrypto") {
 									const modal = new ModalBuilder()
@@ -1517,7 +1515,7 @@ module.exports = {
 												),
 										])
 									await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-									const filter = (i) => i.customId === `manager-items_shop_currency_pair_${interaction2.id}` && i.user.id === interaction.user.id
+									const filter = (i) => i.customId === `manager-items_shop_currency_pair_${interaction2.id}` && i.user.id === interaction.user.id;
 									interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction2)
 									if (interaction2 && interaction2.isModalSubmit()) {
 										const modalArgs = {}
@@ -1555,7 +1553,7 @@ module.exports = {
 												),
 										])
 									await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-									const filter = (i) => i.customId === `manager-items_sellingPrice_${interaction2.id}` && i.user.id === interaction.user.id
+									const filter = (i) => i.customId === `manager-items_sellingPrice_${interaction2.id}` && i.user.id === interaction.user.id;
 									interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction2)
 									if (interaction2 && interaction2.isModalSubmit()) {
 										const modalArgs = {}
@@ -1598,7 +1596,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_dailyLimit_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_dailyLimit_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -1631,7 +1629,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_weeklyLimit_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_weeklyLimit_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -1664,7 +1662,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_monthlyLimit_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_monthlyLimit_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -1710,8 +1708,8 @@ module.exports = {
 					const firstRow = new ActionRowBuilder().addComponents(selectMenu)
 					const secondRow = new ActionRowBuilder().addComponents(cancelBTN)
 					await interaction.followUp({ content: client.language({ textId: `Выберите тип авто-доставки`, guildId: interaction.guildId, locale: interaction.locale }), components: [firstRow, secondRow], flags: ["Ephemeral"] })
-					const filter = (i) => i.customId.includes(`Delivery`) && i.user.id === interaction.user.id
-					let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+					const filter = (i) => i.customId.includes(`Delivery`) && i.user.id === interaction.user.id;
+					let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 					if (interaction2 && interaction2.isStringSelectMenu()) {
 						const value = interaction2.values[0]
 						const modal = new ModalBuilder()
@@ -1730,7 +1728,7 @@ module.exports = {
 									),
 							])
 						await interaction2.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `manager-items_Delivery_${interaction2.id}` && i.user.id === interaction.user.id
+						const filter = (i) => i.customId === `manager-items_Delivery_${interaction2.id}` && i.user.id === interaction.user.id;
 						interaction2 = await interaction2.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction2)
 						if (interaction2 && interaction2.isModalSubmit()) {
 							const modalArgs = {}
@@ -1897,7 +1895,7 @@ module.exports = {
 									),
 							])
 						await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `manager-items_add_recipeAmount_${interaction.id}` && i.user.id === interaction.user.id
+						const filter = (i) => i.customId === `manager-items_add_recipeAmount_${interaction.id}` && i.user.id === interaction.user.id;
 						interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)	
 					} else {
 						const modal = new ModalBuilder()
@@ -1915,7 +1913,7 @@ module.exports = {
 									),
 							])
 						await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `manager-items_add_recipeAmount_${interaction.id}` && i.user.id === interaction.user.id
+						const filter = (i) => i.customId === `manager-items_add_recipeAmount_${interaction.id}` && i.user.id === interaction.user.id;
 						interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)	
 					}
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
@@ -2002,7 +2000,7 @@ module.exports = {
 									),
 							])
 						await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `manager-items_carftpermissions_${interaction.id}` && i.user.id === interaction.user.id
+						const filter = (i) => i.customId === `manager-items_carftpermissions_${interaction.id}` && i.user.id === interaction.user.id;
 						interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 						if (interaction && interaction.type === InteractionType.ModalSubmit) {
 							const modalArgs = {}
@@ -2053,7 +2051,7 @@ module.exports = {
 									),
 							])
 						await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `manager-items_cooldown_craft_${interaction.id}` && i.user.id === interaction.user.id
+						const filter = (i) => i.customId === `manager-items_cooldown_craft_${interaction.id}` && i.user.id === interaction.user.id;
 						interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 						if (interaction && interaction.type === InteractionType.ModalSubmit) {
 							const modalArgs = {}
@@ -2187,7 +2185,7 @@ module.exports = {
 										),
 								])
 							await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-							const filter = (i) => i.customId === `manager-items_minMaxRecipeAmount_${interaction.id}` && i.user.id === interaction.user.id
+							const filter = (i) => i.customId === `manager-items_minMaxRecipeAmount_${interaction.id}` && i.user.id === interaction.user.id;
 							interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 							if (interaction && interaction.type === InteractionType.ModalSubmit) {
 								const modalArgs = {}
@@ -2487,8 +2485,8 @@ module.exports = {
 								],
 								flags: ["Ephemeral"]
 							})    
-							const filter = (i) => i.customId.includes(`steamPriceCurrency`) && i.user.id === interaction.user.id
-							const currencySelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+							const filter = (i) => i.customId.includes(`steamPriceCurrency`) && i.user.id === interaction.user.id;
+							const currencySelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 							if (currencySelectMenuInteraction && currencySelectMenuInteraction.customId.includes("steamPriceCurrency")) {
 								if (currencySelectMenuInteraction.customId === "steamPriceCurrencySelect") {
 									temp.contains[0].currency = currencySelectMenuInteraction.values[0]
@@ -2522,7 +2520,7 @@ module.exports = {
 												),
 										])
 									await currencySelectMenuInteraction.showModal(modal);delete client.globalCooldown[`${currencySelectMenuInteraction.guildId}_${currencySelectMenuInteraction.user.id}`]
-									const filter = (i) => i.customId === `manager-items_steamPriceCurrencyAmount_${interaction.id}` && i.user.id === interaction.user.id
+									const filter = (i) => i.customId === `manager-items_steamPriceCurrencyAmount_${interaction.id}` && i.user.id === interaction.user.id;
 									const modalInteraction = await currencySelectMenuInteraction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 									if (modalInteraction && modalInteraction.type === InteractionType.ModalSubmit) {
 										const modalArgs = {}
@@ -2660,7 +2658,7 @@ module.exports = {
 										),
 								])
 							await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-							const filter = (i) => i.customId === `manager-items_containerAmount_${interaction.id}` && i.user.id === interaction.user.id
+							const filter = (i) => i.customId === `manager-items_containerAmount_${interaction.id}` && i.user.id === interaction.user.id;
 							interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 						} else if (type === RewardType.Role) {
 							if (!interaction.guild.members.me.permissions.has("ManageRoles")) {
@@ -2688,8 +2686,8 @@ module.exports = {
 								],
 								flags: ["Ephemeral"]
 							})    
-							const filter = (i) => i.customId.includes(`addRole`) && i.user.id === interaction.user.id
-							const roleSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+							const filter = (i) => i.customId.includes(`addRole`) && i.user.id === interaction.user.id;
+							const roleSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 							if (roleSelectMenuInteraction && roleSelectMenuInteraction.customId.includes("addRole")) {
 								if (roleSelectMenuInteraction.customId === "addRole") {
 									const role = roleSelectMenuInteraction.roles.first()
@@ -2740,7 +2738,7 @@ module.exports = {
 												),
 										])
 									await roleSelectMenuInteraction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-									const filter = (i) => i.customId === `manager-items_addRoleAmount_${interaction.id}` && i.user.id === interaction.user.id
+									const filter = (i) => i.customId === `manager-items_addRoleAmount_${interaction.id}` && i.user.id === interaction.user.id;
 									const modalInteraction = await roleSelectMenuInteraction.awaitModalSubmit({ filter, time: 120000 }).catch(e => roleSelectMenuInteraction)
 									if (modalInteraction && modalInteraction.type === InteractionType.ModalSubmit) {
 										const modalArgs = {}
@@ -2879,7 +2877,7 @@ module.exports = {
 										),
 								])
 							await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-							const filter = (i) => i.customId === `manager-items_containerAmount_${interaction.id}` && i.user.id === interaction.user.id
+							const filter = (i) => i.customId === `manager-items_containerAmount_${interaction.id}` && i.user.id === interaction.user.id;
 							interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 						}
 						if (type !== RewardType.SteamGame && type !== RewardType.Role) {
@@ -3092,7 +3090,7 @@ module.exports = {
 										),
 								])
 							await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-							const filter = (i) => i.customId === `manager-items_openByItem_${interaction.id}` && i.user.id === interaction.user.id
+							const filter = (i) => i.customId === `manager-items_openByItem_${interaction.id}` && i.user.id === interaction.user.id;
 							interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 						} else {
 							temp.openByItem.itemID = name
@@ -3111,7 +3109,7 @@ module.exports = {
 										),
 								])
 							await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-							const filter = (i) => i.customId === `manager-items_openByItem_${interaction.id}` && i.user.id === interaction.user.id
+							const filter = (i) => i.customId === `manager-items_openByItem_${interaction.id}` && i.user.id === interaction.user.id;
 							interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)	
 						}
 						if (interaction && interaction.type === InteractionType.ModalSubmit) {
@@ -3229,8 +3227,8 @@ module.exports = {
 							],
 							flags: ["Ephemeral"]
 						})    
-						const filter = (i) => i.customId.includes(`useRoleAdd`) && i.user.id === interaction.user.id
-						const roleSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+						const filter = (i) => i.customId.includes(`useRoleAdd`) && i.user.id === interaction.user.id;
+						const roleSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 						if (roleSelectMenuInteraction && roleSelectMenuInteraction.customId.includes("useRoleAdd")) {
 							if (roleSelectMenuInteraction.customId === "useRoleAddSelect") {
 								const selectedRole = roleSelectMenuInteraction.roles.first()
@@ -3252,8 +3250,8 @@ module.exports = {
 									],
 									flags: ["Ephemeral"]
 								})
-								let filter = (i) => i.customId.includes(`useRoleAddDirect`) && i.user.id === interaction.user.id
-								let directInteraction = await roleSelectMenuInteraction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+								let filter = (i) => i.customId.includes(`useRoleAddDirect`) && i.user.id === interaction.user.id;
+								let directInteraction = await roleSelectMenuInteraction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 								if (directInteraction && directInteraction.customId.includes("useRoleAddDirect")) {
 									if (directInteraction.customId === "useRoleAddDirectYes") {
 										direct = true
@@ -3281,8 +3279,8 @@ module.exports = {
 									],
 									flags: ["Ephemeral"]
 								})
-								filter = (i) => i.customId.includes(`useRoleAddTime`) && i.user.id === interaction.user.id
-								let timeInteraction = await directInteraction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+								filter = (i) => i.customId.includes(`useRoleAddTime`) && i.user.id === interaction.user.id;
+								let timeInteraction = await directInteraction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 								if (timeInteraction && timeInteraction.customId.includes("useRoleAddTime")) {
 									if (timeInteraction.customId === "useRoleAddTimeEnter") {
 										const modal = new ModalBuilder()
@@ -3299,8 +3297,8 @@ module.exports = {
 													),
 											])
 										await timeInteraction.showModal(modal);delete client.globalCooldown[`${timeInteraction.guildId}_${timeInteraction.user.id}`]
-										const filter = (i) => i.customId === `manager-items_roleTime_${timeInteraction.message.id}` && i.user.id === timeInteraction.user.id
-										timeInteraction = await timeInteraction.awaitModalSubmit({ filter, time: 120000 }).catch(e => null)
+										const filter = (i) => i.customId === `manager-items_roleTime_${timeInteraction.message.id}` && i.user.id === timeInteraction.user.id;
+										timeInteraction = await timeInteraction.awaitModalSubmit({ filter, time: 120000 }).catch(() => null)
 										if (timeInteraction && timeInteraction.type === InteractionType.ModalSubmit) {
 											const modalArgs = {}
 											timeInteraction.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -3383,8 +3381,8 @@ module.exports = {
 							],
 							flags: ["Ephemeral"]
 						})    
-						const filter = (i) => i.customId.includes(`useRoleDel`) && i.user.id === interaction.user.id
-						const roleSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+						const filter = (i) => i.customId.includes(`useRoleDel`) && i.user.id === interaction.user.id;
+						const roleSelectMenuInteraction = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
 						if (roleSelectMenuInteraction && roleSelectMenuInteraction.customId.includes("useRoleDel")) {
 							if (roleSelectMenuInteraction.customId === "useRoleDelSelect") {
 								item.onUse.roleDel = roleSelectMenuInteraction.roles.first().id
@@ -3417,7 +3415,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_trophyAdd_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_trophyAdd_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3447,7 +3445,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_trophyDel_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_trophyDel_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3476,7 +3474,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_addmessage_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_addmessage_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3505,7 +3503,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_delItem_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_delItem_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3559,7 +3557,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_addCUR_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_addCUR_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3611,7 +3609,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_addXP_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_addXP_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3663,7 +3661,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_addLuck_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_addLuck_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3714,7 +3712,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_addRP_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_addRP_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3768,7 +3766,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_addQuest_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_addQuest_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3813,7 +3811,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_delQuest_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_delQuest_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3858,7 +3856,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_wipeQuest_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_wipeQuest_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3903,7 +3901,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_levelAdd_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_levelAdd_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3939,7 +3937,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_rpAdd_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_rpAdd_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -3975,7 +3973,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_xpAdd_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_xpAdd_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4011,7 +4009,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_currencyAdd_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_currencyAdd_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4056,7 +4054,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_itemAdd_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_itemAdd_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4108,7 +4106,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_addAchievement_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_addAchievement_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4153,7 +4151,7 @@ module.exports = {
 								),
 						])
 						await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `manager-items_spawnWormhole_${interaction.id}` && i.user.id === interaction.user.id
+						const filter = (i) => i.customId === `manager-items_spawnWormhole_${interaction.id}` && i.user.id === interaction.user.id;
 						interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
 						if (interaction && interaction.isModalSubmit()) {
 							const modalArgs = {}
@@ -4182,7 +4180,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_itemResearch_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_itemResearch_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4226,7 +4224,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_craftResearch_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_craftResearch_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4270,7 +4268,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_takeXP_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_takeXP_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4306,7 +4304,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_takeCUR_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_takeCUR_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4342,7 +4340,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_takeRP_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_takeRP_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4387,7 +4385,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_takeItem_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_takeItem_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4441,7 +4439,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_takeLevel_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_takeLevel_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4477,7 +4475,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_thumbnail_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_thumbnail_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4511,7 +4509,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_image_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_image_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4545,7 +4543,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_color_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_color_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4578,7 +4576,7 @@ module.exports = {
 							),
 					])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_autoIncome_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_autoIncome_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4598,6 +4596,54 @@ module.exports = {
 							else item.onUse.autoIncome = modalArgs.minutes
 						}
 					} else return
+				} else
+				if (interaction.values?.[0].includes("targetingPlayerSeason")) {
+					if (!settings.usedSeasonCardsChannelId) {
+						return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Не настроен канал 'К игроку на сезон'. Для настройки, перейдите </manager-settings:1150455842294988946> -> MR7`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+					}
+					if (item.onUse.targetingPlayerSeason) item.onUse.targetingPlayerSeason = undefined
+					else {
+						item.onUse.targetingPlayerAllTime = undefined
+						item.onUse.targetingTeam = undefined
+						item.onUse.targetingPlayerNoLimits = undefined
+						item.onUse.targetingPlayerSeason = true	
+					}
+				} else
+				if (interaction.values?.[0].includes("targetingPlayerAllTime")) {
+					if (!settings.usedAllTimeCardsChannelId) {
+						return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Не настроен канал 'К игроку на всё время'. Для настройки, перейдите </manager-settings:1150455842294988946> -> MR7`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+					}
+					if (item.onUse.targetingPlayerAllTime) item.onUse.targetingPlayerAllTime = undefined
+					else {
+						item.onUse.targetingPlayerSeason = undefined
+						item.onUse.targetingTeam = undefined
+						item.onUse.targetingPlayerNoLimits = undefined
+						item.onUse.targetingPlayerAllTime = true	
+					}
+				} else
+				if (interaction.values?.[0].includes("targetingTeam")) {
+					if (!settings.usedTeamCardsChannelId) {
+						return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Не настроен канал 'К команде без ограничений'. Для настройки, перейдите </manager-settings:1150455842294988946> -> MR7`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+					}
+					if (item.onUse.targetingTeam) item.onUse.targetingTeam = undefined
+					else {
+						item.onUse.targetingPlayerSeason = undefined
+						item.onUse.targetingPlayerAllTime = undefined
+						item.onUse.targetingPlayerNoLimits = undefined
+						item.onUse.targetingTeam = true	
+					}
+				}
+				if (interaction.values?.[0].includes("targetingPlayerNoLimits")) {
+					if (!settings.usedTeamCardsChannelId) {
+						return interaction.reply({ content: `${client.config.emojis.NO}${client.language({ textId: `Не настроен канал 'К игроку без ограничений'. Для настройки, перейдите </manager-settings:1150455842294988946> -> MR7`, guildId: interaction.guildId, locale: interaction.locale })}`, flags: ["Ephemeral"] })
+					}
+					if (item.onUse.targetingPlayerNoLimits) item.onUse.targetingPlayerNoLimits = undefined
+					else {
+						item.onUse.targetingPlayerSeason = undefined
+						item.onUse.targetingPlayerAllTime = undefined
+						item.onUse.targetingTeam = undefined
+						item.onUse.targetingPlayerNoLimits = true
+					}
 				}
 				await item.save()
 				let message = ``
@@ -4627,6 +4673,14 @@ module.exports = {
 					{ emoji: client.config.emojis.quests, label: `${client.language({ textId: `Выдача квеста`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `addQuest` },
 					{ emoji: client.config.emojis.roles, label: `${client.language({ textId: `Автоматическое получение дохода с ролей`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `autoIncome` },
 				]
+				if (interaction.guildId === "801818824407646218" || interaction.guildId === "1063521551586181130") {
+					options.push(
+						{ emoji: "⚽", label: `${client.language({ textId: `Применяется к игроку на сезон`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `targetingPlayerSeason` }, 
+						{ emoji: "⚽", label: `${client.language({ textId: `Применяется к игроку на всё время`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `targetingPlayerAllTime` },
+						{ emoji: "⚽", label: `${client.language({ textId: `Применяется к команде без ограничений`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `targetingTeam` },
+						{ emoji: "⚽", label: `${client.language({ textId: `Применяется к игроку без ограничений`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `targetingPlayerNoLimits` }
+					)
+				}
 				let options2 = [
 					{ emoji: client.config.emojis.roles, label: `${client.language({ textId: `Очистка роли`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `roleDel` },
 					{ emoji: client.config.emojis.achievements, label: `${client.language({ textId: `Очистка трофея`, guildId: interaction.guildId, locale: interaction.locale })}`, value: `trophyDel` },
@@ -4735,7 +4789,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_fishing_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_fishing_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4860,7 +4914,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_mining_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_mining_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -4967,7 +5021,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_message_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_message_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -5054,7 +5108,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_voice_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_voice_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -5132,7 +5186,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_like_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_like_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -5196,7 +5250,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_invite_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_invite_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -5269,7 +5323,7 @@ module.exports = {
 								),
 						])
 					await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-					const filter = (i) => i.customId === `manager-items_bump_${interaction.id}` && i.user.id === interaction.user.id
+					const filter = (i) => i.customId === `manager-items_bump_${interaction.id}` && i.user.id === interaction.user.id;
 					interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 					if (interaction && interaction.type === InteractionType.ModalSubmit) {
 						const modalArgs = {}
@@ -5352,7 +5406,7 @@ module.exports = {
 									),
 							])
 						await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `manager-items_daily_${day}_${interaction.id}` && i.user.id === interaction.user.id
+						const filter = (i) => i.customId === `manager-items_daily_${day}_${interaction.id}` && i.user.id === interaction.user.id;
 						interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 						if (interaction && interaction.type === InteractionType.ModalSubmit) {
 							const modalArgs = {}
@@ -5585,7 +5639,7 @@ module.exports = {
 									),
 							])
 						await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `manager-items_permissions_${value}_${interaction.id}` && i.user.id === interaction.user.id
+						const filter = (i) => i.customId === `manager-items_permissions_${value}_${interaction.id}` && i.user.id === interaction.user.id;
 						interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 						if (interaction && interaction.type === InteractionType.ModalSubmit) {
 							const modalArgs = {}
@@ -5745,7 +5799,7 @@ module.exports = {
 									),
 							])
 						await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-						const filter = (i) => i.customId === `manager-items_cooldowns_${value}_${interaction.id}` && i.user.id === interaction.user.id
+						const filter = (i) => i.customId === `manager-items_cooldowns_${value}_${interaction.id}` && i.user.id === interaction.user.id;
 						interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
 						if (interaction && interaction.type === InteractionType.ModalSubmit) {
 							const modalArgs = {}
@@ -5795,7 +5849,7 @@ module.exports = {
 								await item.save()
 								await Promise.all(client.cache.profiles.filter(profile => profile.itemsCooldowns?.get(item.itemID)?.[value]).map(async profile => {
 									profile.itemsCooldowns.set(item.itemID, { ...profile.itemsCooldowns.get(item.itemID), [value]: undefined })
-									if (!Object.values(profile.itemsCooldowns.get(item.itemID)).filter(e => e).length) profile.itemsCooldowns.delete(item.itemID)
+									if (!Object.values(profile.itemsCooldowns.get(item.itemID)).filter(Boolean).length) profile.itemsCooldowns.delete(item.itemID)
 									if (!profile.itemsCooldowns.size) profile.itemsCooldowns = undefined
 									await profile.save()
 								}))
@@ -5869,7 +5923,6 @@ module.exports = {
 				const navigationRow = new ActionRowBuilder().addComponents([navigationSM])
 				const embed = await generateItemEmbed(client, interaction, item)
 				if (interaction.customId.includes(`done`)) {
-					if (client.cache.items.filter(e => e.guildID === interaction.guildId).size >= settings.max_items) return interaction.reply({ content: `${client.language({ textId: `Достигнуто максимум предметов:`, guildId: interaction.guildId, locale: interaction.locale })} ${settings.max_items}`, flags: ["Ephemeral"] })
 					if (item.name && item.description && item.emoji && item.sort && item.rarity) {
 						item.tempCreated = undefined
 						item.temp = undefined
@@ -6114,6 +6167,18 @@ async function generateItemEmbed(client, interaction, item) {
 				onUse += `\n> 📦${client.language({ textId: `Вычитает`, guildId: interaction.guildId, locale: interaction.locale })} ${itemTake.displayEmoji}**${itemTake.name}** (${item.onUse.takeItem.amount})`     
 			} else onUse += `\n> 📦${client.language({ textId: `Вычитает`, guildId: interaction.guildId, locale: interaction.locale })} **${item.onUse.takeItem.itemID}** (${item.onUse.takeItem.amount})` 
 		}
+		if (item.onUse.targetingPlayerSeason) {
+			onUse += `\n> ${client.language({ textId: `Применяется к игроку на сезон`, guildId: interaction.guildId, locale: interaction.locale })}`
+		}
+		if (item.onUse.targetingPlayerAllTime) {
+			onUse += `\n> ${client.language({ textId: `Применяется к игроку на всё время`, guildId: interaction.guildId, locale: interaction.locale })}`
+		}
+		if (item.onUse.targetingTeam) {
+			onUse += `\n> ${client.language({ textId: `Применяется к команде без ограничений`, guildId: interaction.guildId, locale: interaction.locale })}`
+		}
+		if (item.onUse.targetingPlayerNoLimits) {
+			onUse += `\n> ${client.language({ textId: `Применяется к игроку без ограничений`, guildId: interaction.guildId, locale: interaction.locale })}`
+		}
 		if (onUse !== "") embed.addFields([{ name: `${client.language({ textId: `Использование`, guildId: interaction.guildId, locale: interaction.locale })}:`, value: onUse.slice(0, 1023) }])
 	}
 	if (contains.length > 0) {
@@ -6164,8 +6229,8 @@ function transformSecs(client, duration, guildId, locale) {
 	let ms = parseInt((duration % 1000) / 100),
 	secs = Math.floor((duration / 1000) % 60),
 	mins = Math.floor((duration / (1000 * 60)) % 60),
-	hrs = Math.floor((duration / (1000 * 60 * 60)) % 24)
-	days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 30)
+	hrs = Math.floor((duration / (1000 * 60 * 60)) % 24);
+	days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 30);
 	if (days) return `${days} ${client.language({ textId: "дн", guildId: guildId, locale: locale })}. ${hrs} ${client.language({ textId: "HOURS_SMALL", guildId: guildId, locale: locale })}. ${mins} ${client.language({ textId: "мин", guildId: guildId, locale: locale })}. ${secs} ${client.language({ textId: "сек", guildId: guildId, locale: locale })}.`
 	if (!days) return `${hrs} ${client.language({ textId: "HOURS_SMALL", guildId: guildId, locale: locale })}. ${mins} ${client.language({ textId: "мин", guildId: guildId, locale: locale })}. ${secs} ${client.language({ textId: "сек", guildId: guildId, locale: locale })}.`
 	if (!hrs) return `${mins} ${client.language({ textId: "мин", guildId: guildId, locale: locale })}. ${secs} ${client.language({ textId: "сек", guildId: guildId, locale: locale })}.`

@@ -9,7 +9,7 @@ const manager = new ShardingManager('./index.js', {
 const shardsReady = []
 manager.on('shardCreate', shard => {
     shard.on("ready", async () => {
-        console.log(`Шард #${shard.id} запустился`)
+        console.log(`Shard #${shard.id} is started`)
         shardsReady.push(shard.id)
         if (shardsReady.length === manager.totalShards) {
             manager.broadcastEval(async (c) => {
@@ -41,12 +41,12 @@ manager.spawn({ timeout: -1 }).then(shards => {
     require("./shard-modules/cron.js")(manager)
 })
 process.on(`unhandledRejection`, error => {
-    console.error('Ошибка:', error)
+    console.error('Error:', error)
     if (error.stack.includes(`Missing Permissions`) || error.stack.includes(`Missing Access`) || error.stack.includes(`Unknown interaction`) || error.stack.includes(`Regular expression is invalid`) || error.stack.includes(`Unknown Channel`) || error.stack.includes(`Unknown Message`) || error.stack.includes(`ECONNRESET`)) return
     else {
         const embed = new EmbedBuilder()
             .setColor(3093046)
-            .setAuthor({ name: `Ошибка ${error.message.slice(0, 100)}` })
+            .setAuthor({ name: `Error ${error.message.slice(0, 100)}` })
             .setDescription(`\`\`\`ml\n${error.stack}\`\`\``)
             .setTimestamp()
         const clientServerOptions = {
@@ -64,12 +64,12 @@ process.on(`unhandledRejection`, error => {
     }
 })
 process.on("uncaughtException", (error) => {
-    console.error('Ошибка:', error)
+    console.error('Error:', error)
     if (error.stack.includes(`Missing Permissions`) || error.stack.includes(`Missing Access`) || error.stack.includes(`Unknown interaction`) || error.stack.includes(`Regular expression is invalid`) || error.stack.includes(`Unknown Channel`) || error.stack.includes(`Unknown Message`) || error.stack.includes(`ECONNRESET`)) return
     else {
         const embed = new EmbedBuilder()
             .setColor(3093046)
-            .setAuthor({ name: `Ошибка ${error.message.slice(0, 100)}` })
+            .setAuthor({ name: `Error ${error.message.slice(0, 100)}` })
             .setDescription(`\`\`\`ml\n${error.stack}\`\`\``)
             .setTimestamp()
         const clientServerOptions = {

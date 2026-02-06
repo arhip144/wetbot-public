@@ -425,7 +425,7 @@ module.exports = {
                 }
             }
         }
-        const channel = await interaction.guild.channels.fetch(multipliersChannel.id).catch(e => null)
+        const channel = await interaction.guild.channels.fetch(multipliersChannel.id).catch(() => null)
         const embed = new EmbedBuilder()
             .setColor(3093046)
             .setTitle(`${multipliersChannel.enabled ? "🟢" : "🔴"}${channel?.name || multipliersChannel.id}`)

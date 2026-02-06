@@ -520,7 +520,7 @@ module.exports = {
                 }))
             })
         }
-        if (UserRegexp.exec(interaction.customId)?.[1] !== interaction.user.id) return interaction.deferUpdate().catch(e => null)
+        if (UserRegexp.exec(interaction.customId)?.[1] !== interaction.user.id) return interaction.deferUpdate().catch(() => null)
         const dropdown = client.dropDownTemp.get(interaction.message.id)
         if (!dropdown) return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: "Этого менеджера больше не существует. Введите повторно команду.", guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
         const settings = client.cache.settings.get(interaction.guildId)
@@ -539,7 +539,7 @@ module.exports = {
                 await interaction.followUp({ content: `${client.language({ textId: `Выбери валюту, за которую будет покупаться`, guildId: interaction.guildId, locale: interaction.locale })} <@&${role.id}>. ${client.language({ textId: `Ожидание: 30с`, guildId: interaction.guildId, locale: interaction.locale })}.`, components: components, embeds: [], flags: ["Ephemeral"] })
                 const filter1 = (i) => i.customId.includes(`setPriceSelect`) && i.user.id === interaction.user.id
                 const originalCurrency = role.currency
-                let followUpInteraction = await interaction.channel.awaitMessageComponent({ filter1, time: 30000 }).catch(e => null)
+                let followUpInteraction = await interaction.channel.awaitMessageComponent({ filter1, time: 30000 }).catch(() => null)
                 if (followUpInteraction) {
                     const type = followUpInteraction.customId.slice(0, followUpInteraction.customId.indexOf("_"))
                     if (type === "item") {
@@ -768,7 +768,7 @@ module.exports = {
         const fields = []
         for (let role of dropdown.roles) {
             role = role[1]
-            const guildRole = await interaction.guild.roles.fetch(role.id).catch(e => null)
+            const guildRole = await interaction.guild.roles.fetch(role.id).catch(() => null)
             selectMenuOptions.push({
                 label: role.name,
                 emoji: role.emoji,
@@ -823,14 +823,14 @@ module.exports = {
                 if (!channelId || !messageId) {
                     return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Неверная ссылка на сообщение`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 }
-                const channel = await interaction.guild.channels.fetch(channelId).catch(e => null)
+                const channel = await interaction.guild.channels.fetch(channelId).catch(() => null)
                 if (!channel) {
                     return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Текстовый канал не найден`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 }
                 if (!channel.messages) {
                     return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Возможно у меня нет доступа к сообщениям этого канала`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 }
-                const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(e => null)
+                const message = await channel.messages.fetch({ message: messageId, cache: false, force: true }).catch(() => null)
                 if (!message) {
                     return interaction.reply({ content: `${client.config.emojis.NO}**${client.language({ textId: `Сообщение не найдено`, guildId: interaction.guildId, locale: interaction.locale })}**`, flags: ["Ephemeral"] })
                 }

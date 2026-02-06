@@ -496,11 +496,11 @@ module.exports = {
             if (args.user10) users.push(args.user10)
             await interaction.editReply({ content: `${client.language({ textId: "Забираем предметы", guildId: interaction.guildId, locale: interaction.locale })}...`, flags: ["Ephemeral"] })
             for (let user of users) {
-                const member = await interaction.guild.members.fetch(user).catch(e => null)
+                const member = await interaction.guild.members.fetch(user).catch(() => null)
                 if (member) {
                     if (!member.user.bot) {
                         const profile = await client.functions.fetchProfile(client, member.user.id, interaction.guildId)
-                        await profile.subtractItem(item.itemID, amount)
+                        await profile.subtractItem({ itemID: item.itemID, amount })
                         interaction.followUp({ content: `${client.config.emojis.DONE} ${client.language({ textId: "Предмет", guildId: interaction.guildId, locale: interaction.locale })} ${item.displayEmoji}${item.name} (${amount}) ${client.language({ textId: "был успешно удален у пользователя", guildId: interaction.guildId, locale: interaction.locale })} <@${member.user.id}>.` })  
                     } else interaction.followUp({ content: `${client.config.emojis.NO} <@${member.user.id}> ${client.language({ textId: `является ботом, с ботами нельзя взаимодействовать`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })  
                 } else interaction.followUp({ content: `${client.config.emojis.NO} ${client.language({ textId: `Пользователь с ID`, guildId: interaction.guildId, locale: interaction.locale })} ${user} ${client.language({ textId: `не был найден`, guildId: interaction.guildId, locale: interaction.locale })}.`, flags: ["Ephemeral"] })  
@@ -537,7 +537,7 @@ module.exports = {
                 client.fetchedMembers.add(interaction.guildId)
             }
             for (let role of roles) {
-                role = await interaction.guild.roles.fetch(role).catch(e => null)
+                role = await interaction.guild.roles.fetch(role).catch(() => null)
                 if (role) {
                     const members = role.members.filter(member => !member.user.bot)
                     const rol = loading.get(interaction.guildId).get(role.id)
@@ -546,7 +546,7 @@ module.exports = {
                     let last = Math.floor(rol.count/rol.membersSize*100)
                     for (const member of members) {
                         const profile = await client.functions.fetchProfile(client, member[1].user.id, interaction.guildId)
-                        await profile.subtractItem(item.itemID, amount)
+                        await profile.subtractItem({ itemID: item.itemID, amount })
                         const rol = loading.get(interaction.guildId).get(role.id)
                         rol.count++
                         loading.get(interaction.guildId).set(role.id, rol)

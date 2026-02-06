@@ -1,9 +1,9 @@
-const { ChannelType, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, Collection, ChannelSelectMenuBuilder, Webhook, StringSelectMenuOptionBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType, ApplicationCommandOptionType, RoleSelectMenuBuilder, LabelBuilder } = require("discord.js")
+const { ChannelType, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, Collection, ChannelSelectMenuBuilder, Webhook, StringSelectMenuOptionBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, InteractionType, ApplicationCommandOptionType, RoleSelectMenuBuilder, LabelBuilder } = require("discord.js");
 const AutogeneratorRegexp = /id{(.*?)}/
 const uniqid = require('uniqid')
-const Cron = require("croner")
-const Autogenerator = require("../classes/promocodeAutogenerator.js")
-const { RewardType } = require("../enums/RewardType.js")
+const Cron = require("croner");
+const Autogenerator = require("../classes/promocodeAutogenerator.js");
+const { RewardType } = require("../enums/RewardType.js");
 module.exports = {
     name: 'promocode-autogenerators',
     nameLocalizations: {
@@ -293,7 +293,7 @@ module.exports = {
                 return interaction.editReply({ 
                     embeds: [
                         embed, 
-                        new EmbedBuilder().setColor(3093046).setDescription(`${client.config.emojis.plus}${client.language({ textId: `Создать автогенератор`, guildId: interaction.guildId, locale: interaction.locale })}: </promocode-autogenerators create:1242440292339290195>\n${client.config.emojis.edit}${client.language({ textId: `Изменить автогенератор`, guildId: interaction.guildId, locale: interaction.locale })}: </promocode-autogenerators edit:1242440292339290195>\n${client.config.emojis.copy}${client.language({ textId: `Скопировать автогенератор`, guildId: interaction.guildId, locale: interaction.locale })}: </promocode-autogenerators copy:1242440292339290195>\n${client.config.emojis.trash}${client.language({ textId: `Удалить автогенератор`, guildId: interaction.guildId, locale: interaction.locale })}: </promocode-autogenerators delete:1242440292339290195>`)
+                        new EmbedBuilder().setColor(3093046).setDescription(`<:PLUS:1012990107143385159>${client.language({ textId: `Создать автогенератор`, guildId: interaction.guildId, locale: interaction.locale })}: </promocode-autogenerators create:1242440292339290195>\n<:pen:1012990423171600404>${client.language({ textId: `Изменить автогенератор`, guildId: interaction.guildId, locale: interaction.locale })}: </promocode-autogenerators edit:1242440292339290195>\n<:activities:1005856343141384264>${client.language({ textId: `Скопировать автогенератор`, guildId: interaction.guildId, locale: interaction.locale })}: </promocode-autogenerators copy:1242440292339290195>\n<:block:1005859695619215370>${client.language({ textId: `Удалить автогенератор`, guildId: interaction.guildId, locale: interaction.locale })}: </promocode-autogenerators delete:1242440292339290195>`)
                     ] 
                 })
             } else
@@ -364,8 +364,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })    
-                const filter = (i) => i.customId.includes(`promocode-autogenerators_channels`) && i.user.id === interaction.user.id
-                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`promocode-autogenerators_channels`) && i.user.id === interaction.user.id;
+                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 30000 }).catch(() => null)
                 if (interaction2) {
                     if (interaction2.customId === "promocode-autogenerators_channels_select") {
                         const channel = interaction2.channels.first()
@@ -399,13 +399,13 @@ module.exports = {
                             )
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `promocode-autogenerators_pattern_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `promocode-autogenerators_pattern_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
                     interaction.fields.fields.each(field => modalArgs[field.customId] = field.value)
                     try {
-                        const job = Cron(modalArgs.pattern, { timezone: "Atlantic/Azores", interval: 60, paused: true }, () => {} )
+                        const job = Cron(modalArgs.pattern, { timezone: "UTC", interval: 60, paused: true }, () => {} )
                         job.stop()
                     } catch (err) {
                         await interaction.deferUpdate()
@@ -436,7 +436,7 @@ module.exports = {
                             )
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `promocode-autogenerators_runsLeft_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `promocode-autogenerators_runsLeft_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
@@ -472,7 +472,7 @@ module.exports = {
                             )
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `promocode-autogenerators_cycles_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `promocode-autogenerators_cycles_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
@@ -508,7 +508,7 @@ module.exports = {
                             )
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `promocode-autogenerators_lifeTime_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `promocode-autogenerators_lifeTime_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
@@ -547,7 +547,7 @@ module.exports = {
                             )
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `promocode-autogenerators_permissions_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `promocode-autogenerators_permissions_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 120000 }).catch(e => interaction)
                 if (interaction && interaction.type === InteractionType.ModalSubmit) {
                     const modalArgs = {}
@@ -607,8 +607,8 @@ module.exports = {
                     ],
                     flags: ["Ephemeral"]
                 })
-                const filter = (i) => i.customId.includes(`promocode-autogenerators_add`) && i.user.id === interaction.user.id
-                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`promocode-autogenerators_add`) && i.user.id === interaction.user.id;
+                let interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                 if (interaction2) {
                     const rewardType = interaction2.customId.includes("item") ? RewardType.Item : interaction2.customId.includes("xp") ? RewardType.Experience : interaction2.customId.includes("currency") ? RewardType.Currency : interaction2.customId.includes("reputation") ? RewardType.Reputation : RewardType.Role
                     if (interaction2.customId.includes("item")) {
@@ -643,8 +643,8 @@ module.exports = {
                                     )
                             ])
                         await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                        const filter = (i) => i.customId === `promocode-autogenerators_addItem_${interaction2.id}` && i.user.id === interaction2.user.id
-                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId === `promocode-autogenerators_addItem_${interaction2.id}` && i.user.id === interaction2.user.id;
+                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                         if (interaction2 && interaction2.isModalSubmit()) {
                             const modalArgs = {}
                             interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -700,8 +700,8 @@ module.exports = {
                                         .setCustomId(`promocode-autogenerators_addRole`)
                                 )
                         ] })
-                        const filter = (i) => i.customId.includes(`promocode-autogenerators_addRole`) && i.user.id === interaction2.user.id
-                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                        const filter = (i) => i.customId.includes(`promocode-autogenerators_addRole`) && i.user.id === interaction2.user.id;
+                        interaction2 = await interaction2.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                         if (interaction2) {
                             const role = interaction2.roles.first()
                             if (!interaction.guild.members.me.permissions.has("ManageRoles") || role.position > interaction.guild.members.me.roles.highest.position) {
@@ -738,8 +738,8 @@ module.exports = {
                                         )
                                 ])
                             await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                            const filter = (i) => i.customId === `promocode-autogenerators_addRole_${interaction2.id}` && i.user.id === interaction2.user.id
-                            interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                            const filter = (i) => i.customId === `promocode-autogenerators_addRole_${interaction2.id}` && i.user.id === interaction2.user.id;
+                            interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                             if (interaction2 && interaction2.isModalSubmit()) {
                                 const modalArgs = {}
                                 interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -821,8 +821,8 @@ module.exports = {
                                     )
                             ])
                         await interaction2.showModal(modal);delete client.globalCooldown[`${interaction2.guildId}_${interaction2.user.id}`]
-                        const filter = (i) => i.customId === `promocode-autogenerators_add_${interaction2.id}` && i.user.id === interaction2.user.id
-                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(e => null)
+                        const filter = (i) => i.customId === `promocode-autogenerators_add_${interaction2.id}` && i.user.id === interaction2.user.id;
+                        interaction2 = await interaction2.awaitModalSubmit({ filter, time: 60000 }).catch(() => null)
                         if (interaction2 && interaction2.isModalSubmit()) {
                             const modalArgs = {}
                             interaction2.fields.fields.each(field => modalArgs[field.customId] = field.value)
@@ -892,8 +892,8 @@ module.exports = {
                                 .setCustomId(`promocode-autogenerators_delItem`)
                         )
                 ] })
-                const filter = (i) => i.customId.includes(`promocode-autogenerators_delItem`) && i.user.id === interaction.user.id
-                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(e => null)
+                const filter = (i) => i.customId.includes(`promocode-autogenerators_delItem`) && i.user.id === interaction.user.id;
+                const interaction2 = await interaction.channel.awaitMessageComponent({ filter, time: 120000 }).catch(() => null)
                 if (interaction2) {
                     autogenerator.items.splice(Number(interaction2.values[0]), 1)
                     await autogenerator.save()
@@ -916,7 +916,7 @@ module.exports = {
                             )
                     ])
                 await interaction.showModal(modal);delete client.globalCooldown[`${interaction.guildId}_${interaction.user.id}`]
-                const filter = (i) => i.customId === `promocode-autogenerators_amountUses_${interaction.id}` && i.user.id === interaction.user.id
+                const filter = (i) => i.customId === `promocode-autogenerators_amountUses_${interaction.id}` && i.user.id === interaction.user.id;
                 interaction = await interaction.awaitModalSubmit({ filter, time: 60000 }).catch(e => interaction)
                 if (interaction && interaction.isModalSubmit()) {
                     const modalArgs = {}
